@@ -1,0 +1,60 @@
+{
+  "offices": [
+    {
+      "id": "HN1",
+      "name": "Văn phòng Hà Nội 1 - 2nd Floor, CT3 The Pride, To Huu Street, Ha Dong, Ha Noi",
+      "latitude": 20.9725054,
+      "longitude": 105.7575887,
+      "radius_meters": 100,
+      "enabled": true
+    },
+    {
+      "id": "HN2",
+      "name": "Văn phòng Hà Nội 2 - 7th Floor, VinFast My Dinh Building, 8 Pham Hung Street, Tu Liem, Ha Noi",
+      "latitude": 21.033618,
+      "longitude": 105.7796304,
+      "radius_meters": 100,
+      "enabled": true
+    },
+    {
+      "id": "HN3",
+      "name": "Văn phòng Hà Nội 3 - 8th Floor, Vinaconex Diamond Tower, 459C Bach Mai street, Bach Mai, Ha Noi",
+      "latitude": 16.047079,
+      "longitude": 108.20623,
+      "radius_meters": 200,
+      "enabled": true
+    },
+    {
+      "id": "HCM",
+      "name": "Văn phòng TP.HCM - 8th Floor, ST. MORITZ Tower, 1014 Pham Van Dong Street, Hiep Binh, Ho Chi Minh City",
+      "latitude": 10.8380556,
+      "longitude": 106.7351069,
+      "radius_meters": 100,
+      "enabled": true
+    },
+    {
+      "id": "VINH",
+      "name": "Văn phòng Vinh - 4th Floor, HD Building, Vinh – Cua Lo Boulevard, Block 17, Vinh Phu Ward, Nghe An",
+      "latitude": 18.7007581,
+      "longitude": 105.6798281,
+      "radius_meters": 100,
+      "enabled": true
+    },
+    {
+      "id": "QN",
+      "name": "Văn phòng Quy Nhơn - 3rd Floor, Hibecco Building, 307 Nguyen Thi Minh Khai Street, Quy Nhon Nam, Gia Lai",
+      "latitude": 13.760556,
+      "longitude": 109.213177,
+      "radius_meters": 100,
+      "enabled": true
+    },
+    {
+      "id": "DN",
+      "name": "Văn phòng Đà Nẵng - NCC Building, 498 - 500 Nguyen Huu Tho Street, Cam Le, Da Nang",
+      "latitude": 16.0293578,
+      "longitude": 108.2086351,
+      "radius_meters": 100,
+      "enabled": true
+    }
+  ]
+}

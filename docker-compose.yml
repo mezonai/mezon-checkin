@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  mezon-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mezon-webrtc-bot
+    restart: unless-stopped
+    
+    environment:
+      - BOT_ID=${BOT_ID:-xxxxxxx}
+      - BOT_TOKEN=${BOT_TOKEN:-xxxxxxx}
+      - MEZON_HOST=${MEZON_HOST:-gw.mezon.ai}
+      - MEZON_PORT=${MEZON_PORT:-443}
+      - MEZON_USE_SSL=${MEZON_USE_SSL:-true}
+      - BASE_URL=${BASE_URL:-https://xxxxxxxx}
+      - SECRET_KEY=${SECRET_KEY:-xxxxxxxx}
+      - VERBOSE=${VERBOSE:-true}
+      - TZ=Asia/Ho_Chi_Minh
+    
+    volumes:
+      - ./main.go:/app/main.go  # ← THÊM DÒNG NÀY: Mount code vào container      
+      - ./image-captures:/app/image-captures
+      - ./logs:/app/logs
+    
+    # Network settings for WebRTC
+    network_mode: host
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 512M
+    
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Optional: Watchtower for auto-updates
+  watchtower:
+    image: containrrr/watchtower
+    container_name: mezon-bot-watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_POLL_INTERVAL=3600
+      - WATCHTOWER_INCLUDE_STOPPED=true
+      - WATCHTOWER_REVIVE_STOPPED=false
+      - TZ=Asia/Ho_Chi_Minh
+    command: mezon-webrtc-bot
