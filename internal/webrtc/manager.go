@@ -62,7 +62,7 @@ func NewWebRTCManager(
 	dmManager := client.NewDMManager(mezonClient)
 
 	webrtc := &WebRTCManager{
-		connections:          make(map[string]*connectionState),
+		connections:          make(map[int64]*connectionState),
 		client:               mezonClient,
 		faceDetector:         faceDetector,
 		audioConfig:          audioConfig,
@@ -71,7 +71,7 @@ func NewWebRTCManager(
 		captureConfig:        DefaultCaptureConfig(),
 		dimensionConfig:      DefaultDimensionConfig(),
 		dmManager:            dmManager,
-		pendingConfirmations: make(map[string]*confirmationState),
+		pendingConfirmations: make(map[int64]*confirmationState),
 		locationConfig:       locationConfig,
 		shutdown:             make(chan struct{}),
 		apiClient:            apiClient,
@@ -105,29 +105,29 @@ func (w *WebRTCManager) SetupProtobufHandler() {
 		}
 
 		// Determine user ID
-		var userID string
+		var userID int64
 
 		// If Bot is receiver → signal from User to bot
 		if event.ReceiverId == w.client.ClientID {
 			userID = event.CallerId
-			log.Printf("📞 Signal FROM user %s TO bot", userID)
+			log.Printf("📞 Signal FROM user %d TO bot", userID)
 		} else if event.CallerId == w.client.ClientID {
 			// If Bot is caller → echo back of signal bot sent
 			userID = event.ReceiverId
-			log.Printf("📞 Signal FROM bot TO user %s (echo)", userID)
+			log.Printf("📞 Signal FROM bot TO user %d (echo)", userID)
 		} else {
 			// Signal not related to bot
-			log.Printf("⚠️  Signal không liên quan đến bot (Caller: %s, Receiver: %s)",
+			log.Printf("⚠️  Signal không liên quan đến bot (Caller: %d, Receiver: %d)",
 				event.CallerId, event.ReceiverId)
 			return
 		}
 
-		if userID == "" {
+		if userID == 0 {
 			log.Printf("❌ Could not determine user ID")
 			return
 		}
 
-		log.Printf("📞 WebRTC signal - Type: %d, Channel: %s, UserID: %s",
+		log.Printf("📞 WebRTC signal - Type: %d, Channel: %d, UserID: %d",
 			event.DataType, event.ChannelId, userID)
 
 		go func() {
@@ -158,18 +158,18 @@ func (w *WebRTCManager) CloseAll() {
 				}
 			})
 		}
-		w.pendingConfirmations = make(map[string]*confirmationState)
+		w.pendingConfirmations = make(map[int64]*confirmationState)
 		w.confirmationMu.Unlock()
 
 		// 2. Get connections
 		w.mu.Lock()
 		connections := make([]*connectionState, 0, len(w.connections))
-		userIDs := make([]string, 0, len(w.connections))
+		userIDs := make([]int64, 0, len(w.connections))
 		for uid, state := range w.connections {
 			connections = append(connections, state)
 			userIDs = append(userIDs, uid)
 		}
-		w.connections = make(map[string]*connectionState)
+		w.connections = make(map[int64]*connectionState)
 		w.mu.Unlock()
 
 		// 3. Parallel cleanup with timeout
@@ -178,7 +178,7 @@ func (w *WebRTCManager) CloseAll() {
 			var wg sync.WaitGroup
 			for i, state := range connections {
 				wg.Add(1)
-				go func(s *connectionState, uid string) {
+				go func(s *connectionState, uid int64) {
 					defer wg.Done()
 					if s.cancelFunc != nil {
 						s.cancelFunc()
@@ -187,7 +187,7 @@ func (w *WebRTCManager) CloseAll() {
 					if s.pc != nil {
 						s.pc.Close()
 					}
-					log.Printf("   ✅ Closed: %s", uid)
+					log.Printf("   ✅ Closed: %d", uid)
 				}(state, userIDs[i])
 			}
 			wg.Wait()

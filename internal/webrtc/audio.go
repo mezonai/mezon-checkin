@@ -10,7 +10,7 @@ import (
 // WELCOME AUDIO
 // ============================================================
 
-func (w *WebRTCManager) startWelcomeAudio(userID string) {
+func (w *WebRTCManager) startWelcomeAudio(userID int64) {
 	if !w.audioConfig.Enabled {
 		return
 	}
@@ -20,7 +20,7 @@ func (w *WebRTCManager) startWelcomeAudio(userID string) {
 	w.mu.RUnlock()
 
 	if !exists || state.audioPlayer == nil {
-		log.Printf("⚠️  No audio player found for user %s", userID)
+		log.Printf("⚠️  No audio player found for user %d", userID)
 		return
 	}
 
@@ -57,7 +57,7 @@ func (w *WebRTCManager) startWelcomeAudio(userID string) {
 // CHECKIN FAIL AUDIO
 // ============================================================
 
-func (w *WebRTCManager) playCheckinFailAudio(userID string) {
+func (w *WebRTCManager) playCheckinFailAudio(userID int64) {
 	if !w.audioConfig.Enabled {
 		go w.endCallAfterDelay(userID, "checkin_fail_no_audio_config", 500*time.Millisecond)
 		return
@@ -68,7 +68,7 @@ func (w *WebRTCManager) playCheckinFailAudio(userID string) {
 	w.mu.RUnlock()
 
 	if !exists || state.audioPlayer == nil {
-		log.Printf("⚠️  No audio player found for user %s", userID)
+		log.Printf("⚠️  No audio player found for user %d", userID)
 		go w.endCallAfterDelay(userID, "checkin_fail_no_player", 500*time.Millisecond)
 		return
 	}

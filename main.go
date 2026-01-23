@@ -11,15 +11,15 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
-
 	"mezon-checkin-bot/internal/api"
 	"mezon-checkin-bot/internal/audio"
 	"mezon-checkin-bot/internal/client"
 	"mezon-checkin-bot/models"
+	"os"
+	"os/signal"
+	"strconv"
+	"syscall"
+	"time"
 
 	"mezon-checkin-bot/internal/webrtc"
 )
@@ -55,16 +55,16 @@ func main() {
 	if os.Getenv("MEZON_USE_SSL") == "false" {
 		useSSL = false
 	}
-
+	botIDInt, err := strconv.ParseInt(botID, 10, 64)
 	config := models.Config{
-		BotID:    botID,
+		BotID:    botIDInt,
 		BotToken: botToken,
 		Host:     host,
 		Port:     port,
 		UseSSL:   useSSL,
 	}
 
-	log.Printf("📋 Bot ID: %s", config.BotID)
+	log.Printf("📋 Bot ID: %d", config.BotID)
 	apiClient := api.NewAPIClient(30 * time.Second)
 	client := client.NewMezonClient(config)
 	defer client.Close() // IMPORTANT: Always defer Close()

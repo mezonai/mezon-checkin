@@ -291,8 +291,8 @@ func (w *WebRTCManager) handleLocationMessageEvent(data interface{}) {
 		return
 	}
 
-	userID, _ := eventMap["user_id"].(string)
-	channelID, _ := eventMap["channel_id"].(string)
+	userID, _ := eventMap["user_id"].(int64)
+	channelID, _ := eventMap["channel_id"].(int64)
 	displayName, _ := eventMap["display_name"].(string)
 	latitude, latOk := eventMap["latitude"].(float64)
 	longitude, lonOk := eventMap["longitude"].(float64)
@@ -302,12 +302,12 @@ func (w *WebRTCManager) handleLocationMessageEvent(data interface{}) {
 		return
 	}
 
-	if userID == "" || channelID == "" {
+	if userID == 0 || channelID == 0 {
 		log.Printf("❌ Missing user_id or channel_id in event")
 		return
 	}
 
-	log.Printf("📍 Processing location from %s (%s)", displayName, userID)
+	log.Printf("📍 Processing location from %s (%d)", displayName, userID)
 	log.Printf("   Coordinates: (%.6f, %.6f)", latitude, longitude)
 
 	if err := w.HandleLocationReply(userID, channelID, latitude, longitude); err != nil {
@@ -319,12 +319,12 @@ func (w *WebRTCManager) handleLocationMessageEvent(data interface{}) {
 // HANDLE LOCATION REPLY
 // ============================================================
 
-func (w *WebRTCManager) HandleLocationReply(userID, channelID string, latitude, longitude float64) error {
+func (w *WebRTCManager) HandleLocationReply(userID int64, channelID int64, latitude, longitude float64) error {
 	w.confirmationMu.Lock()
 	state, exists := w.pendingConfirmations[userID]
 	if !exists {
 		w.confirmationMu.Unlock()
-		log.Printf("⚠️  No pending confirmation for user %s", userID)
+		log.Printf("⚠️  No pending confirmation for user %d", userID)
 		return fmt.Errorf("no pending confirmation")
 	}
 
@@ -341,12 +341,12 @@ func (w *WebRTCManager) HandleLocationReply(userID, channelID string, latitude, 
 	delete(w.pendingConfirmations, userID)
 	w.confirmationMu.Unlock()
 
-	log.Printf("✅ Location confirmed from user %s: (%.6f, %.6f)", userID, latitude, longitude)
+	log.Printf("✅ Location confirmed from user %d: (%.6f, %.6f)", userID, latitude, longitude)
 
 	isValidLocation := w.validateLocation(latitude, longitude)
 
 	if !isValidLocation {
-		log.Printf("❌ Invalid location for user %s", userID)
+		log.Printf("❌ Invalid location for user %d", userID)
 		if err := w.SendCheckinFailed(channelID, userID, "Vị trí không hợp lệ"); err != nil {
 			log.Printf("❌ Failed to send invalid location message: %v", err)
 		}
@@ -398,7 +398,7 @@ func (w *WebRTCManager) HandleLocationReply(userID, channelID string, latitude, 
 // CONFIRMATION TIMEOUT
 // ============================================================
 
-func (w *WebRTCManager) startConfirmationTimeout(userID, channelID string) {
+func (w *WebRTCManager) startConfirmationTimeout(userID, channelID int64) {
 	w.confirmationMu.Lock()
 
 	// Cancel old confirmation if exists
@@ -423,10 +423,10 @@ func (w *WebRTCManager) startConfirmationTimeout(userID, channelID string) {
 
 	w.confirmationMu.Unlock()
 
-	log.Printf("⏰ Started 60s confirmation timer for user %s", userID)
+	log.Printf("⏰ Started 60s confirmation timer for user %d", userID)
 }
 
-func (w *WebRTCManager) handleConfirmationTimeout(userID, channelID string) {
+func (w *WebRTCManager) handleConfirmationTimeout(userID int64, channelID int64) {
 	w.confirmationMu.Lock()
 	state, exists := w.pendingConfirmations[userID]
 	if !exists {
@@ -441,14 +441,14 @@ func (w *WebRTCManager) handleConfirmationTimeout(userID, channelID string) {
 	if alreadyConfirmed {
 		delete(w.pendingConfirmations, userID)
 		w.confirmationMu.Unlock()
-		log.Printf("✅ User %s already confirmed, skipping timeout", userID)
+		log.Printf("✅ User %d already confirmed, skipping timeout", userID)
 		return
 	}
 
 	delete(w.pendingConfirmations, userID)
 	w.confirmationMu.Unlock()
 
-	log.Printf("⏱️ Confirmation timeout for user %s - no location received", userID)
+	log.Printf("⏱️ Confirmation timeout for user %d - no location received", userID)
 
 	if err := w.SendCheckinFailed(channelID, userID, "Hết thời gian xác nhận vị trí"); err != nil {
 		log.Printf("❌ Failed to send timeout message: %v", err)

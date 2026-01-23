@@ -31,6 +31,10 @@ var (
 	APIUpdateStatus = BaseURL + "/employees/bot/update-status"
 )
 
+var (
+	CodeLocationSend = 17
+)
+
 // getBaseURL lấy BASE_URL từ environment variable
 // Nếu không có, trả về default value
 func getBaseURL() string {
@@ -47,6 +51,6 @@ func getBaseURL() string {
 // ============================================================
 
 type UpdateStatus struct {
-	UserId string `json:"userId"`
+	UserId int64  `json:"userId"`
 	Status string `json:"status"`
 }

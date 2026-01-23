@@ -10,6 +10,7 @@ import (
 	"mezon-checkin-bot/mezon-protobuf/go/api"
 	"mezon-checkin-bot/models"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -71,7 +72,7 @@ func (c *MezonClient) getScheme() string {
 
 func (c *MezonClient) buildAuthBody() models.AuthRequest {
 	authBody := models.AuthRequest{}
-	authBody.Account.Appid = c.config.BotID
+	authBody.Account.Appid = strconv.FormatInt(c.config.BotID, 10)
 	authBody.Account.Token = c.config.BotToken
 	return authBody
 }

@@ -18,16 +18,16 @@ import (
 // MAIN SIGNAL HANDLER
 // ============================================================
 
-func (w *WebRTCManager) HandleSignal(userID string, signal *rtapi.WebrtcSignalingFwd) error {
+func (w *WebRTCManager) HandleSignal(userID int64, signal *rtapi.WebrtcSignalingFwd) error {
 	if signal == nil {
 		return fmt.Errorf("signal cannot be nil")
 	}
 
 	log.Println("\n" + strings.Repeat("=", 60))
 	log.Printf("📡 WebRTC Signal (Type: %d)", signal.DataType)
-	log.Printf("   UserID: %s", userID)
-	log.Printf("   CallerID: %s", signal.CallerId)
-	log.Printf("   ChannelID: %s", signal.ChannelId)
+	log.Printf("   UserID: %d", userID)
+	log.Printf("   CallerID: %d", signal.CallerId)
+	log.Printf("   ChannelID: %d", signal.ChannelId)
 	log.Println(strings.Repeat("=", 60))
 
 	switch signal.DataType {
@@ -51,10 +51,10 @@ func (w *WebRTCManager) HandleSignal(userID string, signal *rtapi.WebrtcSignalin
 // OFFER HANDLING
 // ============================================================
 
-func (w *WebRTCManager) handleOffer(userID string, signal *rtapi.WebrtcSignalingFwd) error {
+func (w *WebRTCManager) handleOffer(userID int64, signal *rtapi.WebrtcSignalingFwd) error {
 	log.Println("📝 Processing offer...")
-	log.Printf("   UserID: %s", userID)
-	log.Printf("   ChannelID: %s", signal.ChannelId)
+	log.Printf("   UserID: %d", userID)
+	log.Printf("   ChannelID: %d", signal.ChannelId)
 
 	// Decompress if needed
 	offerData := signal.JsonData
@@ -102,7 +102,7 @@ func (w *WebRTCManager) handleOffer(userID string, signal *rtapi.WebrtcSignaling
 	w.connections[userID] = state
 	w.mu.Unlock()
 
-	log.Printf("✅ Connection created for user %s", userID)
+	log.Printf("✅ Connection created for user %d", userID)
 
 	// Setup handlers
 	w.setupPeerConnectionHandlers(userID, pc, ctx)
@@ -190,7 +190,7 @@ func (w *WebRTCManager) handleOffer(userID string, signal *rtapi.WebrtcSignaling
 // ICE CANDIDATE HANDLING
 // ============================================================
 
-func (w *WebRTCManager) handleICECandidate(userID string, signal *rtapi.WebrtcSignalingFwd) error {
+func (w *WebRTCManager) handleICECandidate(userID int64, signal *rtapi.WebrtcSignalingFwd) error {
 	var candidate webrtc.ICECandidateInit
 	if err := json.Unmarshal([]byte(signal.JsonData), &candidate); err != nil {
 		return fmt.Errorf("invalid candidate: %w", err)
@@ -201,7 +201,7 @@ func (w *WebRTCManager) handleICECandidate(userID string, signal *rtapi.WebrtcSi
 	w.mu.RUnlock()
 
 	if !exists {
-		log.Printf("⚠️  Connection not found for user %s", userID)
+		log.Printf("⚠️  Connection not found for user %d", userID)
 		return fmt.Errorf("connection not found")
 	}
 

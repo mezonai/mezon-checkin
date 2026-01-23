@@ -5,7 +5,7 @@ package models
 // ============================================================
 
 type Config struct {
-	BotID        string
+	BotID        int64
 	BotToken     string
 	Host         string
 	Port         string

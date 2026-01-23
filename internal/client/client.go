@@ -18,7 +18,7 @@ import (
 // ============================================================
 
 const (
-	DMClanID          = "0"
+	DMClanID          = 0
 	DMChannelType     = 4
 	PingInterval      = 10 // seconds
 	InitialRetryDelay = 5  // seconds
@@ -39,7 +39,7 @@ type MezonClient struct {
 	config   models.Config
 	conn     *websocket.Conn
 	session  *mzapi.Session
-	ClientID string
+	ClientID int64
 
 	// Thread safety
 	mu     sync.RWMutex

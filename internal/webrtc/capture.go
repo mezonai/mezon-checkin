@@ -19,11 +19,11 @@ import (
 // REALTIME FACE DETECTION CAPTURE
 // ============================================================
 
-func (w *WebRTCManager) realtimeFaceDetectionCapture(userID string, track *webrtc.TrackRemote, ctx context.Context) {
-	log.Printf("📸 Starting face detection for %s...", userID)
+func (w *WebRTCManager) realtimeFaceDetectionCapture(userID int64, track *webrtc.TrackRemote, ctx context.Context) {
+	log.Printf("📸 Starting face detection for %d...", userID)
 
 	defer func() {
-		log.Printf("   🧹 Face detection cleanup for %s", userID)
+		log.Printf("   🧹 Face detection cleanup for %d", userID)
 	}()
 
 	sampleBuilder := samplebuilder.New(
@@ -173,7 +173,7 @@ func (w *WebRTCManager) realtimeFaceDetectionCapture(userID string, track *webrt
 // CAPTURE RESULT HANDLERS
 // ============================================================
 
-func (w *WebRTCManager) handleCaptureSuccess(userID string, state *connectionState, response *models.FaceRecognitionResponse) {
+func (w *WebRTCManager) handleCaptureSuccess(userID int64, state *connectionState, response *models.FaceRecognitionResponse) {
 	log.Println("   🎯 Processing successful checkin...")
 
 	// Send confirmation message with timeout guarantee
@@ -220,7 +220,7 @@ func (w *WebRTCManager) handleCaptureSuccess(userID string, state *connectionSta
 	log.Println("   ✅ Success handling complete!")
 }
 
-func (w *WebRTCManager) handleCaptureFailure(userID string, state *connectionState, reason string) {
+func (w *WebRTCManager) handleCaptureFailure(userID int64, state *connectionState, reason string) {
 	log.Printf("   ❌ Capture failed: %s", reason)
 
 	// Cancel context first
@@ -254,7 +254,7 @@ func (w *WebRTCManager) handleCaptureFailure(userID string, state *connectionSta
 // FACE DETECTION & SUBMISSION
 // ============================================================
 
-func (w *WebRTCManager) detectAndSendFullImage(img gocv.Mat, userId string, attemptNum int) (bool, *models.FaceRecognitionResponse) {
+func (w *WebRTCManager) detectAndSendFullImage(img gocv.Mat, userId int64, attemptNum int) (bool, *models.FaceRecognitionResponse) {
 	if !w.faceDetector.Config.Enabled || img.Empty() {
 		return false, nil
 	}

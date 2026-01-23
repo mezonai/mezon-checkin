@@ -25,7 +25,7 @@ func NewFaceRecognitionService(apiClient *api.APIClient) *FaceRecognitionService
 }
 
 // SubmitImage submits a base64 encoded image to the face recognition API
-func (s *FaceRecognitionService) SubmitImage(base64Img string, userId string, attemptNum int) (*models.FaceRecognitionResponse, error) {
+func (s *FaceRecognitionService) SubmitImage(base64Img string, userId int64, attemptNum int) (*models.FaceRecognitionResponse, error) {
 	log.Printf("\n📤 [Attempt %d/5] Submitting image to API...", attemptNum)
 
 	// Prepare request payload

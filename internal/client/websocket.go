@@ -134,7 +134,7 @@ func (c *MezonClient) logWebSocketError(wsResp *http.Response, err error) {
 
 func (c *MezonClient) logConnectionSuccess() {
 	log.Println("✅ Connected to Mezon WebSocket")
-	log.Printf("   Client ID: %s", c.ClientID)
+	log.Printf("   Client ID: %d", c.ClientID)
 }
 
 // ============================================================
@@ -228,10 +228,10 @@ func (c *MezonClient) handleEnvelopeMessage(envelope *rtapi.Envelope) {
 		log.Printf("✅ ChannelJoin confirmation received")
 
 	case *rtapi.Envelope_Channel:
-		log.Printf("✅ Channel info received: %s", envelope.GetChannel().Id)
+		log.Printf("✅ Channel info received: %d", envelope.GetChannel().Id)
 
 	case *rtapi.Envelope_ChannelMessageAck:
-		log.Printf("✅ MessageAck received: %s", envelope.GetChannelMessageAck().MessageId)
+		log.Printf("✅ MessageAck received: %d", envelope.GetChannelMessageAck().MessageId)
 
 	case *rtapi.Envelope_ChannelMessage:
 		channelMsg := envelope.GetChannelMessage()
@@ -397,7 +397,7 @@ func (c *MezonClient) sendPing() error {
 // WEBRTC SIGNAL (PROTOBUF)
 // ============================================================
 
-func (c *MezonClient) SendWebRTCSignal(receiverID, callerID, channelID string, dataType int, jsonData string) error {
+func (c *MezonClient) SendWebRTCSignal(receiverID int64, callerID int64, channelID int64, dataType int, jsonData string) error {
 	if c.IsClosed() {
 		return fmt.Errorf("client is closed")
 	}

@@ -29,7 +29,7 @@ func (cs *connectionState) closeAudioStop() {
 // CONNECTION CLEANUP
 // ============================================================
 
-func (w *WebRTCManager) cleanupConnection(userID string) {
+func (w *WebRTCManager) cleanupConnection(userID int64) {
 	w.mu.Lock()
 	state, exists := w.connections[userID]
 	if !exists {
@@ -40,7 +40,7 @@ func (w *WebRTCManager) cleanupConnection(userID string) {
 	w.mu.Unlock()
 
 	state.cleanupOnce.Do(func() {
-		log.Printf("🧹 Cleaning up %s", userID)
+		log.Printf("🧹 Cleaning up %d", userID)
 
 		// 1. Cancel context (stops goroutines)
 		if state.cancelFunc != nil {
@@ -79,8 +79,8 @@ func (w *WebRTCManager) cleanupConnection(userID string) {
 // DELAYED CALL END
 // ============================================================
 
-func (w *WebRTCManager) endCallAfterDelay(userID, reason string, delay time.Duration) {
-	log.Printf("📞 Scheduling call end for user %s (reason: %s, delay: %v)", userID, reason, delay)
+func (w *WebRTCManager) endCallAfterDelay(userID int64, reason string, delay time.Duration) {
+	log.Printf("📞 Scheduling call end for user %d (reason: %s, delay: %v)", userID, reason, delay)
 
 	time.Sleep(delay)
 
@@ -94,7 +94,7 @@ func (w *WebRTCManager) endCallAfterDelay(userID, reason string, delay time.Dura
 	}
 
 	state.endCallOnce.Do(func() {
-		log.Printf("   ✅ Ending call for user %s", userID)
+		log.Printf("   ✅ Ending call for user %d", userID)
 		w.cleanupConnection(userID)
 	})
 }

@@ -70,7 +70,7 @@ func (w *WebRTCManager) createPeerConnection() (*webrtc.PeerConnection, error) {
 // PEER CONNECTION HANDLERS
 // ============================================================
 
-func (w *WebRTCManager) setupPeerConnectionHandlers(userID string, pc *webrtc.PeerConnection, ctx context.Context) {
+func (w *WebRTCManager) setupPeerConnectionHandlers(userID int64, pc *webrtc.PeerConnection, ctx context.Context) {
 	// ICE candidate handler
 	pc.OnICECandidate(func(candidate *webrtc.ICECandidate) {
 		if candidate == nil {
@@ -141,7 +141,7 @@ func (w *WebRTCManager) setupPeerConnectionHandlers(userID string, pc *webrtc.Pe
 // AUDIO TRACK SETUP
 // ============================================================
 
-func (w *WebRTCManager) setupAudioTrack(userID string, pc *webrtc.PeerConnection) error {
+func (w *WebRTCManager) setupAudioTrack(userID int64, pc *webrtc.PeerConnection) error {
 	audioTrack, err := webrtc.NewTrackLocalStaticSample(
 		webrtc.RTPCodecCapability{MimeType: webrtc.MimeTypeOpus},
 		"audio",

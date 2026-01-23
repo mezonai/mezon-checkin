@@ -14,7 +14,7 @@ import (
 // SEND ICE CANDIDATE
 // ============================================================
 
-func (w *WebRTCManager) sendICECandidate(userID string, candidate *webrtc.ICECandidate) {
+func (w *WebRTCManager) sendICECandidate(userID int64, candidate *webrtc.ICECandidate) {
 	w.mu.RLock()
 	state, exists := w.connections[userID]
 	w.mu.RUnlock()
@@ -45,7 +45,7 @@ func (w *WebRTCManager) sendICECandidate(userID string, candidate *webrtc.ICECan
 // EXTRACT & SEND ICE FROM SDP
 // ============================================================
 
-func (w *WebRTCManager) sendICECandidatesFromSDP(userID, channelID, sdp string) {
+func (w *WebRTCManager) sendICECandidatesFromSDP(userID int64, channelID int64, sdp string) {
 	log.Println("🔍 Extracting ICE candidates from SDP...")
 
 	lines := strings.Split(strings.ReplaceAll(sdp, "\r\n", "\n"), "\n")

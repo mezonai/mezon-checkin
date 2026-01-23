@@ -55,7 +55,7 @@ func (fd *FaceDetector) Close() {
 
 // SubmitSingleImageToAPI submits a single image to the face recognition API
 // This method maintains backward compatibility with existing code
-func (fd *FaceDetector) SubmitSingleImageToAPI(base64Img string, userId string, attemptNum int) (*models.FaceRecognitionResponse, error) {
+func (fd *FaceDetector) SubmitSingleImageToAPI(base64Img string, userId int64, attemptNum int) (*models.FaceRecognitionResponse, error) {
 	if !fd.Config.Enabled {
 		return nil, nil
 	}

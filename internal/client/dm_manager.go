@@ -17,7 +17,7 @@ type DMManager struct {
 	client     *MezonClient
 	dmChannels map[string]string // userID -> channelID
 	mu         sync.RWMutex
-	clanID     string
+	clanID     int64
 	isDMReady  bool
 	readyMu    sync.RWMutex
 }
@@ -92,12 +92,12 @@ func (dm *DMManager) joinDMClan() error {
 // CLAN OPERATIONS - PROTOBUF VERSION
 // ============================================================
 
-func (dm *DMManager) joinClanInternal(clanID string) error {
+func (dm *DMManager) joinClanInternal(clanID int64) error {
 	if !dm.client.IsConnected() {
 		return fmt.Errorf("WebSocket connection is nil")
 	}
 
-	log.Printf("🔗 Joining clan: %s", clanID)
+	log.Printf("🔗 Joining clan: %d", clanID)
 
 	// ⚡ SỬ DỤNG PROTOBUF thay vì JSON
 	envelope := &rtapi.Envelope{
@@ -121,6 +121,6 @@ func (dm *DMManager) joinClanInternal(clanID string) error {
 			response.GetError().Code, response.GetError().Message)
 	}
 
-	log.Printf("✅ Joined clan: %s", clanID)
+	log.Printf("✅ Joined clan: %d", clanID)
 	return nil
 }

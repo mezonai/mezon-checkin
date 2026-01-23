@@ -17,7 +17,7 @@ import (
 // ============================================================
 
 type WebRTCManager struct {
-	connections          map[string]*connectionState
+	connections          map[int64]*connectionState
 	mu                   sync.RWMutex
 	client               *client.MezonClient
 	faceDetector         *detector.FaceDetector
@@ -27,7 +27,7 @@ type WebRTCManager struct {
 	captureConfig        CaptureConfig
 	dimensionConfig      DimensionConfig
 	dmManager            *client.DMManager
-	pendingConfirmations map[string]*confirmationState
+	pendingConfirmations map[int64]*confirmationState
 	confirmationMu       sync.RWMutex
 	locationConfig       *LocationConfig
 	shutdown             chan struct{}
@@ -41,7 +41,7 @@ type WebRTCManager struct {
 
 type connectionState struct {
 	pc          *webrtc.PeerConnection
-	channelID   string
+	channelID   int64
 	audioPlayer *audio.AudioPlayer
 	audioStop   chan struct{}
 	cancelFunc  context.CancelFunc
@@ -57,8 +57,8 @@ type connectionState struct {
 // ============================================================
 
 type confirmationState struct {
-	userID     string
-	channelID  string
+	userID     int64
+	channelID  int64
 	timer      *time.Timer
 	cancelOnce sync.Once
 	confirmed  bool

@@ -6,6 +6,7 @@ import (
 	"log"
 	"mezon-checkin-bot/mezon-protobuf/go/api"
 	"mezon-checkin-bot/mezon-protobuf/go/rtapi"
+	"mezon-checkin-bot/models"
 	"net/url"
 	"strconv"
 	"strings"
@@ -32,7 +33,8 @@ const (
 // ============================================================
 
 type MessageContent struct {
-	T string `json:"t"` // Text content containing URLs
+	T   string `json:"t"`   // Text content containing URLs
+	Fwd bool   `json:"fwd"` // Forwarded message
 }
 
 type LocationInfo struct {
@@ -69,7 +71,7 @@ func (c *MezonClient) parseChannelMessage(eventData interface{}) (*api.ChannelMe
 	}
 
 	// Validate message has required data
-	if message.MessageId == "" {
+	if message.MessageId == 0 {
 		return nil, fmt.Errorf("invalid message: missing message_id")
 	}
 
@@ -87,7 +89,7 @@ func (c *MezonClient) handleChannelMessage(eventData interface{}) {
 
 	// Check and handle location messages
 	locationInfo, err := c.extractLocationFromMessage(message)
-	if err == nil && locationInfo.IsValid {
+	if err == nil && locationInfo.IsValid && message.Code == int32(models.CodeLocationSend) {
 		c.handleLocationMessage(message, locationInfo)
 	}
 }
@@ -95,9 +97,9 @@ func (c *MezonClient) handleChannelMessage(eventData interface{}) {
 func (c *MezonClient) logChannelMessage(msg *api.ChannelMessage) {
 	log.Printf("📨 Channel message received")
 	log.Printf("   From: %s (%s)", msg.DisplayName, msg.Username)
-	log.Printf("   Channel ID: %s", msg.ChannelId)
-	log.Printf("   Message ID: %s", msg.MessageId)
-
+	log.Printf("   Channel ID: %d", msg.ChannelId)
+	log.Printf("   Message ID: %d", msg.MessageId)
+	log.Printf("   Code      : %s", strconv.Itoa(int(msg.Code)))
 	// Quick check for location link
 	if strings.Contains(msg.Content, GoogleMapsPattern) {
 		log.Printf("   📍 Contains location link")
@@ -186,7 +188,7 @@ func (c *MezonClient) extractLocationFromMessage(msg *api.ChannelMessage) (Locat
 
 	// Parse message content
 	var content MessageContent
-	if err := json.Unmarshal([]byte(msg.Content), &content); err != nil {
+	if err := json.Unmarshal([]byte(msg.Content), &content); err != nil && content.Fwd != true {
 		return result, fmt.Errorf("failed to parse content: %w", err)
 	}
 
@@ -281,8 +283,8 @@ func (c *MezonClient) parseUserChannelAdded(eventData interface{}) (*rtapi.UserC
 
 func (c *MezonClient) logUserChannelAdded(event *rtapi.UserChannelAdded) {
 	log.Printf("📨 Received user_channel_added_event")
-	log.Printf("   Clan ID: %s", event.ClanId)
-	log.Printf("   Channel ID: %s", event.ChannelDesc.ChannelId)
+	log.Printf("   Clan ID: %d", event.ClanId)
+	log.Printf("   Channel ID: %d", event.ChannelDesc.ChannelId)
 	log.Printf("   Channel Label: %s", event.ChannelDesc.ChannelLabel)
 
 	channelType := c.getChannelType(event)
@@ -290,7 +292,7 @@ func (c *MezonClient) logUserChannelAdded(event *rtapi.UserChannelAdded) {
 	log.Printf("   Users count: %d", len(event.Users))
 
 	if event.Caller != nil {
-		log.Printf("   Caller: %s (%s)", event.Caller.Username, event.Caller.UserId)
+		log.Printf("   Caller: %s (%d)", event.Caller.Username, event.Caller.UserId)
 	}
 
 	if event.Status != "" {
@@ -341,7 +343,7 @@ func (c *MezonClient) autoJoinChannel(event *rtapi.UserChannelAdded) {
 		return
 	}
 
-	log.Printf("✅ Successfully auto-joined channel: %s", event.ChannelDesc.ChannelId)
+	log.Printf("✅ Successfully auto-joined channel: %d", event.ChannelDesc.ChannelId)
 	c.emit("user_channel_joined", event)
 }
 
@@ -356,7 +358,7 @@ func (c *MezonClient) handleAutoJoinError(event *rtapi.UserChannelAdded, err err
 // ============================================================
 // JOIN CHAT METHOD
 // ============================================================
-func (c *MezonClient) JoinChat(clanID, channelID string, channelType int, isPublic bool) error {
+func (c *MezonClient) JoinChat(clanID int64, channelID int64, channelType int, isPublic bool) error {
 	if c.conn == nil {
 		return fmt.Errorf("WebSocket connection is nil")
 	}
@@ -385,7 +387,7 @@ func (c *MezonClient) JoinChat(clanID, channelID string, channelType int, isPubl
 }
 
 // JoinChatWithResponse joins a channel and waits for confirmation
-func (c *MezonClient) JoinChatWithResponse(clanID, channelID string, channelType int, isPublic bool, timeout time.Duration) (*rtapi.Envelope, error) {
+func (c *MezonClient) JoinChatWithResponse(clanID int64, channelID int64, channelType int, isPublic bool, timeout time.Duration) (*rtapi.Envelope, error) {
 	if c.conn == nil {
 		return nil, fmt.Errorf("WebSocket connection is nil")
 	}
@@ -410,14 +412,14 @@ func (c *MezonClient) JoinChatWithResponse(clanID, channelID string, channelType
 		return nil, fmt.Errorf("send join chat message failed: %w", err)
 	}
 
-	log.Printf("✅ Successfully joined channel: %s", channelID)
+	log.Printf("✅ Successfully joined channel: %d", channelID)
 	return response, nil
 }
 
-func (c *MezonClient) logJoinChat(clanID, channelID string, channelType int, isPublic bool) {
+func (c *MezonClient) logJoinChat(clanID int64, channelID int64, channelType int, isPublic bool) {
 	log.Printf("🔗 Joining chat...")
-	log.Printf("   Clan ID: %s", clanID)
-	log.Printf("   Channel ID: %s", channelID)
+	log.Printf("   Clan ID: %d", clanID)
+	log.Printf("   Channel ID: %d", channelID)
 	log.Printf("   Channel Type: %d", channelType)
 	log.Printf("   Is Public: %v", isPublic)
 }

@@ -10,12 +10,12 @@ import (
 // CHECKIN CONFIRMATION MESSAGE
 // ============================================================
 
-func (w *WebRTCManager) SendCheckinConfirmation(channelID, userID, detectedName string) error {
+func (w *WebRTCManager) SendCheckinConfirmation(channelID int64, userID int64, detectedName string) error {
 	if w.dmManager == nil {
 		return fmt.Errorf("DM manager not initialized")
 	}
 
-	log.Printf("📧 Sending check-in confirmation to user %s", userID)
+	log.Printf("📧 Sending check-in confirmation to user %d", userID)
 
 	content := client.BuildCheckinConfirmationMessage(detectedName)
 
@@ -35,12 +35,12 @@ func (w *WebRTCManager) SendCheckinConfirmation(channelID, userID, detectedName 
 // CHECKIN SUCCESS MESSAGE
 // ============================================================
 
-func (w *WebRTCManager) SendCheckinSuccess(channelID, userID, userName string) error {
+func (w *WebRTCManager) SendCheckinSuccess(channelID int64, userID int64, userName string) error {
 	if w.dmManager == nil {
 		return fmt.Errorf("DM manager not initialized")
 	}
 
-	log.Printf("📧 Sending check-in success to user %s", userID)
+	log.Printf("📧 Sending check-in success to user %d", userID)
 
 	content := client.BuildCheckinSuccessMessage(userName)
 
@@ -57,12 +57,12 @@ func (w *WebRTCManager) SendCheckinSuccess(channelID, userID, userName string) e
 // CHECKIN FAILED MESSAGE
 // ============================================================
 
-func (w *WebRTCManager) SendCheckinFailed(channelID, userID, reason string) error {
+func (w *WebRTCManager) SendCheckinFailed(channelID int64, userID int64, reason string) error {
 	if w.dmManager == nil {
 		return fmt.Errorf("DM manager not initialized")
 	}
 
-	log.Printf("📧 Sending check-in failed to user %s", userID)
+	log.Printf("📧 Sending check-in failed to user %d", userID)
 
 	content := client.BuildCheckinFailedMessage(reason)
 

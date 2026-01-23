@@ -26,8 +26,6 @@ package api
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	structpb "google.golang.org/protobuf/types/known/structpb"
-	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 	reflect "reflect"
 	sync "sync"
@@ -279,9 +277,9 @@ type Account struct {
 	// The qr code in the user's account.
 	QrCode string `protobuf:"bytes,3,opt,name=qr_code,json=qrCode,proto3" json:"qr_code,omitempty"`
 	// The UNIX time (for gRPC clients) or ISO string (for REST clients) when the user's email was verified.
-	VerifyTime *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=verify_time,json=verifyTime,proto3" json:"verify_time,omitempty"`
+	VerifyTimeSeconds uint32 `protobuf:"varint,4,opt,name=verify_time_seconds,json=verifyTimeSeconds,proto3" json:"verify_time_seconds,omitempty"`
 	// The UNIX time (for gRPC clients) or ISO string (for REST clients) when the user's account was disabled/banned.
-	DisableTime *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=disable_time,json=disableTime,proto3" json:"disable_time,omitempty"`
+	DisableTimeSeconds uint32 `protobuf:"varint,5,opt,name=disable_time_seconds,json=disableTimeSeconds,proto3" json:"disable_time_seconds,omitempty"`
 	// Logo url
 	Logo string `protobuf:"bytes,6,opt,name=logo,proto3" json:"logo,omitempty"`
 	// Splash screen url
@@ -345,18 +343,18 @@ func (x *Account) GetQrCode() string {
 	return ""
 }
 
-func (x *Account) GetVerifyTime() *timestamppb.Timestamp {
+func (x *Account) GetVerifyTimeSeconds() uint32 {
 	if x != nil {
-		return x.VerifyTime
+		return x.VerifyTimeSeconds
 	}
-	return nil
+	return 0
 }
 
-func (x *Account) GetDisableTime() *timestamppb.Timestamp {
+func (x *Account) GetDisableTimeSeconds() uint32 {
 	if x != nil {
-		return x.DisableTime
+		return x.DisableTimeSeconds
 	}
-	return nil
+	return 0
 }
 
 func (x *Account) GetLogo() string {
@@ -446,7 +444,7 @@ func (x *AccountRefresh) GetVars() map[string]string {
 type AddFriendsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The account id of a user.
-	Ids []string `protobuf:"bytes,1,rep,name=ids,proto3" json:"ids,omitempty"`
+	Ids []int64 `protobuf:"varint,1,rep,packed,name=ids,proto3" json:"ids,omitempty"`
 	// The account username of a user.
 	Usernames     []string `protobuf:"bytes,2,rep,name=usernames,proto3" json:"usernames,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -483,7 +481,7 @@ func (*AddFriendsRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *AddFriendsRequest) GetIds() []string {
+func (x *AddFriendsRequest) GetIds() []int64 {
 	if x != nil {
 		return x.Ids
 	}
@@ -501,7 +499,7 @@ func (x *AddFriendsRequest) GetUsernames() []string {
 type AddFriendsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The account id of a user.
-	Ids []string `protobuf:"bytes,1,rep,name=ids,proto3" json:"ids,omitempty"`
+	Ids []int64 `protobuf:"varint,1,rep,packed,name=ids,proto3" json:"ids,omitempty"`
 	// The account username of a user.
 	Usernames     []string `protobuf:"bytes,2,rep,name=usernames,proto3" json:"usernames,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -538,7 +536,7 @@ func (*AddFriendsResponse) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *AddFriendsResponse) GetIds() []string {
+func (x *AddFriendsResponse) GetIds() []int64 {
 	if x != nil {
 		return x.Ids
 	}
@@ -556,9 +554,9 @@ func (x *AddFriendsResponse) GetUsernames() []string {
 type AddGroupUsersRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The group to add users to.
-	GroupId string `protobuf:"bytes,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	GroupId int64 `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	// The users to add.
-	UserIds       []string `protobuf:"bytes,2,rep,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
+	UserIds       []int64 `protobuf:"varint,2,rep,packed,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -593,14 +591,14 @@ func (*AddGroupUsersRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *AddGroupUsersRequest) GetGroupId() string {
+func (x *AddGroupUsersRequest) GetGroupId() int64 {
 	if x != nil {
 		return x.GroupId
 	}
-	return ""
+	return 0
 }
 
-func (x *AddGroupUsersRequest) GetUserIds() []string {
+func (x *AddGroupUsersRequest) GetUserIds() []int64 {
 	if x != nil {
 		return x.UserIds
 	}
@@ -615,7 +613,7 @@ type SessionRefreshRequest struct {
 	// Extra information that will be bundled in the session token.
 	Vars map[string]string `protobuf:"bytes,2,rep,name=vars,proto3" json:"vars,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Whether to enable "Remember Me" for extended session duration.
-	IsRemember    *wrapperspb.BoolValue `protobuf:"bytes,3,opt,name=is_remember,json=isRemember,proto3" json:"is_remember,omitempty"`
+	IsRemember    bool `protobuf:"varint,3,opt,name=is_remember,json=isRemember,proto3" json:"is_remember,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -664,11 +662,11 @@ func (x *SessionRefreshRequest) GetVars() map[string]string {
 	return nil
 }
 
-func (x *SessionRefreshRequest) GetIsRemember() *wrapperspb.BoolValue {
+func (x *SessionRefreshRequest) GetIsRemember() bool {
 	if x != nil {
 		return x.IsRemember
 	}
-	return nil
+	return false
 }
 
 // Log out a session, invalidate a refresh token, or log out all sessions/refresh tokens for a user.
@@ -807,7 +805,7 @@ func (x *IsBannedResponse) GetExpiredBanTime() int32 {
 
 type IsBannedRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ChannelId     string                 `protobuf:"bytes,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId     int64                  `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -842,20 +840,20 @@ func (*IsBannedRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *IsBannedRequest) GetChannelId() string {
+func (x *IsBannedRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 // Ban users from a group.
 type BanGroupUsersRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The group to ban users from.
-	GroupId string `protobuf:"bytes,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	GroupId int64 `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	// The users to ban.
-	UserIds       []string `protobuf:"bytes,2,rep,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
+	UserIds       []int64 `protobuf:"varint,2,rep,packed,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -890,14 +888,14 @@ func (*BanGroupUsersRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *BanGroupUsersRequest) GetGroupId() string {
+func (x *BanGroupUsersRequest) GetGroupId() int64 {
 	if x != nil {
 		return x.GroupId
 	}
-	return ""
+	return 0
 }
 
-func (x *BanGroupUsersRequest) GetUserIds() []string {
+func (x *BanGroupUsersRequest) GetUserIds() []int64 {
 	if x != nil {
 		return x.UserIds
 	}
@@ -908,7 +906,7 @@ func (x *BanGroupUsersRequest) GetUserIds() []string {
 type BlockFriendsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The account id of a user.
-	Ids []string `protobuf:"bytes,1,rep,name=ids,proto3" json:"ids,omitempty"`
+	Ids []int64 `protobuf:"varint,1,rep,packed,name=ids,proto3" json:"ids,omitempty"`
 	// The account username of a user.
 	Usernames     []string `protobuf:"bytes,2,rep,name=usernames,proto3" json:"usernames,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -945,7 +943,7 @@ func (*BlockFriendsRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{10}
 }
 
-func (x *BlockFriendsRequest) GetIds() []string {
+func (x *BlockFriendsRequest) GetIds() []int64 {
 	if x != nil {
 		return x.Ids
 	}
@@ -963,59 +961,55 @@ func (x *BlockFriendsRequest) GetUsernames() []string {
 type ChannelMessage struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The clan this message belong to.
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// The channel this message belongs to.
-	ChannelId string `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// The unique ID of this message.
-	MessageId string `protobuf:"bytes,3,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
+	MessageId int64 `protobuf:"varint,3,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
 	// The code representing a message type or category.
 	Code int32 `protobuf:"varint,4,opt,name=code,proto3" json:"code,omitempty"`
 	// Message sender, usually a user ID.
-	SenderId string `protobuf:"bytes,5,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
+	SenderId int64 `protobuf:"varint,5,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
 	// The username of the message sender, if any.
 	Username string `protobuf:"bytes,6,opt,name=username,proto3" json:"username,omitempty"`
 	// The avatar of user who send message
 	Avatar string `protobuf:"bytes,7,opt,name=avatar,proto3" json:"avatar,omitempty"`
 	// The content payload.
 	Content string `protobuf:"bytes,8,opt,name=content,proto3" json:"content,omitempty"`
-	// The UNIX time (for gRPC clients) or ISO string (for REST clients) when the message was created.
-	CreateTime *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
-	// The UNIX time (for gRPC clients) or ISO string (for REST clients) when the message was last updated.
-	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
 	// The name of the chat room, or an empty string if this message was not sent through a chat room.
-	ChannelLabel string `protobuf:"bytes,11,opt,name=channel_label,json=channelLabel,proto3" json:"channel_label,omitempty"`
+	ChannelLabel string `protobuf:"bytes,9,opt,name=channel_label,json=channelLabel,proto3" json:"channel_label,omitempty"`
 	// The clan logo
-	ClanLogo string `protobuf:"bytes,12,opt,name=clan_logo,json=clanLogo,proto3" json:"clan_logo,omitempty"`
+	ClanLogo string `protobuf:"bytes,10,opt,name=clan_logo,json=clanLogo,proto3" json:"clan_logo,omitempty"`
 	// The category name
-	CategoryName string `protobuf:"bytes,13,opt,name=category_name,json=categoryName,proto3" json:"category_name,omitempty"`
+	CategoryName string `protobuf:"bytes,11,opt,name=category_name,json=categoryName,proto3" json:"category_name,omitempty"`
 	// The clan nick name
-	DisplayName string `protobuf:"bytes,14,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
+	DisplayName string `protobuf:"bytes,12,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
 	// The clan nick name
-	ClanNick string `protobuf:"bytes,15,opt,name=clan_nick,json=clanNick,proto3" json:"clan_nick,omitempty"`
+	ClanNick string `protobuf:"bytes,13,opt,name=clan_nick,json=clanNick,proto3" json:"clan_nick,omitempty"`
 	// The clan avatar
-	ClanAvatar string `protobuf:"bytes,16,opt,name=clan_avatar,json=clanAvatar,proto3" json:"clan_avatar,omitempty"`
+	ClanAvatar string `protobuf:"bytes,14,opt,name=clan_avatar,json=clanAvatar,proto3" json:"clan_avatar,omitempty"`
 	// Emoji reaction
-	Reactions string `protobuf:"bytes,17,opt,name=reactions,proto3" json:"reactions,omitempty"`
+	Reactions []byte `protobuf:"bytes,15,opt,name=reactions,proto3" json:"reactions,omitempty"`
 	// Message mention
-	Mentions string `protobuf:"bytes,18,opt,name=mentions,proto3" json:"mentions,omitempty"`
+	Mentions []byte `protobuf:"bytes,16,opt,name=mentions,proto3" json:"mentions,omitempty"`
 	// Message attachment
-	Attachments string `protobuf:"bytes,19,opt,name=attachments,proto3" json:"attachments,omitempty"`
+	Attachments []byte `protobuf:"bytes,17,opt,name=attachments,proto3" json:"attachments,omitempty"`
 	// Message reference
-	References string `protobuf:"bytes,20,opt,name=references,proto3" json:"references,omitempty"`
+	References []byte `protobuf:"bytes,18,opt,name=references,proto3" json:"references,omitempty"`
 	// referenced message
-	ReferencedMessage string `protobuf:"bytes,21,opt,name=referenced_message,json=referencedMessage,proto3" json:"referenced_message,omitempty"`
+	ReferencedMessage []byte `protobuf:"bytes,19,opt,name=referenced_message,json=referencedMessage,proto3" json:"referenced_message,omitempty"`
 	// create time in ms
-	CreateTimeSeconds uint32 `protobuf:"varint,22,opt,name=create_time_seconds,json=createTimeSeconds,proto3" json:"create_time_seconds,omitempty"`
+	CreateTimeSeconds uint32 `protobuf:"varint,20,opt,name=create_time_seconds,json=createTimeSeconds,proto3" json:"create_time_seconds,omitempty"`
 	// update time in ms
-	UpdateTimeSeconds uint32 `protobuf:"varint,23,opt,name=update_time_seconds,json=updateTimeSeconds,proto3" json:"update_time_seconds,omitempty"`
+	UpdateTimeSeconds uint32 `protobuf:"varint,21,opt,name=update_time_seconds,json=updateTimeSeconds,proto3" json:"update_time_seconds,omitempty"`
 	// channel mode
-	Mode int32 `protobuf:"varint,24,opt,name=mode,proto3" json:"mode,omitempty"`
+	Mode int32 `protobuf:"varint,22,opt,name=mode,proto3" json:"mode,omitempty"`
 	// hide editted
-	HideEditted bool `protobuf:"varint,25,opt,name=hide_editted,json=hideEditted,proto3" json:"hide_editted,omitempty"`
+	HideEditted bool `protobuf:"varint,23,opt,name=hide_editted,json=hideEditted,proto3" json:"hide_editted,omitempty"`
 	// is public
-	IsPublic bool `protobuf:"varint,26,opt,name=is_public,json=isPublic,proto3" json:"is_public,omitempty"`
+	IsPublic bool `protobuf:"varint,24,opt,name=is_public,json=isPublic,proto3" json:"is_public,omitempty"`
 	// topic
-	TopicId       string `protobuf:"bytes,27,opt,name=topic_id,json=topicId,proto3" json:"topic_id,omitempty"`
+	TopicId       int64 `protobuf:"varint,25,opt,name=topic_id,json=topicId,proto3" json:"topic_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1050,25 +1044,25 @@ func (*ChannelMessage) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{11}
 }
 
-func (x *ChannelMessage) GetClanId() string {
+func (x *ChannelMessage) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *ChannelMessage) GetChannelId() string {
+func (x *ChannelMessage) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *ChannelMessage) GetMessageId() string {
+func (x *ChannelMessage) GetMessageId() int64 {
 	if x != nil {
 		return x.MessageId
 	}
-	return ""
+	return 0
 }
 
 func (x *ChannelMessage) GetCode() int32 {
@@ -1078,11 +1072,11 @@ func (x *ChannelMessage) GetCode() int32 {
 	return 0
 }
 
-func (x *ChannelMessage) GetSenderId() string {
+func (x *ChannelMessage) GetSenderId() int64 {
 	if x != nil {
 		return x.SenderId
 	}
-	return ""
+	return 0
 }
 
 func (x *ChannelMessage) GetUsername() string {
@@ -1104,20 +1098,6 @@ func (x *ChannelMessage) GetContent() string {
 		return x.Content
 	}
 	return ""
-}
-
-func (x *ChannelMessage) GetCreateTime() *timestamppb.Timestamp {
-	if x != nil {
-		return x.CreateTime
-	}
-	return nil
-}
-
-func (x *ChannelMessage) GetUpdateTime() *timestamppb.Timestamp {
-	if x != nil {
-		return x.UpdateTime
-	}
-	return nil
 }
 
 func (x *ChannelMessage) GetChannelLabel() string {
@@ -1162,39 +1142,39 @@ func (x *ChannelMessage) GetClanAvatar() string {
 	return ""
 }
 
-func (x *ChannelMessage) GetReactions() string {
+func (x *ChannelMessage) GetReactions() []byte {
 	if x != nil {
 		return x.Reactions
 	}
-	return ""
+	return nil
 }
 
-func (x *ChannelMessage) GetMentions() string {
+func (x *ChannelMessage) GetMentions() []byte {
 	if x != nil {
 		return x.Mentions
 	}
-	return ""
+	return nil
 }
 
-func (x *ChannelMessage) GetAttachments() string {
+func (x *ChannelMessage) GetAttachments() []byte {
 	if x != nil {
 		return x.Attachments
 	}
-	return ""
+	return nil
 }
 
-func (x *ChannelMessage) GetReferences() string {
+func (x *ChannelMessage) GetReferences() []byte {
 	if x != nil {
 		return x.References
 	}
-	return ""
+	return nil
 }
 
-func (x *ChannelMessage) GetReferencedMessage() string {
+func (x *ChannelMessage) GetReferencedMessage() []byte {
 	if x != nil {
 		return x.ReferencedMessage
 	}
-	return ""
+	return nil
 }
 
 func (x *ChannelMessage) GetCreateTimeSeconds() uint32 {
@@ -1232,28 +1212,28 @@ func (x *ChannelMessage) GetIsPublic() bool {
 	return false
 }
 
-func (x *ChannelMessage) GetTopicId() string {
+func (x *ChannelMessage) GetTopicId() int64 {
 	if x != nil {
 		return x.TopicId
 	}
-	return ""
+	return 0
 }
 
 // Mention to message
 type MessageMention struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Mention id
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// mention user id
-	UserId string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId int64 `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	// mention username
 	Username string `protobuf:"bytes,3,opt,name=username,proto3" json:"username,omitempty"`
 	// role id
-	RoleId string `protobuf:"bytes,4,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`
+	RoleId int64 `protobuf:"varint,4,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`
 	// role name
 	Rolename string `protobuf:"bytes,5,opt,name=rolename,proto3" json:"rolename,omitempty"`
 	// The UNIX time (for gRPC clients) or ISO string (for REST clients) when the message was created.
-	CreateTime *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
+	CreateTimeSeconds uint32 `protobuf:"varint,6,opt,name=create_time_seconds,json=createTimeSeconds,proto3" json:"create_time_seconds,omitempty"`
 	// start position from text
 	S int32 `protobuf:"varint,7,opt,name=s,proto3" json:"s,omitempty"`
 	// end position from text
@@ -1292,18 +1272,18 @@ func (*MessageMention) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{12}
 }
 
-func (x *MessageMention) GetId() string {
+func (x *MessageMention) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
-func (x *MessageMention) GetUserId() string {
+func (x *MessageMention) GetUserId() int64 {
 	if x != nil {
 		return x.UserId
 	}
-	return ""
+	return 0
 }
 
 func (x *MessageMention) GetUsername() string {
@@ -1313,11 +1293,11 @@ func (x *MessageMention) GetUsername() string {
 	return ""
 }
 
-func (x *MessageMention) GetRoleId() string {
+func (x *MessageMention) GetRoleId() int64 {
 	if x != nil {
 		return x.RoleId
 	}
-	return ""
+	return 0
 }
 
 func (x *MessageMention) GetRolename() string {
@@ -1327,11 +1307,11 @@ func (x *MessageMention) GetRolename() string {
 	return ""
 }
 
-func (x *MessageMention) GetCreateTime() *timestamppb.Timestamp {
+func (x *MessageMention) GetCreateTimeSeconds() uint32 {
 	if x != nil {
-		return x.CreateTime
+		return x.CreateTimeSeconds
 	}
-	return nil
+	return 0
 }
 
 func (x *MessageMention) GetS() int32 {
@@ -1487,13 +1467,13 @@ func (x *NotificationInfo) GetChannel() *ChannelDescription {
 type MessageReaction struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Reaction id
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// An emoji id
-	EmojiId string `protobuf:"bytes,2,opt,name=emoji_id,json=emojiId,proto3" json:"emoji_id,omitempty"`
+	EmojiId int64 `protobuf:"varint,2,opt,name=emoji_id,json=emojiId,proto3" json:"emoji_id,omitempty"`
 	// An emoji shortname
 	Emoji string `protobuf:"bytes,3,opt,name=emoji,proto3" json:"emoji,omitempty"`
 	// User react to message
-	SenderId string `protobuf:"bytes,4,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
+	SenderId int64 `protobuf:"varint,4,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
 	// Sender name
 	SenderName string `protobuf:"bytes,5,opt,name=sender_name,json=senderName,proto3" json:"sender_name,omitempty"`
 	// avatar
@@ -1503,21 +1483,21 @@ type MessageReaction struct {
 	// count of emoji
 	Count int32 `protobuf:"varint,8,opt,name=count,proto3" json:"count,omitempty"`
 	// channel id
-	ChannelId string `protobuf:"bytes,9,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,9,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// message id
-	MessageId string `protobuf:"bytes,10,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
+	MessageId int64 `protobuf:"varint,10,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
 	// clan id
-	ClanId string `protobuf:"bytes,11,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,11,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// mode
 	Mode int32 `protobuf:"varint,12,opt,name=mode,proto3" json:"mode,omitempty"`
 	// message sender id
-	MessageSenderId string `protobuf:"bytes,13,opt,name=message_sender_id,json=messageSenderId,proto3" json:"message_sender_id,omitempty"`
+	MessageSenderId int64 `protobuf:"varint,13,opt,name=message_sender_id,json=messageSenderId,proto3" json:"message_sender_id,omitempty"`
 	// is public
 	IsPublic bool `protobuf:"varint,14,opt,name=is_public,json=isPublic,proto3" json:"is_public,omitempty"`
 	// topic id
-	TopicId string `protobuf:"bytes,15,opt,name=topic_id,json=topicId,proto3" json:"topic_id,omitempty"`
+	TopicId int64 `protobuf:"varint,15,opt,name=topic_id,json=topicId,proto3" json:"topic_id,omitempty"`
 	// emoji_recent_id
-	EmojiRecentId string `protobuf:"bytes,16,opt,name=emoji_recent_id,json=emojiRecentId,proto3" json:"emoji_recent_id,omitempty"`
+	EmojiRecentId int64 `protobuf:"varint,16,opt,name=emoji_recent_id,json=emojiRecentId,proto3" json:"emoji_recent_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1552,18 +1532,18 @@ func (*MessageReaction) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{14}
 }
 
-func (x *MessageReaction) GetId() string {
+func (x *MessageReaction) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
-func (x *MessageReaction) GetEmojiId() string {
+func (x *MessageReaction) GetEmojiId() int64 {
 	if x != nil {
 		return x.EmojiId
 	}
-	return ""
+	return 0
 }
 
 func (x *MessageReaction) GetEmoji() string {
@@ -1573,11 +1553,11 @@ func (x *MessageReaction) GetEmoji() string {
 	return ""
 }
 
-func (x *MessageReaction) GetSenderId() string {
+func (x *MessageReaction) GetSenderId() int64 {
 	if x != nil {
 		return x.SenderId
 	}
-	return ""
+	return 0
 }
 
 func (x *MessageReaction) GetSenderName() string {
@@ -1608,25 +1588,25 @@ func (x *MessageReaction) GetCount() int32 {
 	return 0
 }
 
-func (x *MessageReaction) GetChannelId() string {
+func (x *MessageReaction) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *MessageReaction) GetMessageId() string {
+func (x *MessageReaction) GetMessageId() int64 {
 	if x != nil {
 		return x.MessageId
 	}
-	return ""
+	return 0
 }
 
-func (x *MessageReaction) GetClanId() string {
+func (x *MessageReaction) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *MessageReaction) GetMode() int32 {
@@ -1636,11 +1616,11 @@ func (x *MessageReaction) GetMode() int32 {
 	return 0
 }
 
-func (x *MessageReaction) GetMessageSenderId() string {
+func (x *MessageReaction) GetMessageSenderId() int64 {
 	if x != nil {
 		return x.MessageSenderId
 	}
-	return ""
+	return 0
 }
 
 func (x *MessageReaction) GetIsPublic() bool {
@@ -1650,18 +1630,18 @@ func (x *MessageReaction) GetIsPublic() bool {
 	return false
 }
 
-func (x *MessageReaction) GetTopicId() string {
+func (x *MessageReaction) GetTopicId() int64 {
 	if x != nil {
 		return x.TopicId
 	}
-	return ""
+	return 0
 }
 
-func (x *MessageReaction) GetEmojiRecentId() string {
+func (x *MessageReaction) GetEmojiRecentId() int64 {
 	if x != nil {
 		return x.EmojiRecentId
 	}
-	return ""
+	return 0
 }
 
 // Message attachment
@@ -1670,7 +1650,7 @@ type MessageAttachment struct {
 	// Attachment file name
 	Filename string `protobuf:"bytes,1,opt,name=filename,proto3" json:"filename,omitempty"`
 	// Attachment file size
-	Size int64 `protobuf:"varint,2,opt,name=size,proto3" json:"size,omitempty"`
+	Size int32 `protobuf:"varint,2,opt,name=size,proto3" json:"size,omitempty"`
 	// Attachment url
 	Url string `protobuf:"bytes,3,opt,name=url,proto3" json:"url,omitempty"`
 	// Attachment file type
@@ -1724,7 +1704,7 @@ func (x *MessageAttachment) GetFilename() string {
 	return ""
 }
 
-func (x *MessageAttachment) GetSize() int64 {
+func (x *MessageAttachment) GetSize() int32 {
 	if x != nil {
 		return x.Size
 	}
@@ -1777,9 +1757,9 @@ func (x *MessageAttachment) GetDuration() int32 {
 type MessageRef struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// A message source
-	MessageId string `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
+	MessageId int64 `protobuf:"varint,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
 	// A message reference to
-	MessageRefId string `protobuf:"bytes,2,opt,name=message_ref_id,json=messageRefId,proto3" json:"message_ref_id,omitempty"`
+	MessageRefId int64 `protobuf:"varint,2,opt,name=message_ref_id,json=messageRefId,proto3" json:"message_ref_id,omitempty"`
 	// content reference
 	Content string `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`
 	// has attachment
@@ -1787,7 +1767,7 @@ type MessageRef struct {
 	// Reference type. 0: reply
 	RefType int32 `protobuf:"varint,5,opt,name=ref_type,json=refType,proto3" json:"ref_type,omitempty"`
 	// original message sender
-	MessageSenderId string `protobuf:"bytes,6,opt,name=message_sender_id,json=messageSenderId,proto3" json:"message_sender_id,omitempty"`
+	MessageSenderId int64 `protobuf:"varint,6,opt,name=message_sender_id,json=messageSenderId,proto3" json:"message_sender_id,omitempty"`
 	// original message sendre username
 	MessageSenderUsername string `protobuf:"bytes,7,opt,name=message_sender_username,json=messageSenderUsername,proto3" json:"message_sender_username,omitempty"`
 	// original message sender avatar
@@ -1830,18 +1810,18 @@ func (*MessageRef) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{16}
 }
 
-func (x *MessageRef) GetMessageId() string {
+func (x *MessageRef) GetMessageId() int64 {
 	if x != nil {
 		return x.MessageId
 	}
-	return ""
+	return 0
 }
 
-func (x *MessageRef) GetMessageRefId() string {
+func (x *MessageRef) GetMessageRefId() int64 {
 	if x != nil {
 		return x.MessageRefId
 	}
-	return ""
+	return 0
 }
 
 func (x *MessageRef) GetContent() string {
@@ -1865,11 +1845,11 @@ func (x *MessageRef) GetRefType() int32 {
 	return 0
 }
 
-func (x *MessageRef) GetMessageSenderId() string {
+func (x *MessageRef) GetMessageSenderId() int64 {
 	if x != nil {
 		return x.MessageSenderId
 	}
-	return ""
+	return 0
 }
 
 func (x *MessageRef) GetMessageSenderUsername() string {
@@ -1904,7 +1884,7 @@ func (x *MessageRef) GetMessageSenderDisplayName() string {
 type MessageDeleted struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// A deleted message source
-	MessageId string `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
+	MessageId int64 `protobuf:"varint,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
 	// Who delete it
 	Deletor       string `protobuf:"bytes,2,opt,name=deletor,proto3" json:"deletor,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -1941,11 +1921,11 @@ func (*MessageDeleted) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{17}
 }
 
-func (x *MessageDeleted) GetMessageId() string {
+func (x *MessageDeleted) GetMessageId() int64 {
 	if x != nil {
 		return x.MessageId
 	}
-	return ""
+	return 0
 }
 
 func (x *MessageDeleted) GetDeletor() string {
@@ -2114,7 +2094,7 @@ func (x *CreateGroupRequest) GetMaxCount() int32 {
 type DeleteFriendsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The account id of a user.
-	Ids []string `protobuf:"bytes,1,rep,name=ids,proto3" json:"ids,omitempty"`
+	Ids []int64 `protobuf:"varint,1,rep,packed,name=ids,proto3" json:"ids,omitempty"`
 	// The account username of a user.
 	Usernames     []string `protobuf:"bytes,2,rep,name=usernames,proto3" json:"usernames,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -2151,7 +2131,7 @@ func (*DeleteFriendsRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{20}
 }
 
-func (x *DeleteFriendsRequest) GetIds() []string {
+func (x *DeleteFriendsRequest) GetIds() []int64 {
 	if x != nil {
 		return x.Ids
 	}
@@ -2169,7 +2149,7 @@ func (x *DeleteFriendsRequest) GetUsernames() []string {
 type DeleteGroupRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The id of a group.
-	GroupId       string `protobuf:"bytes,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	GroupId       int64 `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2204,18 +2184,18 @@ func (*DeleteGroupRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{21}
 }
 
-func (x *DeleteGroupRequest) GetGroupId() string {
+func (x *DeleteGroupRequest) GetGroupId() int64 {
 	if x != nil {
 		return x.GroupId
 	}
-	return ""
+	return 0
 }
 
 // Delete one or more notifications for the current user.
 type DeleteNotificationsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The id of notifications.
-	Ids []string `protobuf:"bytes,1,rep,name=ids,proto3" json:"ids,omitempty"`
+	Ids []int64 `protobuf:"varint,1,rep,packed,name=ids,proto3" json:"ids,omitempty"`
 	// The category of notifications.
 	Category      int32 `protobuf:"varint,2,opt,name=category,proto3" json:"category,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -2252,7 +2232,7 @@ func (*DeleteNotificationsRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{22}
 }
 
-func (x *DeleteNotificationsRequest) GetIds() []string {
+func (x *DeleteNotificationsRequest) GetIds() []int64 {
 	if x != nil {
 		return x.Ids
 	}
@@ -2274,7 +2254,7 @@ type Event struct {
 	// Arbitrary event property values.
 	Properties map[string]string `protobuf:"bytes,2,rep,name=properties,proto3" json:"properties,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// The time when the event was triggered.
-	Timestamp *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	TimestampSeconds uint32 `protobuf:"varint,3,opt,name=timestamp_seconds,json=timestampSeconds,proto3" json:"timestamp_seconds,omitempty"`
 	// True if the event came directly from a client call, false otherwise.
 	External      bool `protobuf:"varint,4,opt,name=external,proto3" json:"external,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -2325,11 +2305,11 @@ func (x *Event) GetProperties() map[string]string {
 	return nil
 }
 
-func (x *Event) GetTimestamp() *timestamppb.Timestamp {
+func (x *Event) GetTimestampSeconds() uint32 {
 	if x != nil {
-		return x.Timestamp
+		return x.TimestampSeconds
 	}
-	return nil
+	return 0
 }
 
 func (x *Event) GetExternal() bool {
@@ -2347,9 +2327,9 @@ type Friend struct {
 	// The friend status.
 	State int32 `protobuf:"varint,2,opt,name=state,proto3" json:"state,omitempty"` // one of "Friend.State".
 	// Time of the latest relationship update.
-	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
+	UpdateTimeSeconds uint32 `protobuf:"varint,3,opt,name=update_time_seconds,json=updateTimeSeconds,proto3" json:"update_time_seconds,omitempty"`
 	// source id
-	SourceId      string `protobuf:"bytes,4,opt,name=source_id,json=sourceId,proto3" json:"source_id,omitempty"`
+	SourceId      int64 `protobuf:"varint,4,opt,name=source_id,json=sourceId,proto3" json:"source_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2398,18 +2378,18 @@ func (x *Friend) GetState() int32 {
 	return 0
 }
 
-func (x *Friend) GetUpdateTime() *timestamppb.Timestamp {
+func (x *Friend) GetUpdateTimeSeconds() uint32 {
 	if x != nil {
-		return x.UpdateTime
+		return x.UpdateTimeSeconds
 	}
-	return nil
+	return 0
 }
 
-func (x *Friend) GetSourceId() string {
+func (x *Friend) GetSourceId() int64 {
 	if x != nil {
 		return x.SourceId
 	}
-	return ""
+	return 0
 }
 
 // A collection of zero or more friends of the user.
@@ -2530,7 +2510,7 @@ type ChannelUserList struct {
 	// Cursor for the next page of results, if any.
 	Cursor string `protobuf:"bytes,2,opt,name=cursor,proto3" json:"cursor,omitempty"`
 	// channel id
-	ChannelId     string `protobuf:"bytes,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId     int64 `protobuf:"varint,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2579,22 +2559,22 @@ func (x *ChannelUserList) GetCursor() string {
 	return ""
 }
 
-func (x *ChannelUserList) GetChannelId() string {
+func (x *ChannelUserList) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 // A list of users belonging to a channel, along with their role.
 type VoiceChannelUser struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// voice user join id
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// User for a channel.
-	UserId string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId int64 `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	// channel id
-	ChannelId string `protobuf:"bytes,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// participant
 	Participant   string `protobuf:"bytes,4,opt,name=participant,proto3" json:"participant,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -2631,25 +2611,25 @@ func (*VoiceChannelUser) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{28}
 }
 
-func (x *VoiceChannelUser) GetId() string {
+func (x *VoiceChannelUser) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
-func (x *VoiceChannelUser) GetUserId() string {
+func (x *VoiceChannelUser) GetUserId() int64 {
 	if x != nil {
 		return x.UserId
 	}
-	return ""
+	return 0
 }
 
-func (x *VoiceChannelUser) GetChannelId() string {
+func (x *VoiceChannelUser) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *VoiceChannelUser) GetParticipant() string {
@@ -2709,7 +2689,7 @@ func (x *VoiceChannelUserList) GetVoiceChannelUsers() []*VoiceChannelUser {
 type ChannelAttachment struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// url attachment
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// file name
 	Filename string `protobuf:"bytes,2,opt,name=filename,proto3" json:"filename,omitempty"`
 	// filetype
@@ -2719,11 +2699,11 @@ type ChannelAttachment struct {
 	// url
 	Url string `protobuf:"bytes,5,opt,name=url,proto3" json:"url,omitempty"`
 	// uploader
-	Uploader string `protobuf:"bytes,6,opt,name=uploader,proto3" json:"uploader,omitempty"`
-	// The UNIX time (for gRPC clients) or ISO string (for REST clients) when the group was created.
-	CreateTime *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
+	Uploader int64 `protobuf:"varint,6,opt,name=uploader,proto3" json:"uploader,omitempty"`
+	// timestamp
+	CreateTimeSeconds uint32 `protobuf:"varint,7,opt,name=create_time_seconds,json=createTimeSeconds,proto3" json:"create_time_seconds,omitempty"`
 	// message id.
-	MessageId string `protobuf:"bytes,8,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
+	MessageId int64 `protobuf:"varint,8,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
 	// width
 	Width int32 `protobuf:"varint,9,opt,name=width,proto3" json:"width,omitempty"`
 	// height
@@ -2762,11 +2742,11 @@ func (*ChannelAttachment) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{30}
 }
 
-func (x *ChannelAttachment) GetId() string {
+func (x *ChannelAttachment) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 func (x *ChannelAttachment) GetFilename() string {
@@ -2797,25 +2777,25 @@ func (x *ChannelAttachment) GetUrl() string {
 	return ""
 }
 
-func (x *ChannelAttachment) GetUploader() string {
+func (x *ChannelAttachment) GetUploader() int64 {
 	if x != nil {
 		return x.Uploader
 	}
-	return ""
+	return 0
 }
 
-func (x *ChannelAttachment) GetCreateTime() *timestamppb.Timestamp {
+func (x *ChannelAttachment) GetCreateTimeSeconds() uint32 {
 	if x != nil {
-		return x.CreateTime
+		return x.CreateTimeSeconds
 	}
-	return nil
+	return 0
 }
 
-func (x *ChannelAttachment) GetMessageId() string {
+func (x *ChannelAttachment) GetMessageId() int64 {
 	if x != nil {
 		return x.MessageId
 	}
-	return ""
+	return 0
 }
 
 func (x *ChannelAttachment) GetWidth() int32 {
@@ -2886,7 +2866,7 @@ type ClanUserList struct {
 	// Cursor for the next page of results, if any.
 	Cursor string `protobuf:"bytes,2,opt,name=cursor,proto3" json:"cursor,omitempty"`
 	// clan id
-	ClanId        string `protobuf:"bytes,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64 `protobuf:"varint,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2935,11 +2915,11 @@ func (x *ClanUserList) GetCursor() string {
 	return ""
 }
 
-func (x *ClanUserList) GetClanId() string {
+func (x *ClanUserList) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 type RegistFcmDeviceTokenRequest struct {
@@ -3016,7 +2996,7 @@ type RegistFcmDeviceTokenResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The token
 	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
-	DeviceId string `protobuf:"bytes,2,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	DeviceId int64 `protobuf:"varint,2,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
 	Platform      string `protobuf:"bytes,3,opt,name=platform,proto3" json:"platform,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -3059,11 +3039,11 @@ func (x *RegistFcmDeviceTokenResponse) GetToken() string {
 	return ""
 }
 
-func (x *RegistFcmDeviceTokenResponse) GetDeviceId() string {
+func (x *RegistFcmDeviceTokenResponse) GetDeviceId() int64 {
 	if x != nil {
 		return x.DeviceId
 	}
-	return ""
+	return 0
 }
 
 func (x *RegistFcmDeviceTokenResponse) GetPlatform() string {
@@ -3077,16 +3057,16 @@ func (x *RegistFcmDeviceTokenResponse) GetPlatform() string {
 type ListChannelMessagesRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// the clan id
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// The channel ID to list from.
-	ChannelId string `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// The current message ID.
-	MessageId string `protobuf:"bytes,3,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
+	MessageId int64 `protobuf:"varint,3,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
 	// Max number of records to return. Between 1 and 100.
-	Limit *wrapperspb.Int32Value `protobuf:"bytes,4,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit int32 `protobuf:"varint,4,opt,name=limit,proto3" json:"limit,omitempty"`
 	// True if listing should be older messages to newer, false if reverse.
-	Direction *wrapperspb.Int32Value `protobuf:"bytes,5,opt,name=direction,proto3" json:"direction,omitempty"`
-	TopicId       string `protobuf:"bytes,6,opt,name=topic_id,json=topicId,proto3" json:"topic_id,omitempty"`
+	Direction int32 `protobuf:"varint,5,opt,name=direction,proto3" json:"direction,omitempty"`
+	TopicId       int64 `protobuf:"varint,6,opt,name=topic_id,json=topicId,proto3" json:"topic_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3121,55 +3101,55 @@ func (*ListChannelMessagesRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{35}
 }
 
-func (x *ListChannelMessagesRequest) GetClanId() string {
+func (x *ListChannelMessagesRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *ListChannelMessagesRequest) GetChannelId() string {
+func (x *ListChannelMessagesRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *ListChannelMessagesRequest) GetMessageId() string {
+func (x *ListChannelMessagesRequest) GetMessageId() int64 {
 	if x != nil {
 		return x.MessageId
 	}
-	return ""
+	return 0
 }
 
-func (x *ListChannelMessagesRequest) GetLimit() *wrapperspb.Int32Value {
+func (x *ListChannelMessagesRequest) GetLimit() int32 {
 	if x != nil {
 		return x.Limit
 	}
-	return nil
+	return 0
 }
 
-func (x *ListChannelMessagesRequest) GetDirection() *wrapperspb.Int32Value {
+func (x *ListChannelMessagesRequest) GetDirection() int32 {
 	if x != nil {
 		return x.Direction
 	}
-	return nil
+	return 0
 }
 
-func (x *ListChannelMessagesRequest) GetTopicId() string {
+func (x *ListChannelMessagesRequest) GetTopicId() int64 {
 	if x != nil {
 		return x.TopicId
 	}
-	return ""
+	return 0
 }
 
 // List friends for a user.
 type ListFriendsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Max number of records to return. Between 1 and 100.
-	Limit *wrapperspb.Int32Value `protobuf:"bytes,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit int32 `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
 	// The friend state to list.
-	State *wrapperspb.Int32Value `protobuf:"bytes,2,opt,name=state,proto3" json:"state,omitempty"`
+	State int32 `protobuf:"varint,2,opt,name=state,proto3" json:"state,omitempty"`
 	// An optional next page cursor.
 	Cursor        string `protobuf:"bytes,3,opt,name=cursor,proto3" json:"cursor,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -3206,18 +3186,18 @@ func (*ListFriendsRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{36}
 }
 
-func (x *ListFriendsRequest) GetLimit() *wrapperspb.Int32Value {
+func (x *ListFriendsRequest) GetLimit() int32 {
 	if x != nil {
 		return x.Limit
 	}
-	return nil
+	return 0
 }
 
-func (x *ListFriendsRequest) GetState() *wrapperspb.Int32Value {
+func (x *ListFriendsRequest) GetState() int32 {
 	if x != nil {
 		return x.State
 	}
-	return nil
+	return 0
 }
 
 func (x *ListFriendsRequest) GetCursor() string {
@@ -3235,13 +3215,13 @@ type ListGroupsRequest struct {
 	// Optional pagination cursor.
 	Cursor string `protobuf:"bytes,2,opt,name=cursor,proto3" json:"cursor,omitempty"`
 	// Max number of groups to return. Between 1 and 100.
-	Limit *wrapperspb.Int32Value `protobuf:"bytes,3,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit int32 `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
 	// Language tag filter
 	LangTag string `protobuf:"bytes,4,opt,name=lang_tag,json=langTag,proto3" json:"lang_tag,omitempty"`
 	// Number of group members
-	Members *wrapperspb.Int32Value `protobuf:"bytes,5,opt,name=members,proto3" json:"members,omitempty"`
+	Members int32 `protobuf:"varint,5,opt,name=members,proto3" json:"members,omitempty"`
 	// Optional Open/Closed filter.
-	Open          *wrapperspb.BoolValue `protobuf:"bytes,6,opt,name=open,proto3" json:"open,omitempty"`
+	Open          bool `protobuf:"varint,6,opt,name=open,proto3" json:"open,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3290,11 +3270,11 @@ func (x *ListGroupsRequest) GetCursor() string {
 	return ""
 }
 
-func (x *ListGroupsRequest) GetLimit() *wrapperspb.Int32Value {
+func (x *ListGroupsRequest) GetLimit() int32 {
 	if x != nil {
 		return x.Limit
 	}
-	return nil
+	return 0
 }
 
 func (x *ListGroupsRequest) GetLangTag() string {
@@ -3304,29 +3284,29 @@ func (x *ListGroupsRequest) GetLangTag() string {
 	return ""
 }
 
-func (x *ListGroupsRequest) GetMembers() *wrapperspb.Int32Value {
+func (x *ListGroupsRequest) GetMembers() int32 {
 	if x != nil {
 		return x.Members
 	}
-	return nil
+	return 0
 }
 
-func (x *ListGroupsRequest) GetOpen() *wrapperspb.BoolValue {
+func (x *ListGroupsRequest) GetOpen() bool {
 	if x != nil {
 		return x.Open
 	}
-	return nil
+	return false
 }
 
 // List all users that are part of a group.
 type ListGroupUsersRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The group ID to list from.
-	GroupId string `protobuf:"bytes,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	GroupId int64 `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	// Max number of records to return. Between 1 and 100.
-	Limit *wrapperspb.Int32Value `protobuf:"bytes,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit int32 `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
 	// The group user state to list.
-	State *wrapperspb.Int32Value `protobuf:"bytes,3,opt,name=state,proto3" json:"state,omitempty"`
+	State int32 `protobuf:"varint,3,opt,name=state,proto3" json:"state,omitempty"`
 	// An optional next page cursor.
 	Cursor        string `protobuf:"bytes,4,opt,name=cursor,proto3" json:"cursor,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -3363,25 +3343,25 @@ func (*ListGroupUsersRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{38}
 }
 
-func (x *ListGroupUsersRequest) GetGroupId() string {
+func (x *ListGroupUsersRequest) GetGroupId() int64 {
 	if x != nil {
 		return x.GroupId
 	}
-	return ""
+	return 0
 }
 
-func (x *ListGroupUsersRequest) GetLimit() *wrapperspb.Int32Value {
+func (x *ListGroupUsersRequest) GetLimit() int32 {
 	if x != nil {
 		return x.Limit
 	}
-	return nil
+	return 0
 }
 
-func (x *ListGroupUsersRequest) GetState() *wrapperspb.Int32Value {
+func (x *ListGroupUsersRequest) GetState() int32 {
 	if x != nil {
 		return x.State
 	}
-	return nil
+	return 0
 }
 
 func (x *ListGroupUsersRequest) GetCursor() string {
@@ -3395,15 +3375,15 @@ func (x *ListGroupUsersRequest) GetCursor() string {
 type ListChannelUsersRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The clan id
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// The channel ID to list from.
-	ChannelId string `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// The channel type
 	ChannelType int32 `protobuf:"varint,3,opt,name=channel_type,json=channelType,proto3" json:"channel_type,omitempty"`
 	// Max number of records to return. Between 1 and 100.
-	Limit *wrapperspb.Int32Value `protobuf:"bytes,4,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit int32 `protobuf:"varint,4,opt,name=limit,proto3" json:"limit,omitempty"`
 	// The group user state to list.
-	State *wrapperspb.Int32Value `protobuf:"bytes,5,opt,name=state,proto3" json:"state,omitempty"`
+	State int32 `protobuf:"varint,5,opt,name=state,proto3" json:"state,omitempty"`
 	// An optional next page cursor.
 	Cursor        string `protobuf:"bytes,6,opt,name=cursor,proto3" json:"cursor,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -3440,18 +3420,18 @@ func (*ListChannelUsersRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{39}
 }
 
-func (x *ListChannelUsersRequest) GetClanId() string {
+func (x *ListChannelUsersRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *ListChannelUsersRequest) GetChannelId() string {
+func (x *ListChannelUsersRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *ListChannelUsersRequest) GetChannelType() int32 {
@@ -3461,18 +3441,18 @@ func (x *ListChannelUsersRequest) GetChannelType() int32 {
 	return 0
 }
 
-func (x *ListChannelUsersRequest) GetLimit() *wrapperspb.Int32Value {
+func (x *ListChannelUsersRequest) GetLimit() int32 {
 	if x != nil {
 		return x.Limit
 	}
-	return nil
+	return 0
 }
 
-func (x *ListChannelUsersRequest) GetState() *wrapperspb.Int32Value {
+func (x *ListChannelUsersRequest) GetState() int32 {
 	if x != nil {
 		return x.State
 	}
-	return nil
+	return 0
 }
 
 func (x *ListChannelUsersRequest) GetCursor() string {
@@ -3486,15 +3466,15 @@ func (x *ListChannelUsersRequest) GetCursor() string {
 type ListChannelAttachmentRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The clan id
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// The channel ID to list from.
-	ChannelId string `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// The channel type
 	FileType string `protobuf:"bytes,3,opt,name=file_type,json=fileType,proto3" json:"file_type,omitempty"`
 	// Max number of records to return. Between 1 and 100.
-	Limit *wrapperspb.Int32Value `protobuf:"bytes,4,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit int32 `protobuf:"varint,4,opt,name=limit,proto3" json:"limit,omitempty"`
 	// The group user state to list.
-	State *wrapperspb.Int32Value `protobuf:"bytes,5,opt,name=state,proto3" json:"state,omitempty"`
+	State int32 `protobuf:"varint,5,opt,name=state,proto3" json:"state,omitempty"`
 	// An optional previous id for page.
 	Before uint32 `protobuf:"varint,6,opt,name=before,proto3" json:"before,omitempty"`
 	// An optional next id for page.
@@ -3535,18 +3515,18 @@ func (*ListChannelAttachmentRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{40}
 }
 
-func (x *ListChannelAttachmentRequest) GetClanId() string {
+func (x *ListChannelAttachmentRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *ListChannelAttachmentRequest) GetChannelId() string {
+func (x *ListChannelAttachmentRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *ListChannelAttachmentRequest) GetFileType() string {
@@ -3556,18 +3536,18 @@ func (x *ListChannelAttachmentRequest) GetFileType() string {
 	return ""
 }
 
-func (x *ListChannelAttachmentRequest) GetLimit() *wrapperspb.Int32Value {
+func (x *ListChannelAttachmentRequest) GetLimit() int32 {
 	if x != nil {
 		return x.Limit
 	}
-	return nil
+	return 0
 }
 
-func (x *ListChannelAttachmentRequest) GetState() *wrapperspb.Int32Value {
+func (x *ListChannelAttachmentRequest) GetState() int32 {
 	if x != nil {
 		return x.State
 	}
-	return nil
+	return 0
 }
 
 func (x *ListChannelAttachmentRequest) GetBefore() uint32 {
@@ -3595,7 +3575,7 @@ func (x *ListChannelAttachmentRequest) GetAround() uint32 {
 type ListClanUsersRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The clan ID to list from.
-	ClanId        string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3630,26 +3610,26 @@ func (*ListClanUsersRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{41}
 }
 
-func (x *ListClanUsersRequest) GetClanId() string {
+func (x *ListClanUsersRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 // Get a list of unexpired notifications.
 type ListNotificationsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The number of notifications to get. Between 1 and 100.
-	Limit *wrapperspb.Int32Value `protobuf:"bytes,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit int32 `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
 	// The clan id
-	ClanId string `protobuf:"bytes,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// The current notification Id.
-	NotificationId string `protobuf:"bytes,3,opt,name=notification_id,json=notificationId,proto3" json:"notification_id,omitempty"`
+	NotificationId int64 `protobuf:"varint,3,opt,name=notification_id,json=notificationId,proto3" json:"notification_id,omitempty"`
 	// The category (1: mentions, 2: mesages, 3: for you).
 	Category int32 `protobuf:"varint,4,opt,name=category,proto3" json:"category,omitempty"`
 	// True if listing should be older notifications to newer, false if reverse.
-	Direction     *wrapperspb.Int32Value `protobuf:"bytes,5,opt,name=direction,proto3" json:"direction,omitempty"`
+	Direction     int32 `protobuf:"varint,5,opt,name=direction,proto3" json:"direction,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3684,25 +3664,25 @@ func (*ListNotificationsRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{42}
 }
 
-func (x *ListNotificationsRequest) GetLimit() *wrapperspb.Int32Value {
+func (x *ListNotificationsRequest) GetLimit() int32 {
 	if x != nil {
 		return x.Limit
 	}
-	return nil
+	return 0
 }
 
-func (x *ListNotificationsRequest) GetClanId() string {
+func (x *ListNotificationsRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *ListNotificationsRequest) GetNotificationId() string {
+func (x *ListNotificationsRequest) GetNotificationId() int64 {
 	if x != nil {
 		return x.NotificationId
 	}
-	return ""
+	return 0
 }
 
 func (x *ListNotificationsRequest) GetCategory() int32 {
@@ -3712,22 +3692,22 @@ func (x *ListNotificationsRequest) GetCategory() int32 {
 	return 0
 }
 
-func (x *ListNotificationsRequest) GetDirection() *wrapperspb.Int32Value {
+func (x *ListNotificationsRequest) GetDirection() int32 {
 	if x != nil {
 		return x.Direction
 	}
-	return nil
+	return 0
 }
 
 // List the groups a user is part of, and their relationship to each.
 type ListUserGroupsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// ID of the user.
-	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId int64 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	// Max number of records to return. Between 1 and 100.
-	Limit *wrapperspb.Int32Value `protobuf:"bytes,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit int32 `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
 	// The user group state to list.
-	State *wrapperspb.Int32Value `protobuf:"bytes,3,opt,name=state,proto3" json:"state,omitempty"`
+	State int32 `protobuf:"varint,3,opt,name=state,proto3" json:"state,omitempty"`
 	// An optional next page cursor.
 	Cursor        string `protobuf:"bytes,4,opt,name=cursor,proto3" json:"cursor,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -3764,25 +3744,25 @@ func (*ListUserGroupsRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{43}
 }
 
-func (x *ListUserGroupsRequest) GetUserId() string {
+func (x *ListUserGroupsRequest) GetUserId() int64 {
 	if x != nil {
 		return x.UserId
 	}
-	return ""
+	return 0
 }
 
-func (x *ListUserGroupsRequest) GetLimit() *wrapperspb.Int32Value {
+func (x *ListUserGroupsRequest) GetLimit() int32 {
 	if x != nil {
 		return x.Limit
 	}
-	return nil
+	return 0
 }
 
-func (x *ListUserGroupsRequest) GetState() *wrapperspb.Int32Value {
+func (x *ListUserGroupsRequest) GetState() int32 {
 	if x != nil {
 		return x.State
 	}
-	return nil
+	return 0
 }
 
 func (x *ListUserGroupsRequest) GetCursor() string {
@@ -3796,28 +3776,28 @@ func (x *ListUserGroupsRequest) GetCursor() string {
 type Notification struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// ID of the Notification.
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Subject of the notification.
 	Subject string `protobuf:"bytes,2,opt,name=subject,proto3" json:"subject,omitempty"`
 	// Content of the notification in JSON.
-	Content string `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`
+	Content []byte `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`
 	// Category code for this notification.
 	Code int32 `protobuf:"varint,4,opt,name=code,proto3" json:"code,omitempty"`
 	// ID of the sender, if a user. Otherwise 'null'.
-	SenderId string `protobuf:"bytes,5,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
+	SenderId int64 `protobuf:"varint,5,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
 	// The UNIX time (for gRPC clients) or ISO string (for REST clients) when the notification was created.
-	CreateTime *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
+	CreateTimeSeconds uint32 `protobuf:"varint,6,opt,name=create_time_seconds,json=createTimeSeconds,proto3" json:"create_time_seconds,omitempty"`
 	// True if this notification was persisted to the database.
 	Persistent bool `protobuf:"varint,7,opt,name=persistent,proto3" json:"persistent,omitempty"`
 	// ID of clan
-	ClanId string `protobuf:"bytes,8,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,8,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// ID of channel
-	ChannelId string `protobuf:"bytes,9,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,9,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// mode of
 	ChannelType int32 `protobuf:"varint,10,opt,name=channel_type,json=channelType,proto3" json:"channel_type,omitempty"`
 	AvatarUrl string `protobuf:"bytes,11,opt,name=avatar_url,json=avatarUrl,proto3" json:"avatar_url,omitempty"`
 	Channel *ChannelDescription `protobuf:"bytes,12,opt,name=channel,proto3" json:"channel,omitempty"`
-	TopicId string `protobuf:"bytes,13,opt,name=topic_id,json=topicId,proto3" json:"topic_id,omitempty"`
+	TopicId int64 `protobuf:"varint,13,opt,name=topic_id,json=topicId,proto3" json:"topic_id,omitempty"`
 	// category.
 	Category      int32 `protobuf:"varint,14,opt,name=category,proto3" json:"category,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -3854,11 +3834,11 @@ func (*Notification) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{44}
 }
 
-func (x *Notification) GetId() string {
+func (x *Notification) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 func (x *Notification) GetSubject() string {
@@ -3868,11 +3848,11 @@ func (x *Notification) GetSubject() string {
 	return ""
 }
 
-func (x *Notification) GetContent() string {
+func (x *Notification) GetContent() []byte {
 	if x != nil {
 		return x.Content
 	}
-	return ""
+	return nil
 }
 
 func (x *Notification) GetCode() int32 {
@@ -3882,18 +3862,18 @@ func (x *Notification) GetCode() int32 {
 	return 0
 }
 
-func (x *Notification) GetSenderId() string {
+func (x *Notification) GetSenderId() int64 {
 	if x != nil {
 		return x.SenderId
 	}
-	return ""
+	return 0
 }
 
-func (x *Notification) GetCreateTime() *timestamppb.Timestamp {
+func (x *Notification) GetCreateTimeSeconds() uint32 {
 	if x != nil {
-		return x.CreateTime
+		return x.CreateTimeSeconds
 	}
-	return nil
+	return 0
 }
 
 func (x *Notification) GetPersistent() bool {
@@ -3903,18 +3883,18 @@ func (x *Notification) GetPersistent() bool {
 	return false
 }
 
-func (x *Notification) GetClanId() string {
+func (x *Notification) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *Notification) GetChannelId() string {
+func (x *Notification) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *Notification) GetChannelType() int32 {
@@ -3938,11 +3918,11 @@ func (x *Notification) GetChannel() *ChannelDescription {
 	return nil
 }
 
-func (x *Notification) GetTopicId() string {
+func (x *Notification) GetTopicId() int64 {
 	if x != nil {
 		return x.TopicId
 	}
-	return ""
+	return 0
 }
 
 func (x *Notification) GetCategory() int32 {
@@ -3955,12 +3935,12 @@ func (x *Notification) GetCategory() int32 {
 type EmojiRecent struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// ID of the emoji.
-	EmojiRecentsId string `protobuf:"bytes,1,opt,name=emoji_recents_id,json=emojiRecentsId,proto3" json:"emoji_recents_id,omitempty"`
-	EmojiId string `protobuf:"bytes,2,opt,name=emoji_id,json=emojiId,proto3" json:"emoji_id,omitempty"`
+	EmojiRecentsId int64 `protobuf:"varint,1,opt,name=emoji_recents_id,json=emojiRecentsId,proto3" json:"emoji_recents_id,omitempty"`
+	EmojiId int64 `protobuf:"varint,2,opt,name=emoji_id,json=emojiId,proto3" json:"emoji_id,omitempty"`
 	// The UNIX time (for gRPC clients) or ISO string (for REST clients) when the emoji was created.
-	UpdateTime    *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	UpdateTimeSeconds uint32 `protobuf:"varint,3,opt,name=update_time_seconds,json=updateTimeSeconds,proto3" json:"update_time_seconds,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *EmojiRecent) Reset() {
@@ -3993,25 +3973,25 @@ func (*EmojiRecent) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{45}
 }
 
-func (x *EmojiRecent) GetEmojiRecentsId() string {
+func (x *EmojiRecent) GetEmojiRecentsId() int64 {
 	if x != nil {
 		return x.EmojiRecentsId
 	}
-	return ""
+	return 0
 }
 
-func (x *EmojiRecent) GetEmojiId() string {
+func (x *EmojiRecent) GetEmojiId() int64 {
 	if x != nil {
 		return x.EmojiId
 	}
-	return ""
+	return 0
 }
 
-func (x *EmojiRecent) GetUpdateTime() *timestamppb.Timestamp {
+func (x *EmojiRecent) GetUpdateTimeSeconds() uint32 {
 	if x != nil {
-		return x.UpdateTime
+		return x.UpdateTimeSeconds
 	}
-	return nil
+	return 0
 }
 
 // A collection of zero or more notifications.
@@ -4119,9 +4099,9 @@ func (x *NotificationList) GetCacheableCursor() string {
 type PromoteGroupUsersRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The group ID to promote in.
-	GroupId string `protobuf:"bytes,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	GroupId int64 `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	// The users to promote.
-	UserIds       []string `protobuf:"bytes,2,rep,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
+	UserIds       []int64 `protobuf:"varint,2,rep,packed,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -4156,14 +4136,14 @@ func (*PromoteGroupUsersRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{48}
 }
 
-func (x *PromoteGroupUsersRequest) GetGroupId() string {
+func (x *PromoteGroupUsersRequest) GetGroupId() int64 {
 	if x != nil {
 		return x.GroupId
 	}
-	return ""
+	return 0
 }
 
-func (x *PromoteGroupUsersRequest) GetUserIds() []string {
+func (x *PromoteGroupUsersRequest) GetUserIds() []int64 {
 	if x != nil {
 		return x.UserIds
 	}
@@ -4174,9 +4154,9 @@ func (x *PromoteGroupUsersRequest) GetUserIds() []string {
 type DemoteGroupUsersRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The group ID to demote in.
-	GroupId string `protobuf:"bytes,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	GroupId int64 `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	// The users to demote.
-	UserIds       []string `protobuf:"bytes,2,rep,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
+	UserIds       []int64 `protobuf:"varint,2,rep,packed,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -4211,14 +4191,14 @@ func (*DemoteGroupUsersRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{49}
 }
 
-func (x *DemoteGroupUsersRequest) GetGroupId() string {
+func (x *DemoteGroupUsersRequest) GetGroupId() int64 {
 	if x != nil {
 		return x.GroupId
 	}
-	return ""
+	return 0
 }
 
-func (x *DemoteGroupUsersRequest) GetUserIds() []string {
+func (x *DemoteGroupUsersRequest) GetUserIds() []int64 {
 	if x != nil {
 		return x.UserIds
 	}
@@ -4299,7 +4279,7 @@ type Session struct {
 	// Refresh token that can be used for session token renewal.
 	RefreshToken string `protobuf:"bytes,3,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
 	// User id
-	UserId string `protobuf:"bytes,4,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId int64 `protobuf:"varint,4,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	// Whether to enable "Remember Me" for extended session duration.
 	IsRemember bool `protobuf:"varint,5,opt,name=is_remember,json=isRemember,proto3" json:"is_remember,omitempty"`
 	// api url
@@ -4361,11 +4341,11 @@ func (x *Session) GetRefreshToken() string {
 	return ""
 }
 
-func (x *Session) GetUserId() string {
+func (x *Session) GetUserId() int64 {
 	if x != nil {
 		return x.UserId
 	}
-	return ""
+	return 0
 }
 
 func (x *Session) GetIsRemember() bool {
@@ -4458,7 +4438,7 @@ type UpdateAccountRequest struct {
 	// update about me
 	AboutMe *wrapperspb.StringValue `protobuf:"bytes,6,opt,name=about_me,json=aboutMe,proto3" json:"about_me,omitempty"`
 	// date of birth
-	Dob *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=dob,proto3" json:"dob,omitempty"`
+	DobSeconds uint32 `protobuf:"varint,7,opt,name=dob_seconds,json=dobSeconds,proto3" json:"dob_seconds,omitempty"`
 	// logo url
 	Logo *wrapperspb.StringValue `protobuf:"bytes,8,opt,name=logo,proto3" json:"logo,omitempty"`
 	// splash screen
@@ -4543,11 +4523,11 @@ func (x *UpdateAccountRequest) GetAboutMe() *wrapperspb.StringValue {
 	return nil
 }
 
-func (x *UpdateAccountRequest) GetDob() *timestamppb.Timestamp {
+func (x *UpdateAccountRequest) GetDobSeconds() uint32 {
 	if x != nil {
-		return x.Dob
+		return x.DobSeconds
 	}
-	return nil
+	return 0
 }
 
 func (x *UpdateAccountRequest) GetLogo() *wrapperspb.StringValue {
@@ -4582,7 +4562,7 @@ func (x *UpdateAccountRequest) GetEmail() *wrapperspb.StringValue {
 type UpdateGroupRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The ID of the group to update.
-	GroupId string `protobuf:"bytes,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	GroupId int64 `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	// Name.
 	Name *wrapperspb.StringValue `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	// Description string.
@@ -4592,7 +4572,7 @@ type UpdateGroupRequest struct {
 	// Avatar URL.
 	AvatarUrl *wrapperspb.StringValue `protobuf:"bytes,5,opt,name=avatar_url,json=avatarUrl,proto3" json:"avatar_url,omitempty"`
 	// Open is true if anyone should be allowed to join, or false if joins must be approved by a group admin.
-	Open          *wrapperspb.BoolValue `protobuf:"bytes,6,opt,name=open,proto3" json:"open,omitempty"`
+	Open          bool `protobuf:"varint,6,opt,name=open,proto3" json:"open,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -4627,11 +4607,11 @@ func (*UpdateGroupRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{54}
 }
 
-func (x *UpdateGroupRequest) GetGroupId() string {
+func (x *UpdateGroupRequest) GetGroupId() int64 {
 	if x != nil {
 		return x.GroupId
 	}
-	return ""
+	return 0
 }
 
 func (x *UpdateGroupRequest) GetName() *wrapperspb.StringValue {
@@ -4662,19 +4642,19 @@ func (x *UpdateGroupRequest) GetAvatarUrl() *wrapperspb.StringValue {
 	return nil
 }
 
-func (x *UpdateGroupRequest) GetOpen() *wrapperspb.BoolValue {
+func (x *UpdateGroupRequest) GetOpen() bool {
 	if x != nil {
 		return x.Open
 	}
-	return nil
+	return false
 }
 
 type UpdateCategoryDescRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The ID of the group to update.
-	CategoryId    string `protobuf:"bytes,1,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
+	CategoryId    int64  `protobuf:"varint,1,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
 	CategoryName  string `protobuf:"bytes,2,opt,name=category_name,json=categoryName,proto3" json:"category_name,omitempty"`
-	ClanId        string `protobuf:"bytes,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64  `protobuf:"varint,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -4709,11 +4689,11 @@ func (*UpdateCategoryDescRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{55}
 }
 
-func (x *UpdateCategoryDescRequest) GetCategoryId() string {
+func (x *UpdateCategoryDescRequest) GetCategoryId() int64 {
 	if x != nil {
 		return x.CategoryId
 	}
-	return ""
+	return 0
 }
 
 func (x *UpdateCategoryDescRequest) GetCategoryName() string {
@@ -4723,18 +4703,18 @@ func (x *UpdateCategoryDescRequest) GetCategoryName() string {
 	return ""
 }
 
-func (x *UpdateCategoryDescRequest) GetClanId() string {
+func (x *UpdateCategoryDescRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 // A user in the server.
 type User struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The id of the user's account.
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// The username of the user's account.
 	Username string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
 	// The display name of the user.
@@ -4756,17 +4736,17 @@ type User struct {
 	// Number of related edges to this user.
 	EdgeCount int32 `protobuf:"varint,11,opt,name=edge_count,json=edgeCount,proto3" json:"edge_count,omitempty"`
 	// The UNIX time (for gRPC clients) or ISO string (for REST clients) when the user was created.
-	CreateTime *timestamppb.Timestamp `protobuf:"bytes,12,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
+	CreateTimeSeconds uint32 `protobuf:"varint,12,opt,name=create_time_seconds,json=createTimeSeconds,proto3" json:"create_time_seconds,omitempty"`
 	// The UNIX time (for gRPC clients) or ISO string (for REST clients) when the user was last updated.
-	UpdateTime *timestamppb.Timestamp `protobuf:"bytes,13,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
+	UpdateTimeSeconds uint32 `protobuf:"varint,13,opt,name=update_time_seconds,json=updateTimeSeconds,proto3" json:"update_time_seconds,omitempty"`
 	// About me
 	AboutMe string `protobuf:"bytes,14,opt,name=about_me,json=aboutMe,proto3" json:"about_me,omitempty"`
 	// Join time
-	JoinTime *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=join_time,json=joinTime,proto3" json:"join_time,omitempty"`
+	JoinTimeSeconds uint32 `protobuf:"varint,15,opt,name=join_time_seconds,json=joinTimeSeconds,proto3" json:"join_time_seconds,omitempty"`
 	// Platform
 	IsMobile bool `protobuf:"varint,16,opt,name=is_mobile,json=isMobile,proto3" json:"is_mobile,omitempty"`
 	// dob
-	Dob *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=dob,proto3" json:"dob,omitempty"`
+	DobSeconds uint32 `protobuf:"varint,17,opt,name=dob_seconds,json=dobSeconds,proto3" json:"dob_seconds,omitempty"`
 	// Mezone id
 	MezonId string `protobuf:"bytes,18,opt,name=mezon_id,json=mezonId,proto3" json:"mezon_id,omitempty"`
 	// list clan nick name
@@ -4807,11 +4787,11 @@ func (*User) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{56}
 }
 
-func (x *User) GetId() string {
+func (x *User) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 func (x *User) GetUsername() string {
@@ -4884,18 +4864,18 @@ func (x *User) GetEdgeCount() int32 {
 	return 0
 }
 
-func (x *User) GetCreateTime() *timestamppb.Timestamp {
+func (x *User) GetCreateTimeSeconds() uint32 {
 	if x != nil {
-		return x.CreateTime
+		return x.CreateTimeSeconds
 	}
-	return nil
+	return 0
 }
 
-func (x *User) GetUpdateTime() *timestamppb.Timestamp {
+func (x *User) GetUpdateTimeSeconds() uint32 {
 	if x != nil {
-		return x.UpdateTime
+		return x.UpdateTimeSeconds
 	}
-	return nil
+	return 0
 }
 
 func (x *User) GetAboutMe() string {
@@ -4905,11 +4885,11 @@ func (x *User) GetAboutMe() string {
 	return ""
 }
 
-func (x *User) GetJoinTime() *timestamppb.Timestamp {
+func (x *User) GetJoinTimeSeconds() uint32 {
 	if x != nil {
-		return x.JoinTime
+		return x.JoinTimeSeconds
 	}
-	return nil
+	return 0
 }
 
 func (x *User) GetIsMobile() bool {
@@ -4919,11 +4899,11 @@ func (x *User) GetIsMobile() bool {
 	return false
 }
 
-func (x *User) GetDob() *timestamppb.Timestamp {
+func (x *User) GetDobSeconds() uint32 {
 	if x != nil {
-		return x.Dob
+		return x.DobSeconds
 	}
-	return nil
+	return 0
 }
 
 func (x *User) GetMezonId() string {
@@ -4997,9 +4977,9 @@ func (x *Users) GetUsers() []*User {
 type ClanDescProfile struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Clan id
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// Clan creator
-	CreatorId string `protobuf:"bytes,2,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
+	CreatorId int64 `protobuf:"varint,2,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
 	// Clan nick name
 	NickName string `protobuf:"bytes,3,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`
 	// Clan profile banner
@@ -5042,18 +5022,18 @@ func (*ClanDescProfile) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{58}
 }
 
-func (x *ClanDescProfile) GetClanId() string {
+func (x *ClanDescProfile) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *ClanDescProfile) GetCreatorId() string {
+func (x *ClanDescProfile) GetCreatorId() int64 {
 	if x != nil {
 		return x.CreatorId
 	}
-	return ""
+	return 0
 }
 
 func (x *ClanDescProfile) GetNickName() string {
@@ -5088,7 +5068,7 @@ func (x *ClanDescProfile) GetAvatarUrl() string {
 type UpdateClanDescProfileRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Clan id
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// Clan nick name
 	NickName string `protobuf:"bytes,2,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`
 	// Clan profile banner
@@ -5131,11 +5111,11 @@ func (*UpdateClanDescProfileRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{59}
 }
 
-func (x *UpdateClanDescProfileRequest) GetClanId() string {
+func (x *UpdateClanDescProfileRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *UpdateClanDescProfileRequest) GetNickName() string {
@@ -5170,7 +5150,7 @@ func (x *UpdateClanDescProfileRequest) GetAvatarUrl() string {
 type ClanDescProfileRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Clan id
-	ClanId        string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -5205,18 +5185,18 @@ func (*ClanDescProfileRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{60}
 }
 
-func (x *ClanDescProfileRequest) GetClanId() string {
+func (x *ClanDescProfileRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 // Clan information
 type ClanDesc struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Clan creator
-	CreatorId string `protobuf:"bytes,1,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
+	CreatorId int64 `protobuf:"varint,1,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
 	// Clan name
 	ClanName string `protobuf:"bytes,2,opt,name=clan_name,json=clanName,proto3" json:"clan_name,omitempty"`
 	// Clan logo
@@ -5224,7 +5204,7 @@ type ClanDesc struct {
 	// Clan banner
 	Banner string `protobuf:"bytes,4,opt,name=banner,proto3" json:"banner,omitempty"`
 	// Clan id
-	ClanId string `protobuf:"bytes,5,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,5,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// Clan status
 	Status int32 `protobuf:"varint,6,opt,name=status,proto3" json:"status,omitempty"`
 	// Badge count
@@ -5232,7 +5212,7 @@ type ClanDesc struct {
 	// Is onboarding.
 	IsOnboarding bool `protobuf:"varint,8,opt,name=is_onboarding,json=isOnboarding,proto3" json:"is_onboarding,omitempty"`
 	// Welcome channel id.
-	WelcomeChannelId string `protobuf:"bytes,9,opt,name=welcome_channel_id,json=welcomeChannelId,proto3" json:"welcome_channel_id,omitempty"`
+	WelcomeChannelId int64 `protobuf:"varint,9,opt,name=welcome_channel_id,json=welcomeChannelId,proto3" json:"welcome_channel_id,omitempty"`
 	// Onboarding_banner.
 	OnboardingBanner string `protobuf:"bytes,10,opt,name=onboarding_banner,json=onboardingBanner,proto3" json:"onboarding_banner,omitempty"`
 	// clan order
@@ -5285,11 +5265,11 @@ func (*ClanDesc) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{61}
 }
 
-func (x *ClanDesc) GetCreatorId() string {
+func (x *ClanDesc) GetCreatorId() int64 {
 	if x != nil {
 		return x.CreatorId
 	}
-	return ""
+	return 0
 }
 
 func (x *ClanDesc) GetClanName() string {
@@ -5313,11 +5293,11 @@ func (x *ClanDesc) GetBanner() string {
 	return ""
 }
 
-func (x *ClanDesc) GetClanId() string {
+func (x *ClanDesc) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *ClanDesc) GetStatus() int32 {
@@ -5341,11 +5321,11 @@ func (x *ClanDesc) GetIsOnboarding() bool {
 	return false
 }
 
-func (x *ClanDesc) GetWelcomeChannelId() string {
+func (x *ClanDesc) GetWelcomeChannelId() int64 {
 	if x != nil {
 		return x.WelcomeChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *ClanDesc) GetOnboardingBanner() string {
@@ -5478,7 +5458,7 @@ func (x *CreateClanDescRequest) GetBanner() string {
 // Update Clan information
 type UpdateClanDescRequest struct {
 	state  protoimpl.MessageState `protogen:"open.v1"`
-	ClanId string                 `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64                  `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// Clan name
 	ClanName string `protobuf:"bytes,2,opt,name=clan_name,json=clanName,proto3" json:"clan_name,omitempty"`
 	// Clan logo
@@ -5490,7 +5470,7 @@ type UpdateClanDescRequest struct {
 	// Is onboarding.
 	IsOnboarding *wrapperspb.BoolValue `protobuf:"bytes,6,opt,name=is_onboarding,json=isOnboarding,proto3" json:"is_onboarding,omitempty"`
 	// Welcome channel id.
-	WelcomeChannelId string `protobuf:"bytes,7,opt,name=welcome_channel_id,json=welcomeChannelId,proto3" json:"welcome_channel_id,omitempty"`
+	WelcomeChannelId int64 `protobuf:"varint,7,opt,name=welcome_channel_id,json=welcomeChannelId,proto3" json:"welcome_channel_id,omitempty"`
 	// Onboarding_banner.
 	OnboardingBanner *wrapperspb.StringValue `protobuf:"bytes,8,opt,name=onboarding_banner,json=onboardingBanner,proto3" json:"onboarding_banner,omitempty"`
 	// Enable community.
@@ -5539,11 +5519,11 @@ func (*UpdateClanDescRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{63}
 }
 
-func (x *UpdateClanDescRequest) GetClanId() string {
+func (x *UpdateClanDescRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *UpdateClanDescRequest) GetClanName() string {
@@ -5581,11 +5561,11 @@ func (x *UpdateClanDescRequest) GetIsOnboarding() *wrapperspb.BoolValue {
 	return nil
 }
 
-func (x *UpdateClanDescRequest) GetWelcomeChannelId() string {
+func (x *UpdateClanDescRequest) GetWelcomeChannelId() int64 {
 	if x != nil {
 		return x.WelcomeChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *UpdateClanDescRequest) GetOnboardingBanner() *wrapperspb.StringValue {
@@ -5641,7 +5621,7 @@ func (x *UpdateClanDescRequest) GetPreventAnonymous() bool {
 type DeleteClanDescRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The id of a group.
-	ClanDescId    string `protobuf:"bytes,1,opt,name=clan_desc_id,json=clanDescId,proto3" json:"clan_desc_id,omitempty"`
+	ClanDescId    int64 `protobuf:"varint,1,opt,name=clan_desc_id,json=clanDescId,proto3" json:"clan_desc_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -5676,20 +5656,20 @@ func (*DeleteClanDescRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{64}
 }
 
-func (x *DeleteClanDescRequest) GetClanDescId() string {
+func (x *DeleteClanDescRequest) GetClanDescId() int64 {
 	if x != nil {
 		return x.ClanDescId
 	}
-	return ""
+	return 0
 }
 
 // List (and optionally filter) channels.
 type ListClanDescRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Max number of records to return. Between 1 and 100.
-	Limit *wrapperspb.Int32Value `protobuf:"bytes,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit int32 `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
 	// The friend state to list.
-	State *wrapperspb.Int32Value `protobuf:"bytes,2,opt,name=state,proto3" json:"state,omitempty"`
+	State int32 `protobuf:"varint,2,opt,name=state,proto3" json:"state,omitempty"`
 	// Cursor to start from
 	Cursor        string `protobuf:"bytes,3,opt,name=cursor,proto3" json:"cursor,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -5726,18 +5706,18 @@ func (*ListClanDescRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{65}
 }
 
-func (x *ListClanDescRequest) GetLimit() *wrapperspb.Int32Value {
+func (x *ListClanDescRequest) GetLimit() int32 {
 	if x != nil {
 		return x.Limit
 	}
-	return nil
+	return 0
 }
 
-func (x *ListClanDescRequest) GetState() *wrapperspb.Int32Value {
+func (x *ListClanDescRequest) GetState() int32 {
 	if x != nil {
 		return x.State
 	}
-	return nil
+	return 0
 }
 
 func (x *ListClanDescRequest) GetCursor() string {
@@ -5749,7 +5729,7 @@ func (x *ListClanDescRequest) GetCursor() string {
 
 type ListClanUnreadMsgIndicatorRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ClanId        string                 `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -5784,11 +5764,11 @@ func (*ListClanUnreadMsgIndicatorRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{66}
 }
 
-func (x *ListClanUnreadMsgIndicatorRequest) GetClanId() string {
+func (x *ListClanUnreadMsgIndicatorRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 type ListClanUnreadMsgIndicatorResponse struct {
@@ -5885,9 +5865,9 @@ func (x *ClanDescList) GetClandesc() []*ClanDesc {
 type LinkInviteUserRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// id clan to add link to .
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// id channel to add link to.
-	ChannelId string `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// expiry time
 	ExpiryTime    int32 `protobuf:"varint,3,opt,name=expiry_time,json=expiryTime,proto3" json:"expiry_time,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -5924,18 +5904,18 @@ func (*LinkInviteUserRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{69}
 }
 
-func (x *LinkInviteUserRequest) GetClanId() string {
+func (x *LinkInviteUserRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *LinkInviteUserRequest) GetChannelId() string {
+func (x *LinkInviteUserRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *LinkInviteUserRequest) GetExpiryTime() int32 {
@@ -5949,7 +5929,7 @@ func (x *LinkInviteUserRequest) GetExpiryTime() int32 {
 type InviteUserRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// id clan to add link to .
-	InviteId      string `protobuf:"bytes,1,opt,name=invite_id,json=inviteId,proto3" json:"invite_id,omitempty"`
+	InviteId      int64 `protobuf:"varint,1,opt,name=invite_id,json=inviteId,proto3" json:"invite_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -5984,20 +5964,20 @@ func (*InviteUserRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{70}
 }
 
-func (x *InviteUserRequest) GetInviteId() string {
+func (x *InviteUserRequest) GetInviteId() int64 {
 	if x != nil {
 		return x.InviteId
 	}
-	return ""
+	return 0
 }
 
 // Add link invite users to.
 type InviteUserRes struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// id clan to add link to .
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// id channel to add link to.
-	ChannelId string `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// clan name
 	ClanName string `protobuf:"bytes,3,opt,name=clan_name,json=clanName,proto3" json:"clan_name,omitempty"`
 	// channel name
@@ -6005,7 +5985,7 @@ type InviteUserRes struct {
 	// check user exist
 	UserJoined bool `protobuf:"varint,5,opt,name=user_joined,json=userJoined,proto3" json:"user_joined,omitempty"`
 	// expiry_time
-	ExpiryTime *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=expiry_time,json=expiryTime,proto3" json:"expiry_time,omitempty"`
+	ExpiryTimeSeconds uint32 `protobuf:"varint,6,opt,name=expiry_time_seconds,json=expiryTimeSeconds,proto3" json:"expiry_time_seconds,omitempty"`
 	ChannelDesc   *ChannelDescription `protobuf:"bytes,7,opt,name=channel_desc,json=channelDesc,proto3" json:"channel_desc,omitempty"`
 	ClanLogo      string              `protobuf:"bytes,8,opt,name=clan_logo,json=clanLogo,proto3" json:"clan_logo,omitempty"`
 	MemberCount   int32               `protobuf:"varint,9,opt,name=member_count,json=memberCount,proto3" json:"member_count,omitempty"`
@@ -6043,18 +6023,18 @@ func (*InviteUserRes) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{71}
 }
 
-func (x *InviteUserRes) GetClanId() string {
+func (x *InviteUserRes) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *InviteUserRes) GetChannelId() string {
+func (x *InviteUserRes) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *InviteUserRes) GetClanName() string {
@@ -6078,11 +6058,11 @@ func (x *InviteUserRes) GetUserJoined() bool {
 	return false
 }
 
-func (x *InviteUserRes) GetExpiryTime() *timestamppb.Timestamp {
+func (x *InviteUserRes) GetExpiryTimeSeconds() uint32 {
 	if x != nil {
-		return x.ExpiryTime
+		return x.ExpiryTimeSeconds
 	}
-	return nil
+	return 0
 }
 
 func (x *InviteUserRes) GetChannelDesc() *ChannelDescription {
@@ -6110,9 +6090,9 @@ func (x *InviteUserRes) GetMemberCount() int32 {
 type JoinClanChannelRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// id clan to add link to .
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// id channel to add link to.
-	ChannelId     string `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId     int64 `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -6147,38 +6127,38 @@ func (*JoinClanChannelRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{72}
 }
 
-func (x *JoinClanChannelRequest) GetClanId() string {
+func (x *JoinClanChannelRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *JoinClanChannelRequest) GetChannelId() string {
+func (x *JoinClanChannelRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 // Add link invite users to.
 type LinkInviteUser struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// id clan
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// The user to add.
-	CreatorId string `protobuf:"bytes,2,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
+	CreatorId int64 `protobuf:"varint,2,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
 	// is clan invite
-	ChannelId string `protobuf:"bytes,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// link invite
 	InviteLink string `protobuf:"bytes,4,opt,name=invite_link,json=inviteLink,proto3" json:"invite_link,omitempty"`
 	// create time
-	CreateTime *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
+	CreateTimeSeconds uint32 `protobuf:"varint,5,opt,name=create_time_seconds,json=createTimeSeconds,proto3" json:"create_time_seconds,omitempty"`
 	// expiry time
-	ExpiryTime    *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=expiry_time,json=expiryTime,proto3" json:"expiry_time,omitempty"`
-	Id            string                 `protobuf:"bytes,7,opt,name=id,proto3" json:"id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ExpiryTimeSeconds uint32 `protobuf:"varint,6,opt,name=expiry_time_seconds,json=expiryTimeSeconds,proto3" json:"expiry_time_seconds,omitempty"`
+	Id                int64  `protobuf:"varint,7,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *LinkInviteUser) Reset() {
@@ -6211,25 +6191,25 @@ func (*LinkInviteUser) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{73}
 }
 
-func (x *LinkInviteUser) GetClanId() string {
+func (x *LinkInviteUser) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *LinkInviteUser) GetCreatorId() string {
+func (x *LinkInviteUser) GetCreatorId() int64 {
 	if x != nil {
 		return x.CreatorId
 	}
-	return ""
+	return 0
 }
 
-func (x *LinkInviteUser) GetChannelId() string {
+func (x *LinkInviteUser) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *LinkInviteUser) GetInviteLink() string {
@@ -6239,38 +6219,38 @@ func (x *LinkInviteUser) GetInviteLink() string {
 	return ""
 }
 
-func (x *LinkInviteUser) GetCreateTime() *timestamppb.Timestamp {
+func (x *LinkInviteUser) GetCreateTimeSeconds() uint32 {
 	if x != nil {
-		return x.CreateTime
+		return x.CreateTimeSeconds
 	}
-	return nil
+	return 0
 }
 
-func (x *LinkInviteUser) GetExpiryTime() *timestamppb.Timestamp {
+func (x *LinkInviteUser) GetExpiryTimeSeconds() uint32 {
 	if x != nil {
-		return x.ExpiryTime
+		return x.ExpiryTimeSeconds
 	}
-	return nil
+	return 0
 }
 
-func (x *LinkInviteUser) GetId() string {
+func (x *LinkInviteUser) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 // Get clan profile.
 type ClanProfile struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// id user to find user
-	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId int64 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	// name user
 	NickName string `protobuf:"bytes,2,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`
 	// id avatar
 	Avatar string `protobuf:"bytes,3,opt,name=avatar,proto3" json:"avatar,omitempty"`
 	// id clan
-	ClanId string `protobuf:"bytes,4,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,4,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// about clan
 	About         string `protobuf:"bytes,5,opt,name=about,proto3" json:"about,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -6307,11 +6287,11 @@ func (*ClanProfile) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{74}
 }
 
-func (x *ClanProfile) GetUserId() string {
+func (x *ClanProfile) GetUserId() int64 {
 	if x != nil {
 		return x.UserId
 	}
-	return ""
+	return 0
 }
 
 func (x *ClanProfile) GetNickName() string {
@@ -6328,11 +6308,11 @@ func (x *ClanProfile) GetAvatar() string {
 	return ""
 }
 
-func (x *ClanProfile) GetClanId() string {
+func (x *ClanProfile) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *ClanProfile) GetAbout() string {
@@ -6346,7 +6326,7 @@ func (x *ClanProfile) GetAbout() string {
 type ClanProfileRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// id clanc
-	ClanId        string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -6381,18 +6361,18 @@ func (*ClanProfileRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{75}
 }
 
-func (x *ClanProfileRequest) GetClanId() string {
+func (x *ClanProfileRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 // update nickname user by clan requset
 type UpdateClanProfileRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// id clanc
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// nick_name new
 	NickName *wrapperspb.StringValue `protobuf:"bytes,2,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`
 	// avatar
@@ -6431,11 +6411,11 @@ func (*UpdateClanProfileRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{76}
 }
 
-func (x *UpdateClanProfileRequest) GetClanId() string {
+func (x *UpdateClanProfileRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *UpdateClanProfileRequest) GetNickName() *wrapperspb.StringValue {
@@ -6501,12 +6481,12 @@ func (x *UpdateClanOrderRequest) GetClansOrder() []*UpdateClanOrderRequest_ClanO
 type CategoryDesc struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Category creator
-	CreatorId string `protobuf:"bytes,1,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
+	CreatorId int64 `protobuf:"varint,1,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
 	// the Clan that category belong to
-	ClanId string `protobuf:"bytes,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// Category name
 	CategoryName  string `protobuf:"bytes,3,opt,name=category_name,json=categoryName,proto3" json:"category_name,omitempty"`
-	CategoryId    string `protobuf:"bytes,4,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
+	CategoryId    int64  `protobuf:"varint,4,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
 	CategoryOrder int32  `protobuf:"varint,5,opt,name=category_order,json=categoryOrder,proto3" json:"category_order,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -6542,18 +6522,18 @@ func (*CategoryDesc) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{78}
 }
 
-func (x *CategoryDesc) GetCreatorId() string {
+func (x *CategoryDesc) GetCreatorId() int64 {
 	if x != nil {
 		return x.CreatorId
 	}
-	return ""
+	return 0
 }
 
-func (x *CategoryDesc) GetClanId() string {
+func (x *CategoryDesc) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *CategoryDesc) GetCategoryName() string {
@@ -6563,11 +6543,11 @@ func (x *CategoryDesc) GetCategoryName() string {
 	return ""
 }
 
-func (x *CategoryDesc) GetCategoryId() string {
+func (x *CategoryDesc) GetCategoryId() int64 {
 	if x != nil {
 		return x.CategoryId
 	}
-	return ""
+	return 0
 }
 
 func (x *CategoryDesc) GetCategoryOrder() int32 {
@@ -6579,7 +6559,7 @@ func (x *CategoryDesc) GetCategoryOrder() int32 {
 
 type UpdateCategoryOrderRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ClanId        string                 `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	Categories    []*CategoryOrderUpdate `protobuf:"bytes,2,rep,name=categories,proto3" json:"categories,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -6615,11 +6595,11 @@ func (*UpdateCategoryOrderRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{79}
 }
 
-func (x *UpdateCategoryOrderRequest) GetClanId() string {
+func (x *UpdateCategoryOrderRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *UpdateCategoryOrderRequest) GetCategories() []*CategoryOrderUpdate {
@@ -6631,7 +6611,7 @@ func (x *UpdateCategoryOrderRequest) GetCategories() []*CategoryOrderUpdate {
 
 type UpdateRoleOrderRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ClanId        string                 `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	Roles         []*RoleOrderUpdate     `protobuf:"bytes,2,rep,name=roles,proto3" json:"roles,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -6667,11 +6647,11 @@ func (*UpdateRoleOrderRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{80}
 }
 
-func (x *UpdateRoleOrderRequest) GetClanId() string {
+func (x *UpdateRoleOrderRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *UpdateRoleOrderRequest) GetRoles() []*RoleOrderUpdate {
@@ -6683,7 +6663,7 @@ func (x *UpdateRoleOrderRequest) GetRoles() []*RoleOrderUpdate {
 
 type RoleOrderUpdate struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RoleId        string                 `protobuf:"bytes,1,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`
+	RoleId        int64                  `protobuf:"varint,1,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`
 	Order         int32                  `protobuf:"varint,2,opt,name=order,proto3" json:"order,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -6719,11 +6699,11 @@ func (*RoleOrderUpdate) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{81}
 }
 
-func (x *RoleOrderUpdate) GetRoleId() string {
+func (x *RoleOrderUpdate) GetRoleId() int64 {
 	if x != nil {
 		return x.RoleId
 	}
-	return ""
+	return 0
 }
 
 func (x *RoleOrderUpdate) GetOrder() int32 {
@@ -6735,7 +6715,7 @@ func (x *RoleOrderUpdate) GetOrder() int32 {
 
 type CategoryOrderUpdate struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	CategoryId    string                 `protobuf:"bytes,1,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
+	CategoryId    int64                  `protobuf:"varint,1,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
 	Order         int32                  `protobuf:"varint,2,opt,name=order,proto3" json:"order,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -6771,11 +6751,11 @@ func (*CategoryOrderUpdate) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{82}
 }
 
-func (x *CategoryOrderUpdate) GetCategoryId() string {
+func (x *CategoryOrderUpdate) GetCategoryId() int64 {
 	if x != nil {
 		return x.CategoryId
 	}
-	return ""
+	return 0
 }
 
 func (x *CategoryOrderUpdate) GetOrder() int32 {
@@ -6788,7 +6768,7 @@ func (x *CategoryOrderUpdate) GetOrder() int32 {
 type CreateCategoryDescRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	CategoryName  string                 `protobuf:"bytes,1,opt,name=category_name,json=categoryName,proto3" json:"category_name,omitempty"`
-	ClanId        string                 `protobuf:"bytes,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -6830,17 +6810,17 @@ func (x *CreateCategoryDescRequest) GetCategoryName() string {
 	return ""
 }
 
-func (x *CreateCategoryDescRequest) GetClanId() string {
+func (x *CreateCategoryDescRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 type DeleteCategoryDescRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	CategoryId    string                 `protobuf:"bytes,1,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
-	ClanId        string                 `protobuf:"bytes,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	CategoryId    int64                  `protobuf:"varint,1,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	CategoryLabel string                 `protobuf:"bytes,3,opt,name=category_label,json=categoryLabel,proto3" json:"category_label,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -6876,18 +6856,18 @@ func (*DeleteCategoryDescRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{84}
 }
 
-func (x *DeleteCategoryDescRequest) GetCategoryId() string {
+func (x *DeleteCategoryDescRequest) GetCategoryId() int64 {
 	if x != nil {
 		return x.CategoryId
 	}
-	return ""
+	return 0
 }
 
-func (x *DeleteCategoryDescRequest) GetClanId() string {
+func (x *DeleteCategoryDescRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *DeleteCategoryDescRequest) GetCategoryLabel() string {
@@ -6947,9 +6927,9 @@ func (x *CategoryDescList) GetCategorydesc() []*CategoryDesc {
 type ListCategoryDescsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Max number of records to return. Between 1 and 100.
-	Limit *wrapperspb.Int32Value `protobuf:"bytes,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit int32 `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
 	// The friend state to list.
-	State *wrapperspb.Int32Value `protobuf:"bytes,2,opt,name=state,proto3" json:"state,omitempty"`
+	State int32 `protobuf:"varint,2,opt,name=state,proto3" json:"state,omitempty"`
 	// Cursor to start from
 	Cursor        string `protobuf:"bytes,3,opt,name=cursor,proto3" json:"cursor,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -6986,18 +6966,18 @@ func (*ListCategoryDescsRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{86}
 }
 
-func (x *ListCategoryDescsRequest) GetLimit() *wrapperspb.Int32Value {
+func (x *ListCategoryDescsRequest) GetLimit() int32 {
 	if x != nil {
 		return x.Limit
 	}
-	return nil
+	return 0
 }
 
-func (x *ListCategoryDescsRequest) GetState() *wrapperspb.Int32Value {
+func (x *ListCategoryDescsRequest) GetState() int32 {
 	if x != nil {
 		return x.State
 	}
-	return nil
+	return 0
 }
 
 func (x *ListCategoryDescsRequest) GetCursor() string {
@@ -7010,21 +6990,13 @@ func (x *ListCategoryDescsRequest) GetCursor() string {
 type ChannelMessageHeader struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// the message id
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// the time stamp
 	TimestampSeconds uint32 `protobuf:"varint,2,opt,name=timestamp_seconds,json=timestampSeconds,proto3" json:"timestamp_seconds,omitempty"`
 	// the sender id
-	SenderId string `protobuf:"bytes,3,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
+	SenderId int64 `protobuf:"varint,3,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
 	// the content
-	Content string `protobuf:"bytes,4,opt,name=content,proto3" json:"content,omitempty"`
-	// the attachment
-	Attachment string `protobuf:"bytes,5,opt,name=attachment,proto3" json:"attachment,omitempty"`
-	// the reference
-	Reference string `protobuf:"bytes,6,opt,name=reference,proto3" json:"reference,omitempty"`
-	// the mention
-	Mention string `protobuf:"bytes,7,opt,name=mention,proto3" json:"mention,omitempty"`
-	// the reactions
-	Reaction      string `protobuf:"bytes,8,opt,name=reaction,proto3" json:"reaction,omitempty"`
+	Content       string `protobuf:"bytes,4,opt,name=content,proto3" json:"content,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -7059,11 +7031,11 @@ func (*ChannelMessageHeader) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{87}
 }
 
-func (x *ChannelMessageHeader) GetId() string {
+func (x *ChannelMessageHeader) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 func (x *ChannelMessageHeader) GetTimestampSeconds() uint32 {
@@ -7073,11 +7045,11 @@ func (x *ChannelMessageHeader) GetTimestampSeconds() uint32 {
 	return 0
 }
 
-func (x *ChannelMessageHeader) GetSenderId() string {
+func (x *ChannelMessageHeader) GetSenderId() int64 {
 	if x != nil {
 		return x.SenderId
 	}
-	return ""
+	return 0
 }
 
 func (x *ChannelMessageHeader) GetContent() string {
@@ -7087,367 +7059,23 @@ func (x *ChannelMessageHeader) GetContent() string {
 	return ""
 }
 
-func (x *ChannelMessageHeader) GetAttachment() string {
-	if x != nil {
-		return x.Attachment
-	}
-	return ""
-}
-
-func (x *ChannelMessageHeader) GetReference() string {
-	if x != nil {
-		return x.Reference
-	}
-	return ""
-}
-
-func (x *ChannelMessageHeader) GetMention() string {
-	if x != nil {
-		return x.Mention
-	}
-	return ""
-}
-
-func (x *ChannelMessageHeader) GetReaction() string {
-	if x != nil {
-		return x.Reaction
-	}
-	return ""
-}
-
-// Channel description record
-type ChannelDescriptionOld struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// The clan of this channel
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
-	// The parent channel this message belongs to.
-	ParentId string `protobuf:"bytes,2,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
-	// The channel this message belongs to.
-	ChannelId string `protobuf:"bytes,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	// The category of channel
-	CategoryId string `protobuf:"bytes,4,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
-	// The category name
-	CategoryName string `protobuf:"bytes,5,opt,name=category_name,json=categoryName,proto3" json:"category_name,omitempty"`
-	// The channel type.
-	Type *wrapperspb.Int32Value `protobuf:"bytes,6,opt,name=type,proto3" json:"type,omitempty"`
-	// creator ID.
-	CreatorId string `protobuf:"bytes,7,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
-	// The channel lable
-	ChannelLabel string `protobuf:"bytes,8,opt,name=channel_label,json=channelLabel,proto3" json:"channel_label,omitempty"`
-	// The channel private
-	ChannelPrivate int32 `protobuf:"varint,9,opt,name=channel_private,json=channelPrivate,proto3" json:"channel_private,omitempty"`
-	// DM avatars
-	Avatars []string `protobuf:"bytes,10,rep,name=avatars,proto3" json:"avatars,omitempty"`
-	// List DM user ids
-	UserIds []string `protobuf:"bytes,11,rep,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
-	// last message id
-	LastSentMessage *ChannelMessageHeader `protobuf:"bytes,12,opt,name=last_sent_message,json=lastSentMessage,proto3" json:"last_sent_message,omitempty"`
-	// last seen message id
-	LastSeenMessage *ChannelMessageHeader `protobuf:"bytes,13,opt,name=last_seen_message,json=lastSeenMessage,proto3" json:"last_seen_message,omitempty"`
-	// DM status
-	Onlines []bool `protobuf:"varint,14,rep,packed,name=onlines,proto3" json:"onlines,omitempty"`
-	// meeting code
-	MeetingCode string `protobuf:"bytes,15,opt,name=meeting_code,json=meetingCode,proto3" json:"meeting_code,omitempty"`
-	// count message unread
-	CountMessUnread int32 `protobuf:"varint,16,opt,name=count_mess_unread,json=countMessUnread,proto3" json:"count_mess_unread,omitempty"`
-	// active channel
-	Active int32 `protobuf:"varint,17,opt,name=active,proto3" json:"active,omitempty"`
-	// last pin message
-	LastPinMessage string `protobuf:"bytes,18,opt,name=last_pin_message,json=lastPinMessage,proto3" json:"last_pin_message,omitempty"`
-	// List DM usernames
-	Usernames []string `protobuf:"bytes,19,rep,name=usernames,proto3" json:"usernames,omitempty"`
-	// creator name
-	CreatorName string `protobuf:"bytes,20,opt,name=creator_name,json=creatorName,proto3" json:"creator_name,omitempty"`
-	// create time ms
-	CreateTimeSeconds uint32 `protobuf:"varint,21,opt,name=create_time_seconds,json=createTimeSeconds,proto3" json:"create_time_seconds,omitempty"`
-	// update time ms
-	UpdateTimeSeconds uint32 `protobuf:"varint,22,opt,name=update_time_seconds,json=updateTimeSeconds,proto3" json:"update_time_seconds,omitempty"`
-	// List DM diplay names
-	DisplayNames []string `protobuf:"bytes,23,rep,name=display_names,json=displayNames,proto3" json:"display_names,omitempty"`
-	// channel avatar
-	ChannelAvatar string `protobuf:"bytes,24,opt,name=channel_avatar,json=channelAvatar,proto3" json:"channel_avatar,omitempty"`
-	// clan_name
-	ClanName string `protobuf:"bytes,25,opt,name=clan_name,json=clanName,proto3" json:"clan_name,omitempty"`
-	// app id
-	AppId string `protobuf:"bytes,26,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
-	// channel all message
-	IsMute bool `protobuf:"varint,27,opt,name=is_mute,json=isMute,proto3" json:"is_mute,omitempty"`
-	// age restricted
-	AgeRestricted int32 `protobuf:"varint,28,opt,name=age_restricted,json=ageRestricted,proto3" json:"age_restricted,omitempty"`
-	// channel description topic
-	Topic string `protobuf:"bytes,29,opt,name=topic,proto3" json:"topic,omitempty"`
-	// e2ee
-	E2Ee int32 `protobuf:"varint,30,opt,name=e2ee,proto3" json:"e2ee,omitempty"`
-	// channel member count
-	MemberCount   int32 `protobuf:"varint,31,opt,name=member_count,json=memberCount,proto3" json:"member_count,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ChannelDescriptionOld) Reset() {
-	*x = ChannelDescriptionOld{}
-	mi := &file_api_api_proto_msgTypes[88]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ChannelDescriptionOld) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ChannelDescriptionOld) ProtoMessage() {}
-
-func (x *ChannelDescriptionOld) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[88]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ChannelDescriptionOld.ProtoReflect.Descriptor instead.
-func (*ChannelDescriptionOld) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{88}
-}
-
-func (x *ChannelDescriptionOld) GetClanId() string {
-	if x != nil {
-		return x.ClanId
-	}
-	return ""
-}
-
-func (x *ChannelDescriptionOld) GetParentId() string {
-	if x != nil {
-		return x.ParentId
-	}
-	return ""
-}
-
-func (x *ChannelDescriptionOld) GetChannelId() string {
-	if x != nil {
-		return x.ChannelId
-	}
-	return ""
-}
-
-func (x *ChannelDescriptionOld) GetCategoryId() string {
-	if x != nil {
-		return x.CategoryId
-	}
-	return ""
-}
-
-func (x *ChannelDescriptionOld) GetCategoryName() string {
-	if x != nil {
-		return x.CategoryName
-	}
-	return ""
-}
-
-func (x *ChannelDescriptionOld) GetType() *wrapperspb.Int32Value {
-	if x != nil {
-		return x.Type
-	}
-	return nil
-}
-
-func (x *ChannelDescriptionOld) GetCreatorId() string {
-	if x != nil {
-		return x.CreatorId
-	}
-	return ""
-}
-
-func (x *ChannelDescriptionOld) GetChannelLabel() string {
-	if x != nil {
-		return x.ChannelLabel
-	}
-	return ""
-}
-
-func (x *ChannelDescriptionOld) GetChannelPrivate() int32 {
-	if x != nil {
-		return x.ChannelPrivate
-	}
-	return 0
-}
-
-func (x *ChannelDescriptionOld) GetAvatars() []string {
-	if x != nil {
-		return x.Avatars
-	}
-	return nil
-}
-
-func (x *ChannelDescriptionOld) GetUserIds() []string {
-	if x != nil {
-		return x.UserIds
-	}
-	return nil
-}
-
-func (x *ChannelDescriptionOld) GetLastSentMessage() *ChannelMessageHeader {
-	if x != nil {
-		return x.LastSentMessage
-	}
-	return nil
-}
-
-func (x *ChannelDescriptionOld) GetLastSeenMessage() *ChannelMessageHeader {
-	if x != nil {
-		return x.LastSeenMessage
-	}
-	return nil
-}
-
-func (x *ChannelDescriptionOld) GetOnlines() []bool {
-	if x != nil {
-		return x.Onlines
-	}
-	return nil
-}
-
-func (x *ChannelDescriptionOld) GetMeetingCode() string {
-	if x != nil {
-		return x.MeetingCode
-	}
-	return ""
-}
-
-func (x *ChannelDescriptionOld) GetCountMessUnread() int32 {
-	if x != nil {
-		return x.CountMessUnread
-	}
-	return 0
-}
-
-func (x *ChannelDescriptionOld) GetActive() int32 {
-	if x != nil {
-		return x.Active
-	}
-	return 0
-}
-
-func (x *ChannelDescriptionOld) GetLastPinMessage() string {
-	if x != nil {
-		return x.LastPinMessage
-	}
-	return ""
-}
-
-func (x *ChannelDescriptionOld) GetUsernames() []string {
-	if x != nil {
-		return x.Usernames
-	}
-	return nil
-}
-
-func (x *ChannelDescriptionOld) GetCreatorName() string {
-	if x != nil {
-		return x.CreatorName
-	}
-	return ""
-}
-
-func (x *ChannelDescriptionOld) GetCreateTimeSeconds() uint32 {
-	if x != nil {
-		return x.CreateTimeSeconds
-	}
-	return 0
-}
-
-func (x *ChannelDescriptionOld) GetUpdateTimeSeconds() uint32 {
-	if x != nil {
-		return x.UpdateTimeSeconds
-	}
-	return 0
-}
-
-func (x *ChannelDescriptionOld) GetDisplayNames() []string {
-	if x != nil {
-		return x.DisplayNames
-	}
-	return nil
-}
-
-func (x *ChannelDescriptionOld) GetChannelAvatar() string {
-	if x != nil {
-		return x.ChannelAvatar
-	}
-	return ""
-}
-
-func (x *ChannelDescriptionOld) GetClanName() string {
-	if x != nil {
-		return x.ClanName
-	}
-	return ""
-}
-
-func (x *ChannelDescriptionOld) GetAppId() string {
-	if x != nil {
-		return x.AppId
-	}
-	return ""
-}
-
-func (x *ChannelDescriptionOld) GetIsMute() bool {
-	if x != nil {
-		return x.IsMute
-	}
-	return false
-}
-
-func (x *ChannelDescriptionOld) GetAgeRestricted() int32 {
-	if x != nil {
-		return x.AgeRestricted
-	}
-	return 0
-}
-
-func (x *ChannelDescriptionOld) GetTopic() string {
-	if x != nil {
-		return x.Topic
-	}
-	return ""
-}
-
-func (x *ChannelDescriptionOld) GetE2Ee() int32 {
-	if x != nil {
-		return x.E2Ee
-	}
-	return 0
-}
-
-func (x *ChannelDescriptionOld) GetMemberCount() int32 {
-	if x != nil {
-		return x.MemberCount
-	}
-	return 0
-}
-
 // Channel description record
 type ChannelDescription struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The clan of this channel
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// The parent channel this message belongs to.
-	ParentId string `protobuf:"bytes,2,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
+	ParentId int64 `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
 	// The channel this message belongs to.
-	ChannelId string `protobuf:"bytes,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// The category of channel
-	CategoryId string `protobuf:"bytes,4,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
+	CategoryId int64 `protobuf:"varint,4,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
 	// The category name
 	CategoryName string `protobuf:"bytes,5,opt,name=category_name,json=categoryName,proto3" json:"category_name,omitempty"`
 	// The channel type.
-	Type int32 `protobuf:"varint,6,opt,name=type,proto3" json:"type,omitempty"` //google.protobuf.Int32Value type = 6;
+	Type int32 `protobuf:"varint,6,opt,name=type,proto3" json:"type,omitempty"` //int32 type = 6;
 	// creator ID.
-	CreatorId string `protobuf:"bytes,7,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
+	CreatorId int64 `protobuf:"varint,7,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
 	// The channel lable
 	ChannelLabel string `protobuf:"bytes,8,opt,name=channel_label,json=channelLabel,proto3" json:"channel_label,omitempty"`
 	// The channel private
@@ -7455,7 +7083,7 @@ type ChannelDescription struct {
 	// DM avatars
 	Avatars []string `protobuf:"bytes,10,rep,name=avatars,proto3" json:"avatars,omitempty"`
 	// List DM user ids
-	UserIds []string `protobuf:"bytes,11,rep,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
+	UserIds []int64 `protobuf:"varint,11,rep,packed,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
 	// last message id
 	LastSentMessage *ChannelMessageHeader `protobuf:"bytes,12,opt,name=last_sent_message,json=lastSentMessage,proto3" json:"last_sent_message,omitempty"`
 	// last seen message id
@@ -7485,7 +7113,7 @@ type ChannelDescription struct {
 	// clan_name
 	ClanName string `protobuf:"bytes,25,opt,name=clan_name,json=clanName,proto3" json:"clan_name,omitempty"`
 	// app id
-	AppId string `protobuf:"bytes,26,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	AppId int64 `protobuf:"varint,26,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
 	// channel all message
 	IsMute bool `protobuf:"varint,27,opt,name=is_mute,json=isMute,proto3" json:"is_mute,omitempty"`
 	// age restricted
@@ -7502,7 +7130,7 @@ type ChannelDescription struct {
 
 func (x *ChannelDescription) Reset() {
 	*x = ChannelDescription{}
-	mi := &file_api_api_proto_msgTypes[89]
+	mi := &file_api_api_proto_msgTypes[88]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7514,7 +7142,7 @@ func (x *ChannelDescription) String() string {
 func (*ChannelDescription) ProtoMessage() {}
 
 func (x *ChannelDescription) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[89]
+	mi := &file_api_api_proto_msgTypes[88]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7527,35 +7155,35 @@ func (x *ChannelDescription) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChannelDescription.ProtoReflect.Descriptor instead.
 func (*ChannelDescription) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{89}
+	return file_api_api_proto_rawDescGZIP(), []int{88}
 }
 
-func (x *ChannelDescription) GetClanId() string {
+func (x *ChannelDescription) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *ChannelDescription) GetParentId() string {
+func (x *ChannelDescription) GetParentId() int64 {
 	if x != nil {
 		return x.ParentId
 	}
-	return ""
+	return 0
 }
 
-func (x *ChannelDescription) GetChannelId() string {
+func (x *ChannelDescription) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *ChannelDescription) GetCategoryId() string {
+func (x *ChannelDescription) GetCategoryId() int64 {
 	if x != nil {
 		return x.CategoryId
 	}
-	return ""
+	return 0
 }
 
 func (x *ChannelDescription) GetCategoryName() string {
@@ -7572,11 +7200,11 @@ func (x *ChannelDescription) GetType() int32 {
 	return 0
 }
 
-func (x *ChannelDescription) GetCreatorId() string {
+func (x *ChannelDescription) GetCreatorId() int64 {
 	if x != nil {
 		return x.CreatorId
 	}
-	return ""
+	return 0
 }
 
 func (x *ChannelDescription) GetChannelLabel() string {
@@ -7600,7 +7228,7 @@ func (x *ChannelDescription) GetAvatars() []string {
 	return nil
 }
 
-func (x *ChannelDescription) GetUserIds() []string {
+func (x *ChannelDescription) GetUserIds() []int64 {
 	if x != nil {
 		return x.UserIds
 	}
@@ -7705,11 +7333,11 @@ func (x *ChannelDescription) GetClanName() string {
 	return ""
 }
 
-func (x *ChannelDescription) GetAppId() string {
+func (x *ChannelDescription) GetAppId() int64 {
 	if x != nil {
 		return x.AppId
 	}
-	return ""
+	return 0
 }
 
 func (x *ChannelDescription) GetIsMute() bool {
@@ -7751,16 +7379,14 @@ func (x *ChannelDescription) GetMemberCount() int32 {
 type ChannelDescList struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// A list of channel.
-	Channeldesc []*ChannelDescription `protobuf:"bytes,1,rep,name=channeldesc,proto3" json:"channeldesc,omitempty"`
-	// Page thread
-	Page          int32 `protobuf:"varint,2,opt,name=page,proto3" json:"page,omitempty"`
+	Channeldesc   []*ChannelDescription `protobuf:"bytes,1,rep,name=channeldesc,proto3" json:"channeldesc,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ChannelDescList) Reset() {
 	*x = ChannelDescList{}
-	mi := &file_api_api_proto_msgTypes[90]
+	mi := &file_api_api_proto_msgTypes[89]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7772,7 +7398,7 @@ func (x *ChannelDescList) String() string {
 func (*ChannelDescList) ProtoMessage() {}
 
 func (x *ChannelDescList) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[90]
+	mi := &file_api_api_proto_msgTypes[89]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7785,7 +7411,7 @@ func (x *ChannelDescList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChannelDescList.ProtoReflect.Descriptor instead.
 func (*ChannelDescList) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{90}
+	return file_api_api_proto_rawDescGZIP(), []int{89}
 }
 
 func (x *ChannelDescList) GetChanneldesc() []*ChannelDescription {
@@ -7795,7 +7421,55 @@ func (x *ChannelDescList) GetChanneldesc() []*ChannelDescription {
 	return nil
 }
 
-func (x *ChannelDescList) GetPage() int32 {
+// A list of channel description, usually a result of a list operation.
+type ChannelDescListNoPool struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// A list of channel.
+	Channeldesc []*ChannelDescription `protobuf:"bytes,1,rep,name=channeldesc,proto3" json:"channeldesc,omitempty"`
+	// Page thread
+	Page          int32 `protobuf:"varint,2,opt,name=page,proto3" json:"page,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChannelDescListNoPool) Reset() {
+	*x = ChannelDescListNoPool{}
+	mi := &file_api_api_proto_msgTypes[90]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChannelDescListNoPool) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChannelDescListNoPool) ProtoMessage() {}
+
+func (x *ChannelDescListNoPool) ProtoReflect() protoreflect.Message {
+	mi := &file_api_api_proto_msgTypes[90]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChannelDescListNoPool.ProtoReflect.Descriptor instead.
+func (*ChannelDescListNoPool) Descriptor() ([]byte, []int) {
+	return file_api_api_proto_rawDescGZIP(), []int{90}
+}
+
+func (x *ChannelDescListNoPool) GetChanneldesc() []*ChannelDescription {
+	if x != nil {
+		return x.Channeldesc
+	}
+	return nil
+}
+
+func (x *ChannelDescListNoPool) GetPage() int32 {
 	if x != nil {
 		return x.Page
 	}
@@ -7805,17 +7479,17 @@ func (x *ChannelDescList) GetPage() int32 {
 type ListThreadRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Max number of records to return. Between 1 and 100.
-	Limit *wrapperspb.Int32Value `protobuf:"bytes,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit int32 `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
 	// The channel state to list.
-	State *wrapperspb.Int32Value `protobuf:"bytes,2,opt,name=state,proto3" json:"state,omitempty"`
+	State int32 `protobuf:"varint,2,opt,name=state,proto3" json:"state,omitempty"`
 	// The clan of this channel
-	ClanId string `protobuf:"bytes,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// channel id
-	ChannelId string `protobuf:"bytes,4,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,4,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// thread id
-	ThreadId string `protobuf:"bytes,5,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
+	ThreadId int64 `protobuf:"varint,5,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
 	// Number of page
-	Page          *wrapperspb.Int32Value `protobuf:"bytes,6,opt,name=page,proto3" json:"page,omitempty"`
+	Page          int32 `protobuf:"varint,6,opt,name=page,proto3" json:"page,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -7850,59 +7524,59 @@ func (*ListThreadRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{91}
 }
 
-func (x *ListThreadRequest) GetLimit() *wrapperspb.Int32Value {
+func (x *ListThreadRequest) GetLimit() int32 {
 	if x != nil {
 		return x.Limit
 	}
-	return nil
+	return 0
 }
 
-func (x *ListThreadRequest) GetState() *wrapperspb.Int32Value {
+func (x *ListThreadRequest) GetState() int32 {
 	if x != nil {
 		return x.State
 	}
-	return nil
+	return 0
 }
 
-func (x *ListThreadRequest) GetClanId() string {
+func (x *ListThreadRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *ListThreadRequest) GetChannelId() string {
+func (x *ListThreadRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *ListThreadRequest) GetThreadId() string {
+func (x *ListThreadRequest) GetThreadId() int64 {
 	if x != nil {
 		return x.ThreadId
 	}
-	return ""
+	return 0
 }
 
-func (x *ListThreadRequest) GetPage() *wrapperspb.Int32Value {
+func (x *ListThreadRequest) GetPage() int32 {
 	if x != nil {
 		return x.Page
 	}
-	return nil
+	return 0
 }
 
 // List (and optionally filter) channels.
 type ListChannelDescsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Max number of records to return. Between 1 and 100.
-	Limit *wrapperspb.Int32Value `protobuf:"bytes,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit int32 `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
 	// The channel state to list.
-	State *wrapperspb.Int32Value `protobuf:"bytes,2,opt,name=state,proto3" json:"state,omitempty"`
+	State int32 `protobuf:"varint,2,opt,name=state,proto3" json:"state,omitempty"`
 	// Cursor to start from
 	Cursor string `protobuf:"bytes,3,opt,name=cursor,proto3" json:"cursor,omitempty"`
 	// The clan of this channel
-	ClanId string `protobuf:"bytes,4,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,4,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// channel type
 	ChannelType int32 `protobuf:"varint,5,opt,name=channel_type,json=channelType,proto3" json:"channel_type,omitempty"`
 	// is mobile
@@ -7941,18 +7615,18 @@ func (*ListChannelDescsRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{92}
 }
 
-func (x *ListChannelDescsRequest) GetLimit() *wrapperspb.Int32Value {
+func (x *ListChannelDescsRequest) GetLimit() int32 {
 	if x != nil {
 		return x.Limit
 	}
-	return nil
+	return 0
 }
 
-func (x *ListChannelDescsRequest) GetState() *wrapperspb.Int32Value {
+func (x *ListChannelDescsRequest) GetState() int32 {
 	if x != nil {
 		return x.State
 	}
-	return nil
+	return 0
 }
 
 func (x *ListChannelDescsRequest) GetCursor() string {
@@ -7962,11 +7636,11 @@ func (x *ListChannelDescsRequest) GetCursor() string {
 	return ""
 }
 
-func (x *ListChannelDescsRequest) GetClanId() string {
+func (x *ListChannelDescsRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *ListChannelDescsRequest) GetChannelType() int32 {
@@ -7987,7 +7661,7 @@ func (x *ListChannelDescsRequest) GetIsMobile() bool {
 type ListChannelDetailRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// channel id
-	ChannelId     string `protobuf:"bytes,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId     int64 `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -8022,20 +7696,20 @@ func (*ListChannelDetailRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{93}
 }
 
-func (x *ListChannelDetailRequest) GetChannelId() string {
+func (x *ListChannelDetailRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 // Add a role for channel.
 type AddRoleChannelDescRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// This is the role that needs to be added to the channel
-	RoleIds []string `protobuf:"bytes,1,rep,name=role_ids,json=roleIds,proto3" json:"role_ids,omitempty"`
+	RoleIds []int64 `protobuf:"varint,1,rep,packed,name=role_ids,json=roleIds,proto3" json:"role_ids,omitempty"`
 	// This is a channel that needs more roles
-	ChannelId     string `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId     int64 `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -8070,41 +7744,41 @@ func (*AddRoleChannelDescRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{94}
 }
 
-func (x *AddRoleChannelDescRequest) GetRoleIds() []string {
+func (x *AddRoleChannelDescRequest) GetRoleIds() []int64 {
 	if x != nil {
 		return x.RoleIds
 	}
 	return nil
 }
 
-func (x *AddRoleChannelDescRequest) GetChannelId() string {
+func (x *AddRoleChannelDescRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 // Create a channel within clan.
 type CreateChannelDescRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The clan of this channel
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// The parent channel this message belongs to.
-	ParentId string `protobuf:"bytes,2,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
+	ParentId int64 `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
 	// The channel this message belongs to.
-	ChannelId string `protobuf:"bytes,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// The category of channel
-	CategoryId string `protobuf:"bytes,4,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
+	CategoryId int64 `protobuf:"varint,4,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
 	// The channel type.
-	Type *wrapperspb.Int32Value `protobuf:"bytes,5,opt,name=type,proto3" json:"type,omitempty"`
+	Type int32 `protobuf:"varint,5,opt,name=type,proto3" json:"type,omitempty"`
 	// The channel lable
 	ChannelLabel string `protobuf:"bytes,6,opt,name=channel_label,json=channelLabel,proto3" json:"channel_label,omitempty"`
 	// The channel private
 	ChannelPrivate int32 `protobuf:"varint,7,opt,name=channel_private,json=channelPrivate,proto3" json:"channel_private,omitempty"`
 	// The users to add.
-	UserIds []string `protobuf:"bytes,8,rep,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
+	UserIds []int64 `protobuf:"varint,8,rep,packed,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
 	// app url for channel type app
-	AppId         string `protobuf:"bytes,9,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	AppId         int64 `protobuf:"varint,9,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -8139,39 +7813,39 @@ func (*CreateChannelDescRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{95}
 }
 
-func (x *CreateChannelDescRequest) GetClanId() string {
+func (x *CreateChannelDescRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *CreateChannelDescRequest) GetParentId() string {
+func (x *CreateChannelDescRequest) GetParentId() int64 {
 	if x != nil {
 		return x.ParentId
 	}
-	return ""
+	return 0
 }
 
-func (x *CreateChannelDescRequest) GetChannelId() string {
+func (x *CreateChannelDescRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *CreateChannelDescRequest) GetCategoryId() string {
+func (x *CreateChannelDescRequest) GetCategoryId() int64 {
 	if x != nil {
 		return x.CategoryId
 	}
-	return ""
+	return 0
 }
 
-func (x *CreateChannelDescRequest) GetType() *wrapperspb.Int32Value {
+func (x *CreateChannelDescRequest) GetType() int32 {
 	if x != nil {
 		return x.Type
 	}
-	return nil
+	return 0
 }
 
 func (x *CreateChannelDescRequest) GetChannelLabel() string {
@@ -8188,27 +7862,27 @@ func (x *CreateChannelDescRequest) GetChannelPrivate() int32 {
 	return 0
 }
 
-func (x *CreateChannelDescRequest) GetUserIds() []string {
+func (x *CreateChannelDescRequest) GetUserIds() []int64 {
 	if x != nil {
 		return x.UserIds
 	}
 	return nil
 }
 
-func (x *CreateChannelDescRequest) GetAppId() string {
+func (x *CreateChannelDescRequest) GetAppId() int64 {
 	if x != nil {
 		return x.AppId
 	}
-	return ""
+	return 0
 }
 
 // Delete a channel the user has access to.
 type DeleteChannelDescRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The clan id
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// The id of a channel.
-	ChannelId     string `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId     int64 `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -8243,33 +7917,33 @@ func (*DeleteChannelDescRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{96}
 }
 
-func (x *DeleteChannelDescRequest) GetClanId() string {
+func (x *DeleteChannelDescRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *DeleteChannelDescRequest) GetChannelId() string {
+func (x *DeleteChannelDescRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 // Update fields in a given channel.
 type UpdateChannelDescRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The clan ID
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// The ID of the channel to update.
-	ChannelId string `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// The channel lable
 	ChannelLabel *wrapperspb.StringValue `protobuf:"bytes,3,opt,name=channel_label,json=channelLabel,proto3" json:"channel_label,omitempty"`
 	// The category of channel
-	CategoryId *wrapperspb.StringValue `protobuf:"bytes,4,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
+	CategoryId int64 `protobuf:"varint,4,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
 	// app url for channel type app
-	AppId string `protobuf:"bytes,5,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	AppId int64 `protobuf:"varint,5,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
 	// topic
 	Topic string `protobuf:"bytes,6,opt,name=topic,proto3" json:"topic,omitempty"`
 	AgeRestricted int32 `protobuf:"varint,7,opt,name=age_restricted,json=ageRestricted,proto3" json:"age_restricted,omitempty"`
@@ -8310,18 +7984,18 @@ func (*UpdateChannelDescRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{97}
 }
 
-func (x *UpdateChannelDescRequest) GetClanId() string {
+func (x *UpdateChannelDescRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *UpdateChannelDescRequest) GetChannelId() string {
+func (x *UpdateChannelDescRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *UpdateChannelDescRequest) GetChannelLabel() *wrapperspb.StringValue {
@@ -8331,18 +8005,18 @@ func (x *UpdateChannelDescRequest) GetChannelLabel() *wrapperspb.StringValue {
 	return nil
 }
 
-func (x *UpdateChannelDescRequest) GetCategoryId() *wrapperspb.StringValue {
+func (x *UpdateChannelDescRequest) GetCategoryId() int64 {
 	if x != nil {
 		return x.CategoryId
 	}
-	return nil
+	return 0
 }
 
-func (x *UpdateChannelDescRequest) GetAppId() string {
+func (x *UpdateChannelDescRequest) GetAppId() int64 {
 	if x != nil {
 		return x.AppId
 	}
-	return ""
+	return 0
 }
 
 func (x *UpdateChannelDescRequest) GetTopic() string {
@@ -8377,15 +8051,15 @@ func (x *UpdateChannelDescRequest) GetChannelAvatar() *wrapperspb.StringValue {
 type ChangeChannelPrivateRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The clan ID
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// The ID of the channel to update.
-	ChannelId string `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// The channel private
 	ChannelPrivate int32 `protobuf:"varint,3,opt,name=channel_private,json=channelPrivate,proto3" json:"channel_private,omitempty"`
 	// The users to add.
-	UserIds []string `protobuf:"bytes,4,rep,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
+	UserIds []int64 `protobuf:"varint,4,rep,packed,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
 	// This is the role that needs to be added to the channel
-	RoleIds       []string `protobuf:"bytes,5,rep,name=role_ids,json=roleIds,proto3" json:"role_ids,omitempty"`
+	RoleIds       []int64 `protobuf:"varint,5,rep,packed,name=role_ids,json=roleIds,proto3" json:"role_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -8420,18 +8094,18 @@ func (*ChangeChannelPrivateRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{98}
 }
 
-func (x *ChangeChannelPrivateRequest) GetClanId() string {
+func (x *ChangeChannelPrivateRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *ChangeChannelPrivateRequest) GetChannelId() string {
+func (x *ChangeChannelPrivateRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *ChangeChannelPrivateRequest) GetChannelPrivate() int32 {
@@ -8441,14 +8115,14 @@ func (x *ChangeChannelPrivateRequest) GetChannelPrivate() int32 {
 	return 0
 }
 
-func (x *ChangeChannelPrivateRequest) GetUserIds() []string {
+func (x *ChangeChannelPrivateRequest) GetUserIds() []int64 {
 	if x != nil {
 		return x.UserIds
 	}
 	return nil
 }
 
-func (x *ChangeChannelPrivateRequest) GetRoleIds() []string {
+func (x *ChangeChannelPrivateRequest) GetRoleIds() []int64 {
 	if x != nil {
 		return x.RoleIds
 	}
@@ -8459,9 +8133,9 @@ func (x *ChangeChannelPrivateRequest) GetRoleIds() []string {
 type AddChannelUsersRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The channel to add users to.
-	ChannelId string `protobuf:"bytes,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// The users to add.
-	UserIds       []string `protobuf:"bytes,2,rep,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
+	UserIds       []int64 `protobuf:"varint,2,rep,packed,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -8496,14 +8170,14 @@ func (*AddChannelUsersRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{99}
 }
 
-func (x *AddChannelUsersRequest) GetChannelId() string {
+func (x *AddChannelUsersRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *AddChannelUsersRequest) GetUserIds() []string {
+func (x *AddChannelUsersRequest) GetUserIds() []int64 {
 	if x != nil {
 		return x.UserIds
 	}
@@ -8514,9 +8188,9 @@ func (x *AddChannelUsersRequest) GetUserIds() []string {
 type RemoveChannelUsersRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The channel ID to kick from.
-	ChannelId string `protobuf:"bytes,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// The users to kick.
-	UserIds       []string `protobuf:"bytes,2,rep,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
+	UserIds       []int64 `protobuf:"varint,2,rep,packed,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -8551,14 +8225,14 @@ func (*RemoveChannelUsersRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{100}
 }
 
-func (x *RemoveChannelUsersRequest) GetChannelId() string {
+func (x *RemoveChannelUsersRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *RemoveChannelUsersRequest) GetUserIds() []string {
+func (x *RemoveChannelUsersRequest) GetUserIds() []int64 {
 	if x != nil {
 		return x.UserIds
 	}
@@ -8569,9 +8243,9 @@ func (x *RemoveChannelUsersRequest) GetUserIds() []string {
 type RemoveClanUsersRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The clan ID to kick from.
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// The users to kick.
-	UserIds       []string `protobuf:"bytes,2,rep,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
+	UserIds       []int64 `protobuf:"varint,2,rep,packed,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -8606,14 +8280,14 @@ func (*RemoveClanUsersRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{101}
 }
 
-func (x *RemoveClanUsersRequest) GetClanId() string {
+func (x *RemoveClanUsersRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *RemoveClanUsersRequest) GetUserIds() []string {
+func (x *RemoveClanUsersRequest) GetUserIds() []int64 {
 	if x != nil {
 		return x.UserIds
 	}
@@ -8624,11 +8298,11 @@ func (x *RemoveClanUsersRequest) GetUserIds() []string {
 type BanClanUsersRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The clan ID to kick from.
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// The channel ID to ban
-	ChannelId string `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// The users to kick.
-	UserIds []string `protobuf:"bytes,3,rep,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
+	UserIds []int64 `protobuf:"varint,3,rep,packed,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
 	// ban time
 	BanTime int32 `protobuf:"varint,4,opt,name=ban_time,json=banTime,proto3" json:"ban_time,omitempty"`
 	// The reason
@@ -8667,21 +8341,21 @@ func (*BanClanUsersRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{102}
 }
 
-func (x *BanClanUsersRequest) GetClanId() string {
+func (x *BanClanUsersRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *BanClanUsersRequest) GetChannelId() string {
+func (x *BanClanUsersRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *BanClanUsersRequest) GetUserIds() []string {
+func (x *BanClanUsersRequest) GetUserIds() []int64 {
 	if x != nil {
 		return x.UserIds
 	}
@@ -8706,11 +8380,11 @@ func (x *BanClanUsersRequest) GetReason() string {
 type BannedUser struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The channel ID to ban
-	ChannelId string `protobuf:"bytes,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// The banned user.
-	BannedId string `protobuf:"bytes,2,opt,name=banned_id,json=bannedId,proto3" json:"banned_id,omitempty"`
+	BannedId int64 `protobuf:"varint,2,opt,name=banned_id,json=bannedId,proto3" json:"banned_id,omitempty"`
 	// The avatar
-	BannerId string `protobuf:"bytes,3,opt,name=banner_id,json=bannerId,proto3" json:"banner_id,omitempty"`
+	BannerId int64 `protobuf:"varint,3,opt,name=banner_id,json=bannerId,proto3" json:"banner_id,omitempty"`
 	// ban time
 	BanTime int32 `protobuf:"varint,4,opt,name=ban_time,json=banTime,proto3" json:"ban_time,omitempty"`
 	// The reason
@@ -8749,25 +8423,25 @@ func (*BannedUser) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{103}
 }
 
-func (x *BannedUser) GetChannelId() string {
+func (x *BannedUser) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *BannedUser) GetBannedId() string {
+func (x *BannedUser) GetBannedId() int64 {
 	if x != nil {
 		return x.BannedId
 	}
-	return ""
+	return 0
 }
 
-func (x *BannedUser) GetBannerId() string {
+func (x *BannedUser) GetBannerId() int64 {
 	if x != nil {
 		return x.BannerId
 	}
-	return ""
+	return 0
 }
 
 func (x *BannedUser) GetBanTime() int32 {
@@ -8786,8 +8460,8 @@ func (x *BannedUser) GetReason() string {
 
 type BannedUserListRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ClanId        string                 `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
-	ChannelId     string                 `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ChannelId     int64                  `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -8822,18 +8496,18 @@ func (*BannedUserListRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{104}
 }
 
-func (x *BannedUserListRequest) GetClanId() string {
+func (x *BannedUserListRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *BannedUserListRequest) GetChannelId() string {
+func (x *BannedUserListRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 type BannedUserList struct {
@@ -8883,9 +8557,9 @@ func (x *BannedUserList) GetBannedUsers() []*BannedUser {
 // Leave a channel.
 type LeaveThreadRequest struct {
 	state  protoimpl.MessageState `protogen:"open.v1"`
-	ClanId string                 `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64                  `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// The channel ID to leave.
-	ChannelId     string `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId     int64 `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -8920,39 +8594,39 @@ func (*LeaveThreadRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{106}
 }
 
-func (x *LeaveThreadRequest) GetClanId() string {
+func (x *LeaveThreadRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *LeaveThreadRequest) GetChannelId() string {
+func (x *LeaveThreadRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 // Role record
 type Role struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Role id
-	Id                 string          `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id                 int64           `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Title              string          `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
 	Color              string          `protobuf:"bytes,3,opt,name=color,proto3" json:"color,omitempty"`
 	RoleIcon           string          `protobuf:"bytes,4,opt,name=role_icon,json=roleIcon,proto3" json:"role_icon,omitempty"`
 	Slug               string          `protobuf:"bytes,5,opt,name=slug,proto3" json:"slug,omitempty"`
 	Description        string          `protobuf:"bytes,6,opt,name=description,proto3" json:"description,omitempty"`
-	CreatorId          string          `protobuf:"bytes,7,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
-	ClanId             string          `protobuf:"bytes,8,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	CreatorId          int64           `protobuf:"varint,7,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
+	ClanId             int64           `protobuf:"varint,8,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	Active             int32           `protobuf:"varint,9,opt,name=active,proto3" json:"active,omitempty"`
 	DisplayOnline      int32           `protobuf:"varint,10,opt,name=display_online,json=displayOnline,proto3" json:"display_online,omitempty"`
 	AllowMention       int32           `protobuf:"varint,11,opt,name=allow_mention,json=allowMention,proto3" json:"allow_mention,omitempty"`
 	RoleUserList       *RoleUserList   `protobuf:"bytes,12,opt,name=role_user_list,json=roleUserList,proto3" json:"role_user_list,omitempty"`
 	PermissionList     *PermissionList `protobuf:"bytes,13,opt,name=permission_list,json=permissionList,proto3" json:"permission_list,omitempty"`
 	RoleChannelActive  int32           `protobuf:"varint,14,opt,name=role_channel_active,json=roleChannelActive,proto3" json:"role_channel_active,omitempty"`
-	ChannelIds         []string        `protobuf:"bytes,15,rep,name=channel_ids,json=channelIds,proto3" json:"channel_ids,omitempty"`
+	ChannelIds         []int64         `protobuf:"varint,15,rep,packed,name=channel_ids,json=channelIds,proto3" json:"channel_ids,omitempty"`
 	MaxLevelPermission int32           `protobuf:"varint,16,opt,name=max_level_permission,json=maxLevelPermission,proto3" json:"max_level_permission,omitempty"`
 	OrderRole          int32           `protobuf:"varint,17,opt,name=order_role,json=orderRole,proto3" json:"order_role,omitempty"`
 	unknownFields      protoimpl.UnknownFields
@@ -8989,11 +8663,11 @@ func (*Role) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{107}
 }
 
-func (x *Role) GetId() string {
+func (x *Role) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 func (x *Role) GetTitle() string {
@@ -9031,18 +8705,18 @@ func (x *Role) GetDescription() string {
 	return ""
 }
 
-func (x *Role) GetCreatorId() string {
+func (x *Role) GetCreatorId() int64 {
 	if x != nil {
 		return x.CreatorId
 	}
-	return ""
+	return 0
 }
 
-func (x *Role) GetClanId() string {
+func (x *Role) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *Role) GetActive() int32 {
@@ -9087,7 +8761,7 @@ func (x *Role) GetRoleChannelActive() int32 {
 	return 0
 }
 
-func (x *Role) GetChannelIds() []string {
+func (x *Role) GetChannelIds() []int64 {
 	if x != nil {
 		return x.ChannelIds
 	}
@@ -9110,29 +8784,29 @@ func (x *Role) GetOrderRole() int32 {
 
 // Event clan
 type EventManagement struct {
-	state          protoimpl.MessageState     `protogen:"open.v1"`
-	Id             string                     `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Title          string                     `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
-	Logo           string                     `protobuf:"bytes,3,opt,name=logo,proto3" json:"logo,omitempty"`
-	Description    string                     `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
-	Active         int32                      `protobuf:"varint,5,opt,name=active,proto3" json:"active,omitempty"`
-	StartEvent     int32                      `protobuf:"varint,6,opt,name=start_event,json=startEvent,proto3" json:"start_event,omitempty"`
-	CreatorId      string                     `protobuf:"bytes,7,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
-	ClanId         string                     `protobuf:"bytes,8,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
-	ChannelVoiceId string                     `protobuf:"bytes,9,opt,name=channel_voice_id,json=channelVoiceId,proto3" json:"channel_voice_id,omitempty"`
-	Address        string                     `protobuf:"bytes,10,opt,name=address,proto3" json:"address,omitempty"`
-	StartTime      *timestamppb.Timestamp     `protobuf:"bytes,11,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
-	EndTime        *timestamppb.Timestamp     `protobuf:"bytes,12,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
-	UserIds        []string                   `protobuf:"bytes,13,rep,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
-	CreateTime     *timestamppb.Timestamp     `protobuf:"bytes,14,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
-	MaxPermission  int32                      `protobuf:"varint,15,opt,name=max_permission,json=maxPermission,proto3" json:"max_permission,omitempty"`
-	ChannelId      string                     `protobuf:"bytes,16,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	EventStatus    int32                      `protobuf:"varint,17,opt,name=event_status,json=eventStatus,proto3" json:"event_status,omitempty"`
-	RepeatType     int32                      `protobuf:"varint,18,opt,name=repeat_type,json=repeatType,proto3" json:"repeat_type,omitempty"`
-	IsPrivate      bool                       `protobuf:"varint,19,opt,name=is_private,json=isPrivate,proto3" json:"is_private,omitempty"`
-	MeetRoom       *GenerateMezonMeetResponse `protobuf:"bytes,20,opt,name=meet_room,json=meetRoom,proto3" json:"meet_room,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state             protoimpl.MessageState     `protogen:"open.v1"`
+	Id                int64                      `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Title             string                     `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
+	Logo              string                     `protobuf:"bytes,3,opt,name=logo,proto3" json:"logo,omitempty"`
+	Description       string                     `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
+	Active            int32                      `protobuf:"varint,5,opt,name=active,proto3" json:"active,omitempty"`
+	StartEvent        int32                      `protobuf:"varint,6,opt,name=start_event,json=startEvent,proto3" json:"start_event,omitempty"`
+	CreatorId         int64                      `protobuf:"varint,7,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
+	ClanId            int64                      `protobuf:"varint,8,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ChannelVoiceId    int64                      `protobuf:"varint,9,opt,name=channel_voice_id,json=channelVoiceId,proto3" json:"channel_voice_id,omitempty"`
+	Address           string                     `protobuf:"bytes,10,opt,name=address,proto3" json:"address,omitempty"`
+	StartTimeSeconds  uint32                     `protobuf:"varint,11,opt,name=start_time_seconds,json=startTimeSeconds,proto3" json:"start_time_seconds,omitempty"`
+	EndTimeSeconds    uint32                     `protobuf:"varint,12,opt,name=end_time_seconds,json=endTimeSeconds,proto3" json:"end_time_seconds,omitempty"`
+	UserIds           []int64                    `protobuf:"varint,13,rep,packed,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
+	CreateTimeSeconds uint32                     `protobuf:"varint,14,opt,name=create_time_seconds,json=createTimeSeconds,proto3" json:"create_time_seconds,omitempty"`
+	MaxPermission     int32                      `protobuf:"varint,15,opt,name=max_permission,json=maxPermission,proto3" json:"max_permission,omitempty"`
+	ChannelId         int64                      `protobuf:"varint,16,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	EventStatus       int32                      `protobuf:"varint,17,opt,name=event_status,json=eventStatus,proto3" json:"event_status,omitempty"`
+	RepeatType        int32                      `protobuf:"varint,18,opt,name=repeat_type,json=repeatType,proto3" json:"repeat_type,omitempty"`
+	IsPrivate         bool                       `protobuf:"varint,19,opt,name=is_private,json=isPrivate,proto3" json:"is_private,omitempty"`
+	MeetRoom          *GenerateMezonMeetResponse `protobuf:"bytes,20,opt,name=meet_room,json=meetRoom,proto3" json:"meet_room,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *EventManagement) Reset() {
@@ -9165,11 +8839,11 @@ func (*EventManagement) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{108}
 }
 
-func (x *EventManagement) GetId() string {
+func (x *EventManagement) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 func (x *EventManagement) GetTitle() string {
@@ -9207,25 +8881,25 @@ func (x *EventManagement) GetStartEvent() int32 {
 	return 0
 }
 
-func (x *EventManagement) GetCreatorId() string {
+func (x *EventManagement) GetCreatorId() int64 {
 	if x != nil {
 		return x.CreatorId
 	}
-	return ""
+	return 0
 }
 
-func (x *EventManagement) GetClanId() string {
+func (x *EventManagement) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *EventManagement) GetChannelVoiceId() string {
+func (x *EventManagement) GetChannelVoiceId() int64 {
 	if x != nil {
 		return x.ChannelVoiceId
 	}
-	return ""
+	return 0
 }
 
 func (x *EventManagement) GetAddress() string {
@@ -9235,32 +8909,32 @@ func (x *EventManagement) GetAddress() string {
 	return ""
 }
 
-func (x *EventManagement) GetStartTime() *timestamppb.Timestamp {
+func (x *EventManagement) GetStartTimeSeconds() uint32 {
 	if x != nil {
-		return x.StartTime
+		return x.StartTimeSeconds
 	}
-	return nil
+	return 0
 }
 
-func (x *EventManagement) GetEndTime() *timestamppb.Timestamp {
+func (x *EventManagement) GetEndTimeSeconds() uint32 {
 	if x != nil {
-		return x.EndTime
+		return x.EndTimeSeconds
 	}
-	return nil
+	return 0
 }
 
-func (x *EventManagement) GetUserIds() []string {
+func (x *EventManagement) GetUserIds() []int64 {
 	if x != nil {
 		return x.UserIds
 	}
 	return nil
 }
 
-func (x *EventManagement) GetCreateTime() *timestamppb.Timestamp {
+func (x *EventManagement) GetCreateTimeSeconds() uint32 {
 	if x != nil {
-		return x.CreateTime
+		return x.CreateTimeSeconds
 	}
-	return nil
+	return 0
 }
 
 func (x *EventManagement) GetMaxPermission() int32 {
@@ -9270,11 +8944,11 @@ func (x *EventManagement) GetMaxPermission() int32 {
 	return 0
 }
 
-func (x *EventManagement) GetChannelId() string {
+func (x *EventManagement) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *EventManagement) GetEventStatus() int32 {
@@ -9309,7 +8983,7 @@ func (x *EventManagement) GetMeetRoom() *GenerateMezonMeetResponse {
 type Permission struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Permission id
-	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id            int64  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Title         string `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
 	Slug          string `protobuf:"bytes,3,opt,name=slug,proto3" json:"slug,omitempty"`
 	Description   string `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
@@ -9350,11 +9024,11 @@ func (*Permission) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{109}
 }
 
-func (x *Permission) GetId() string {
+func (x *Permission) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 func (x *Permission) GetTitle() string {
@@ -9403,7 +9077,7 @@ func (x *Permission) GetLevel() int32 {
 type NotificationSetting struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Notification id
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Notification title
 	NotificationSettingType int32 `protobuf:"varint,2,opt,name=notification_setting_type,json=notificationSettingType,proto3" json:"notification_setting_type,omitempty"`
 	unknownFields           protoimpl.UnknownFields
@@ -9440,11 +9114,11 @@ func (*NotificationSetting) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{110}
 }
 
-func (x *NotificationSetting) GetId() string {
+func (x *NotificationSetting) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 func (x *NotificationSetting) GetNotificationSettingType() int32 {
@@ -9456,10 +9130,10 @@ func (x *NotificationSetting) GetNotificationSettingType() int32 {
 
 type DeletePinMessage struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	MessageId string `protobuf:"bytes,2,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
-	ChannelId string `protobuf:"bytes,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	ClanId        string `protobuf:"bytes,4,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	MessageId int64 `protobuf:"varint,2,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ClanId        int64 `protobuf:"varint,4,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -9494,49 +9168,47 @@ func (*DeletePinMessage) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{111}
 }
 
-func (x *DeletePinMessage) GetId() string {
+func (x *DeletePinMessage) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
-func (x *DeletePinMessage) GetMessageId() string {
+func (x *DeletePinMessage) GetMessageId() int64 {
 	if x != nil {
 		return x.MessageId
 	}
-	return ""
+	return 0
 }
 
-func (x *DeletePinMessage) GetChannelId() string {
+func (x *DeletePinMessage) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *DeletePinMessage) GetClanId() string {
+func (x *DeletePinMessage) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 type PinMessage struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	MessageId string `protobuf:"bytes,2,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
-	ChannelId string `protobuf:"bytes,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	SenderId string `protobuf:"bytes,4,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	MessageId int64 `protobuf:"varint,2,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	SenderId int64 `protobuf:"varint,4,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
 	Content string `protobuf:"bytes,5,opt,name=content,proto3" json:"content,omitempty"`
 	Username string `protobuf:"bytes,6,opt,name=username,proto3" json:"username,omitempty"`
 	Avatar string `protobuf:"bytes,7,opt,name=avatar,proto3" json:"avatar,omitempty"`
 	// The UNIX time (for gRPC clients) or ISO string (for REST clients) when the message was created.
-	CreateTime *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
-	// create time in ms
-	CreateTimeSeconds uint32 `protobuf:"varint,9,opt,name=create_time_seconds,json=createTimeSeconds,proto3" json:"create_time_seconds,omitempty"`
+	CreateTimeSeconds uint32 `protobuf:"varint,8,opt,name=create_time_seconds,json=createTimeSeconds,proto3" json:"create_time_seconds,omitempty"`
 	// attachment
-	Attachment    string `protobuf:"bytes,10,opt,name=attachment,proto3" json:"attachment,omitempty"`
+	Attachment    []byte `protobuf:"bytes,9,opt,name=attachment,proto3" json:"attachment,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -9571,32 +9243,32 @@ func (*PinMessage) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{112}
 }
 
-func (x *PinMessage) GetId() string {
+func (x *PinMessage) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
-func (x *PinMessage) GetMessageId() string {
+func (x *PinMessage) GetMessageId() int64 {
 	if x != nil {
 		return x.MessageId
 	}
-	return ""
+	return 0
 }
 
-func (x *PinMessage) GetChannelId() string {
+func (x *PinMessage) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *PinMessage) GetSenderId() string {
+func (x *PinMessage) GetSenderId() int64 {
 	if x != nil {
 		return x.SenderId
 	}
-	return ""
+	return 0
 }
 
 func (x *PinMessage) GetContent() string {
@@ -9620,13 +9292,6 @@ func (x *PinMessage) GetAvatar() string {
 	return ""
 }
 
-func (x *PinMessage) GetCreateTime() *timestamppb.Timestamp {
-	if x != nil {
-		return x.CreateTime
-	}
-	return nil
-}
-
 func (x *PinMessage) GetCreateTimeSeconds() uint32 {
 	if x != nil {
 		return x.CreateTimeSeconds
@@ -9634,11 +9299,11 @@ func (x *PinMessage) GetCreateTimeSeconds() uint32 {
 	return 0
 }
 
-func (x *PinMessage) GetAttachment() string {
+func (x *PinMessage) GetAttachment() []byte {
 	if x != nil {
 		return x.Attachment
 	}
-	return ""
+	return nil
 }
 
 type PinMessagesList struct {
@@ -9689,11 +9354,11 @@ func (x *PinMessagesList) GetPinMessagesList() []*PinMessage {
 type NotificationUserChannel struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Notification id
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	NotificationSettingType int32 `protobuf:"varint,2,opt,name=notification_setting_type,json=notificationSettingType,proto3" json:"notification_setting_type,omitempty"`
-	TimeMute *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=time_mute,json=timeMute,proto3" json:"time_mute,omitempty"`
+	TimeMuteSeconds uint32 `protobuf:"varint,3,opt,name=time_mute_seconds,json=timeMuteSeconds,proto3" json:"time_mute_seconds,omitempty"`
 	Active int32 `protobuf:"varint,4,opt,name=active,proto3" json:"active,omitempty"`
-	ChannelId     string `protobuf:"bytes,5,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId     int64 `protobuf:"varint,5,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -9728,11 +9393,11 @@ func (*NotificationUserChannel) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{114}
 }
 
-func (x *NotificationUserChannel) GetId() string {
+func (x *NotificationUserChannel) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 func (x *NotificationUserChannel) GetNotificationSettingType() int32 {
@@ -9742,11 +9407,11 @@ func (x *NotificationUserChannel) GetNotificationSettingType() int32 {
 	return 0
 }
 
-func (x *NotificationUserChannel) GetTimeMute() *timestamppb.Timestamp {
+func (x *NotificationUserChannel) GetTimeMuteSeconds() uint32 {
 	if x != nil {
-		return x.TimeMute
+		return x.TimeMuteSeconds
 	}
-	return nil
+	return 0
 }
 
 func (x *NotificationUserChannel) GetActive() int32 {
@@ -9756,20 +9421,20 @@ func (x *NotificationUserChannel) GetActive() int32 {
 	return 0
 }
 
-func (x *NotificationUserChannel) GetChannelId() string {
+func (x *NotificationUserChannel) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 // Notification channel
 type NotifiReactMessage struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Notification id
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	UserId string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	ChannelId     string `protobuf:"bytes,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	UserId int64 `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ChannelId     int64 `protobuf:"varint,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -9804,30 +9469,30 @@ func (*NotifiReactMessage) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{115}
 }
 
-func (x *NotifiReactMessage) GetId() string {
+func (x *NotifiReactMessage) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
-func (x *NotifiReactMessage) GetUserId() string {
+func (x *NotifiReactMessage) GetUserId() int64 {
 	if x != nil {
 		return x.UserId
 	}
-	return ""
+	return 0
 }
 
-func (x *NotifiReactMessage) GetChannelId() string {
+func (x *NotifiReactMessage) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 type DefaultNotificationClan struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	ClanId        string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -9862,16 +9527,16 @@ func (*DefaultNotificationClan) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{116}
 }
 
-func (x *DefaultNotificationClan) GetClanId() string {
+func (x *DefaultNotificationClan) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 type DefaultNotificationCategory struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	CategoryId    string `protobuf:"bytes,1,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
+	CategoryId    int64 `protobuf:"varint,1,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -9906,16 +9571,16 @@ func (*DefaultNotificationCategory) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{117}
 }
 
-func (x *DefaultNotificationCategory) GetCategoryId() string {
+func (x *DefaultNotificationCategory) GetCategoryId() int64 {
 	if x != nil {
 		return x.CategoryId
 	}
-	return ""
+	return 0
 }
 
 type NotificationChannel struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	ChannelId     string `protobuf:"bytes,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId     int64 `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -9950,16 +9615,16 @@ func (*NotificationChannel) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{118}
 }
 
-func (x *NotificationChannel) GetChannelId() string {
+func (x *NotificationChannel) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 type NotificationClan struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	ClanId        string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -9994,11 +9659,11 @@ func (*NotificationClan) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{119}
 }
 
-func (x *NotificationClan) GetClanId() string {
+func (x *NotificationClan) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 type NotificationSettingList struct {
@@ -10050,10 +9715,10 @@ func (x *NotificationSettingList) GetNotificationSetting() []*NotificationSettin
 type SetNotificationRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// channelId or categoryId
-	ChannelCategoryId string `protobuf:"bytes,1,opt,name=channel_category_id,json=channelCategoryId,proto3" json:"channel_category_id,omitempty"`
+	ChannelCategoryId int64 `protobuf:"varint,1,opt,name=channel_category_id,json=channelCategoryId,proto3" json:"channel_category_id,omitempty"`
 	// notification_type
 	NotificationType int32 `protobuf:"varint,2,opt,name=notification_type,json=notificationType,proto3" json:"notification_type,omitempty"`
-	ClanId        string `protobuf:"bytes,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64 `protobuf:"varint,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -10088,11 +9753,11 @@ func (*SetNotificationRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{121}
 }
 
-func (x *SetNotificationRequest) GetChannelCategoryId() string {
+func (x *SetNotificationRequest) GetChannelCategoryId() int64 {
 	if x != nil {
 		return x.ChannelCategoryId
 	}
-	return ""
+	return 0
 }
 
 func (x *SetNotificationRequest) GetNotificationType() int32 {
@@ -10102,18 +9767,18 @@ func (x *SetNotificationRequest) GetNotificationType() int32 {
 	return 0
 }
 
-func (x *SetNotificationRequest) GetClanId() string {
+func (x *SetNotificationRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 type PinMessageRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	MessageId     string                 `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
-	ChannelId     string                 `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	ClanId        string                 `protobuf:"bytes,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	MessageId     int64                  `protobuf:"varint,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
+	ChannelId     int64                  `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -10148,35 +9813,35 @@ func (*PinMessageRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{122}
 }
 
-func (x *PinMessageRequest) GetMessageId() string {
+func (x *PinMessageRequest) GetMessageId() int64 {
 	if x != nil {
 		return x.MessageId
 	}
-	return ""
+	return 0
 }
 
-func (x *PinMessageRequest) GetChannelId() string {
+func (x *PinMessageRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *PinMessageRequest) GetClanId() string {
+func (x *PinMessageRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 // set notification
 type SetMuteRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// channel_id and category_id
-	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	MuteTime      int32  `protobuf:"varint,2,opt,name=mute_time,json=muteTime,proto3" json:"mute_time,omitempty"`
-	Active        int32  `protobuf:"varint,3,opt,name=active,proto3" json:"active,omitempty"`
-	ClanId        string `protobuf:"bytes,4,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	Id            int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	MuteTime      int32 `protobuf:"varint,2,opt,name=mute_time,json=muteTime,proto3" json:"mute_time,omitempty"`
+	Active        int32 `protobuf:"varint,3,opt,name=active,proto3" json:"active,omitempty"`
+	ClanId        int64 `protobuf:"varint,4,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -10211,11 +9876,11 @@ func (*SetMuteRequest) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{123}
 }
 
-func (x *SetMuteRequest) GetId() string {
+func (x *SetMuteRequest) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 func (x *SetMuteRequest) GetMuteTime() int32 {
@@ -10232,214 +9897,11 @@ func (x *SetMuteRequest) GetActive() int32 {
 	return 0
 }
 
-func (x *SetMuteRequest) GetClanId() string {
+func (x *SetMuteRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
-}
-
-type HashtagDmListRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// user Id
-	UserId []string `protobuf:"bytes,1,rep,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	// Max number of records to return. Between 1 and 100.
-	Limit         *wrapperspb.Int32Value `protobuf:"bytes,2,opt,name=limit,proto3" json:"limit,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *HashtagDmListRequest) Reset() {
-	*x = HashtagDmListRequest{}
-	mi := &file_api_api_proto_msgTypes[124]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *HashtagDmListRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*HashtagDmListRequest) ProtoMessage() {}
-
-func (x *HashtagDmListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[124]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use HashtagDmListRequest.ProtoReflect.Descriptor instead.
-func (*HashtagDmListRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{124}
-}
-
-func (x *HashtagDmListRequest) GetUserId() []string {
-	if x != nil {
-		return x.UserId
-	}
-	return nil
-}
-
-func (x *HashtagDmListRequest) GetLimit() *wrapperspb.Int32Value {
-	if x != nil {
-		return x.Limit
-	}
-	return nil
-}
-
-type HashtagDmList struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	HashtagDm     []*HashtagDm           `protobuf:"bytes,1,rep,name=hashtag_dm,json=hashtagDm,proto3" json:"hashtag_dm,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *HashtagDmList) Reset() {
-	*x = HashtagDmList{}
-	mi := &file_api_api_proto_msgTypes[125]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *HashtagDmList) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*HashtagDmList) ProtoMessage() {}
-
-func (x *HashtagDmList) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[125]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use HashtagDmList.ProtoReflect.Descriptor instead.
-func (*HashtagDmList) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{125}
-}
-
-func (x *HashtagDmList) GetHashtagDm() []*HashtagDm {
-	if x != nil {
-		return x.HashtagDm
-	}
-	return nil
-}
-
-// hashtagDM
-type HashtagDm struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// The channel id.
-	ChannelId string `protobuf:"bytes,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	// The channel lable
-	ChannelLabel string `protobuf:"bytes,2,opt,name=channel_label,json=channelLabel,proto3" json:"channel_label,omitempty"`
-	// The clan of this channel
-	ClanId string `protobuf:"bytes,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
-	// The clan name
-	ClanName string `protobuf:"bytes,4,opt,name=clan_name,json=clanName,proto3" json:"clan_name,omitempty"`
-	MeetingCode string `protobuf:"bytes,5,opt,name=meeting_code,json=meetingCode,proto3" json:"meeting_code,omitempty"`
-	Type int32 `protobuf:"varint,6,opt,name=type,proto3" json:"type,omitempty"`
-	ChannelPrivate int32 `protobuf:"varint,7,opt,name=channel_private,json=channelPrivate,proto3" json:"channel_private,omitempty"`
-	ParentId      string `protobuf:"bytes,8,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *HashtagDm) Reset() {
-	*x = HashtagDm{}
-	mi := &file_api_api_proto_msgTypes[126]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *HashtagDm) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*HashtagDm) ProtoMessage() {}
-
-func (x *HashtagDm) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[126]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use HashtagDm.ProtoReflect.Descriptor instead.
-func (*HashtagDm) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{126}
-}
-
-func (x *HashtagDm) GetChannelId() string {
-	if x != nil {
-		return x.ChannelId
-	}
-	return ""
-}
-
-func (x *HashtagDm) GetChannelLabel() string {
-	if x != nil {
-		return x.ChannelLabel
-	}
-	return ""
-}
-
-func (x *HashtagDm) GetClanId() string {
-	if x != nil {
-		return x.ClanId
-	}
-	return ""
-}
-
-func (x *HashtagDm) GetClanName() string {
-	if x != nil {
-		return x.ClanName
-	}
-	return ""
-}
-
-func (x *HashtagDm) GetMeetingCode() string {
-	if x != nil {
-		return x.MeetingCode
-	}
-	return ""
-}
-
-func (x *HashtagDm) GetType() int32 {
-	if x != nil {
-		return x.Type
-	}
 	return 0
-}
-
-func (x *HashtagDm) GetChannelPrivate() int32 {
-	if x != nil {
-		return x.ChannelPrivate
-	}
-	return 0
-}
-
-func (x *HashtagDm) GetParentId() string {
-	if x != nil {
-		return x.ParentId
-	}
-	return ""
 }
 
 type NotificationChannelCategorySettingList struct {
@@ -10451,7 +9913,7 @@ type NotificationChannelCategorySettingList struct {
 
 func (x *NotificationChannelCategorySettingList) Reset() {
 	*x = NotificationChannelCategorySettingList{}
-	mi := &file_api_api_proto_msgTypes[127]
+	mi := &file_api_api_proto_msgTypes[124]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10463,7 +9925,7 @@ func (x *NotificationChannelCategorySettingList) String() string {
 func (*NotificationChannelCategorySettingList) ProtoMessage() {}
 
 func (x *NotificationChannelCategorySettingList) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[127]
+	mi := &file_api_api_proto_msgTypes[124]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10476,7 +9938,7 @@ func (x *NotificationChannelCategorySettingList) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use NotificationChannelCategorySettingList.ProtoReflect.Descriptor instead.
 func (*NotificationChannelCategorySettingList) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{127}
+	return file_api_api_proto_rawDescGZIP(), []int{124}
 }
 
 func (x *NotificationChannelCategorySettingList) GetNotificationChannelCategorySettingsList() []*NotificationChannelCategorySetting {
@@ -10489,7 +9951,7 @@ func (x *NotificationChannelCategorySettingList) GetNotificationChannelCategoryS
 type NotificationChannelCategorySetting struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Notification id
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	ChannelCategoryLabel string `protobuf:"bytes,2,opt,name=channel_category_label,json=channelCategoryLabel,proto3" json:"channel_category_label,omitempty"`
 	// Notification title
 	NotificationSettingType int32 `protobuf:"varint,3,opt,name=notification_setting_type,json=notificationSettingType,proto3" json:"notification_setting_type,omitempty"`
@@ -10501,7 +9963,7 @@ type NotificationChannelCategorySetting struct {
 
 func (x *NotificationChannelCategorySetting) Reset() {
 	*x = NotificationChannelCategorySetting{}
-	mi := &file_api_api_proto_msgTypes[128]
+	mi := &file_api_api_proto_msgTypes[125]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10513,7 +9975,7 @@ func (x *NotificationChannelCategorySetting) String() string {
 func (*NotificationChannelCategorySetting) ProtoMessage() {}
 
 func (x *NotificationChannelCategorySetting) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[128]
+	mi := &file_api_api_proto_msgTypes[125]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10526,14 +9988,14 @@ func (x *NotificationChannelCategorySetting) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use NotificationChannelCategorySetting.ProtoReflect.Descriptor instead.
 func (*NotificationChannelCategorySetting) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{128}
+	return file_api_api_proto_rawDescGZIP(), []int{125}
 }
 
-func (x *NotificationChannelCategorySetting) GetId() string {
+func (x *NotificationChannelCategorySetting) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 func (x *NotificationChannelCategorySetting) GetChannelCategoryLabel() string {
@@ -10567,16 +10029,16 @@ func (x *NotificationChannelCategorySetting) GetAction() int32 {
 // set default notification
 type SetDefaultNotificationRequest struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
-	ClanId           string                 `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId           int64                  `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	NotificationType int32                  `protobuf:"varint,2,opt,name=notification_type,json=notificationType,proto3" json:"notification_type,omitempty"`
-	CategoryId       string                 `protobuf:"bytes,3,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
+	CategoryId       int64                  `protobuf:"varint,3,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
 
 func (x *SetDefaultNotificationRequest) Reset() {
 	*x = SetDefaultNotificationRequest{}
-	mi := &file_api_api_proto_msgTypes[129]
+	mi := &file_api_api_proto_msgTypes[126]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10588,7 +10050,7 @@ func (x *SetDefaultNotificationRequest) String() string {
 func (*SetDefaultNotificationRequest) ProtoMessage() {}
 
 func (x *SetDefaultNotificationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[129]
+	mi := &file_api_api_proto_msgTypes[126]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10601,14 +10063,14 @@ func (x *SetDefaultNotificationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetDefaultNotificationRequest.ProtoReflect.Descriptor instead.
 func (*SetDefaultNotificationRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{129}
+	return file_api_api_proto_rawDescGZIP(), []int{126}
 }
 
-func (x *SetDefaultNotificationRequest) GetClanId() string {
+func (x *SetDefaultNotificationRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *SetDefaultNotificationRequest) GetNotificationType() int32 {
@@ -10618,11 +10080,11 @@ func (x *SetDefaultNotificationRequest) GetNotificationType() int32 {
 	return 0
 }
 
-func (x *SetDefaultNotificationRequest) GetCategoryId() string {
+func (x *SetDefaultNotificationRequest) GetCategoryId() int64 {
 	if x != nil {
 		return x.CategoryId
 	}
-	return ""
+	return 0
 }
 
 // A list of role description, usually a result of a list operation.
@@ -10638,7 +10100,7 @@ type RoleList struct {
 
 func (x *RoleList) Reset() {
 	*x = RoleList{}
-	mi := &file_api_api_proto_msgTypes[130]
+	mi := &file_api_api_proto_msgTypes[127]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10650,7 +10112,7 @@ func (x *RoleList) String() string {
 func (*RoleList) ProtoMessage() {}
 
 func (x *RoleList) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[130]
+	mi := &file_api_api_proto_msgTypes[127]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10663,7 +10125,7 @@ func (x *RoleList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RoleList.ProtoReflect.Descriptor instead.
 func (*RoleList) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{130}
+	return file_api_api_proto_rawDescGZIP(), []int{127}
 }
 
 func (x *RoleList) GetRoles() []*Role {
@@ -10690,7 +10152,7 @@ type EventList struct {
 
 func (x *EventList) Reset() {
 	*x = EventList{}
-	mi := &file_api_api_proto_msgTypes[131]
+	mi := &file_api_api_proto_msgTypes[128]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10702,7 +10164,7 @@ func (x *EventList) String() string {
 func (*EventList) ProtoMessage() {}
 
 func (x *EventList) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[131]
+	mi := &file_api_api_proto_msgTypes[128]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10715,7 +10177,7 @@ func (x *EventList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EventList.ProtoReflect.Descriptor instead.
 func (*EventList) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{131}
+	return file_api_api_proto_rawDescGZIP(), []int{128}
 }
 
 func (x *EventList) GetEvents() []*EventManagement {
@@ -10738,7 +10200,7 @@ type PermissionList struct {
 
 func (x *PermissionList) Reset() {
 	*x = PermissionList{}
-	mi := &file_api_api_proto_msgTypes[132]
+	mi := &file_api_api_proto_msgTypes[129]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10750,7 +10212,7 @@ func (x *PermissionList) String() string {
 func (*PermissionList) ProtoMessage() {}
 
 func (x *PermissionList) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[132]
+	mi := &file_api_api_proto_msgTypes[129]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10763,7 +10225,7 @@ func (x *PermissionList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PermissionList.ProtoReflect.Descriptor instead.
 func (*PermissionList) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{132}
+	return file_api_api_proto_rawDescGZIP(), []int{129}
 }
 
 func (x *PermissionList) GetPermissions() []*Permission {
@@ -10783,14 +10245,14 @@ func (x *PermissionList) GetMaxLevelPermission() int32 {
 // List (and optionally filter) permissions.
 type ListPermissionsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RoleId        string                 `protobuf:"bytes,1,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`
+	RoleId        int64                  `protobuf:"varint,1,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListPermissionsRequest) Reset() {
 	*x = ListPermissionsRequest{}
-	mi := &file_api_api_proto_msgTypes[133]
+	mi := &file_api_api_proto_msgTypes[130]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10802,7 +10264,7 @@ func (x *ListPermissionsRequest) String() string {
 func (*ListPermissionsRequest) ProtoMessage() {}
 
 func (x *ListPermissionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[133]
+	mi := &file_api_api_proto_msgTypes[130]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10815,22 +10277,22 @@ func (x *ListPermissionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListPermissionsRequest.ProtoReflect.Descriptor instead.
 func (*ListPermissionsRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{133}
+	return file_api_api_proto_rawDescGZIP(), []int{130}
 }
 
-func (x *ListPermissionsRequest) GetRoleId() string {
+func (x *ListPermissionsRequest) GetRoleId() int64 {
 	if x != nil {
 		return x.RoleId
 	}
-	return ""
+	return 0
 }
 
 // List (and optionally filter) role-users.
 type ListRoleUsersRequest struct {
 	state  protoimpl.MessageState `protogen:"open.v1"`
-	RoleId string                 `protobuf:"bytes,1,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`
+	RoleId int64                  `protobuf:"varint,1,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`
 	// Max number of records to return. Between 1 and 100.
-	Limit *wrapperspb.Int32Value `protobuf:"bytes,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit int32 `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
 	// An optional next page cursor.
 	Cursor        string `protobuf:"bytes,3,opt,name=cursor,proto3" json:"cursor,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -10839,7 +10301,7 @@ type ListRoleUsersRequest struct {
 
 func (x *ListRoleUsersRequest) Reset() {
 	*x = ListRoleUsersRequest{}
-	mi := &file_api_api_proto_msgTypes[134]
+	mi := &file_api_api_proto_msgTypes[131]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10851,7 +10313,7 @@ func (x *ListRoleUsersRequest) String() string {
 func (*ListRoleUsersRequest) ProtoMessage() {}
 
 func (x *ListRoleUsersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[134]
+	mi := &file_api_api_proto_msgTypes[131]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10864,21 +10326,21 @@ func (x *ListRoleUsersRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListRoleUsersRequest.ProtoReflect.Descriptor instead.
 func (*ListRoleUsersRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{134}
+	return file_api_api_proto_rawDescGZIP(), []int{131}
 }
 
-func (x *ListRoleUsersRequest) GetRoleId() string {
+func (x *ListRoleUsersRequest) GetRoleId() int64 {
 	if x != nil {
 		return x.RoleId
 	}
-	return ""
+	return 0
 }
 
-func (x *ListRoleUsersRequest) GetLimit() *wrapperspb.Int32Value {
+func (x *ListRoleUsersRequest) GetLimit() int32 {
 	if x != nil {
 		return x.Limit
 	}
-	return nil
+	return 0
 }
 
 func (x *ListRoleUsersRequest) GetCursor() string {
@@ -10892,16 +10354,16 @@ func (x *ListRoleUsersRequest) GetCursor() string {
 type ListPermissionOfUsersRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// clan_id.
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// channel_id
-	ChannelId     string `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId     int64 `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListPermissionOfUsersRequest) Reset() {
 	*x = ListPermissionOfUsersRequest{}
-	mi := &file_api_api_proto_msgTypes[135]
+	mi := &file_api_api_proto_msgTypes[132]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10913,7 +10375,7 @@ func (x *ListPermissionOfUsersRequest) String() string {
 func (*ListPermissionOfUsersRequest) ProtoMessage() {}
 
 func (x *ListPermissionOfUsersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[135]
+	mi := &file_api_api_proto_msgTypes[132]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10926,21 +10388,21 @@ func (x *ListPermissionOfUsersRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListPermissionOfUsersRequest.ProtoReflect.Descriptor instead.
 func (*ListPermissionOfUsersRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{135}
+	return file_api_api_proto_rawDescGZIP(), []int{132}
 }
 
-func (x *ListPermissionOfUsersRequest) GetClanId() string {
+func (x *ListPermissionOfUsersRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *ListPermissionOfUsersRequest) GetChannelId() string {
+func (x *ListPermissionOfUsersRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 type RoleUserList struct {
@@ -10955,7 +10417,7 @@ type RoleUserList struct {
 
 func (x *RoleUserList) Reset() {
 	*x = RoleUserList{}
-	mi := &file_api_api_proto_msgTypes[136]
+	mi := &file_api_api_proto_msgTypes[133]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -10967,7 +10429,7 @@ func (x *RoleUserList) String() string {
 func (*RoleUserList) ProtoMessage() {}
 
 func (x *RoleUserList) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[136]
+	mi := &file_api_api_proto_msgTypes[133]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10980,7 +10442,7 @@ func (x *RoleUserList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RoleUserList.ProtoReflect.Descriptor instead.
 func (*RoleUserList) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{136}
+	return file_api_api_proto_rawDescGZIP(), []int{133}
 }
 
 func (x *RoleUserList) GetRoleUsers() []*RoleUserList_RoleUser {
@@ -11000,16 +10462,16 @@ func (x *RoleUserList) GetCursor() string {
 type UserEventRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The ID of the clan to be updated.
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// The ID of the event to be updated.
-	EventId       string `protobuf:"bytes,2,opt,name=event_id,json=eventId,proto3" json:"event_id,omitempty"`
+	EventId       int64 `protobuf:"varint,2,opt,name=event_id,json=eventId,proto3" json:"event_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UserEventRequest) Reset() {
 	*x = UserEventRequest{}
-	mi := &file_api_api_proto_msgTypes[137]
+	mi := &file_api_api_proto_msgTypes[134]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -11021,7 +10483,7 @@ func (x *UserEventRequest) String() string {
 func (*UserEventRequest) ProtoMessage() {}
 
 func (x *UserEventRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[137]
+	mi := &file_api_api_proto_msgTypes[134]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -11034,34 +10496,34 @@ func (x *UserEventRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserEventRequest.ProtoReflect.Descriptor instead.
 func (*UserEventRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{137}
+	return file_api_api_proto_rawDescGZIP(), []int{134}
 }
 
-func (x *UserEventRequest) GetClanId() string {
+func (x *UserEventRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *UserEventRequest) GetEventId() string {
+func (x *UserEventRequest) GetEventId() int64 {
 	if x != nil {
 		return x.EventId
 	}
-	return ""
+	return 0
 }
 
 type ListEventsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The clan of this event
-	ClanId        string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListEventsRequest) Reset() {
 	*x = ListEventsRequest{}
-	mi := &file_api_api_proto_msgTypes[138]
+	mi := &file_api_api_proto_msgTypes[135]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -11073,7 +10535,7 @@ func (x *ListEventsRequest) String() string {
 func (*ListEventsRequest) ProtoMessage() {}
 
 func (x *ListEventsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[138]
+	mi := &file_api_api_proto_msgTypes[135]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -11086,14 +10548,14 @@ func (x *ListEventsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListEventsRequest.ProtoReflect.Descriptor instead.
 func (*ListEventsRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{138}
+	return file_api_api_proto_rawDescGZIP(), []int{135}
 }
 
-func (x *ListEventsRequest) GetClanId() string {
+func (x *ListEventsRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 // Create a role within clan.
@@ -11103,15 +10565,15 @@ type CreateRoleRequest struct {
 	Color         string                 `protobuf:"bytes,2,opt,name=color,proto3" json:"color,omitempty"`
 	RoleIcon      string                 `protobuf:"bytes,3,opt,name=role_icon,json=roleIcon,proto3" json:"role_icon,omitempty"`
 	Description   string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
-	ClanId        string                 `protobuf:"bytes,5,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,5,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	DisplayOnline int32                  `protobuf:"varint,6,opt,name=display_online,json=displayOnline,proto3" json:"display_online,omitempty"`
 	AllowMention  int32                  `protobuf:"varint,7,opt,name=allow_mention,json=allowMention,proto3" json:"allow_mention,omitempty"`
 	// id of permission which has max level permission
-	MaxPermissionId string `protobuf:"bytes,8,opt,name=max_permission_id,json=maxPermissionId,proto3" json:"max_permission_id,omitempty"`
+	MaxPermissionId int64 `protobuf:"varint,8,opt,name=max_permission_id,json=maxPermissionId,proto3" json:"max_permission_id,omitempty"`
 	// The users to add.
-	AddUserIds []string `protobuf:"bytes,9,rep,name=add_user_ids,json=addUserIds,proto3" json:"add_user_ids,omitempty"`
+	AddUserIds []int64 `protobuf:"varint,9,rep,packed,name=add_user_ids,json=addUserIds,proto3" json:"add_user_ids,omitempty"`
 	// The permissions to add.
-	ActivePermissionIds []string `protobuf:"bytes,10,rep,name=active_permission_ids,json=activePermissionIds,proto3" json:"active_permission_ids,omitempty"`
+	ActivePermissionIds []int64 `protobuf:"varint,10,rep,packed,name=active_permission_ids,json=activePermissionIds,proto3" json:"active_permission_ids,omitempty"`
 	// order role
 	OrderRole     int32 `protobuf:"varint,11,opt,name=order_role,json=orderRole,proto3" json:"order_role,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -11120,7 +10582,7 @@ type CreateRoleRequest struct {
 
 func (x *CreateRoleRequest) Reset() {
 	*x = CreateRoleRequest{}
-	mi := &file_api_api_proto_msgTypes[139]
+	mi := &file_api_api_proto_msgTypes[136]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -11132,7 +10594,7 @@ func (x *CreateRoleRequest) String() string {
 func (*CreateRoleRequest) ProtoMessage() {}
 
 func (x *CreateRoleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[139]
+	mi := &file_api_api_proto_msgTypes[136]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -11145,7 +10607,7 @@ func (x *CreateRoleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateRoleRequest.ProtoReflect.Descriptor instead.
 func (*CreateRoleRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{139}
+	return file_api_api_proto_rawDescGZIP(), []int{136}
 }
 
 func (x *CreateRoleRequest) GetTitle() string {
@@ -11176,11 +10638,11 @@ func (x *CreateRoleRequest) GetDescription() string {
 	return ""
 }
 
-func (x *CreateRoleRequest) GetClanId() string {
+func (x *CreateRoleRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *CreateRoleRequest) GetDisplayOnline() int32 {
@@ -11197,21 +10659,21 @@ func (x *CreateRoleRequest) GetAllowMention() int32 {
 	return 0
 }
 
-func (x *CreateRoleRequest) GetMaxPermissionId() string {
+func (x *CreateRoleRequest) GetMaxPermissionId() int64 {
 	if x != nil {
 		return x.MaxPermissionId
 	}
-	return ""
+	return 0
 }
 
-func (x *CreateRoleRequest) GetAddUserIds() []string {
+func (x *CreateRoleRequest) GetAddUserIds() []int64 {
 	if x != nil {
 		return x.AddUserIds
 	}
 	return nil
 }
 
-func (x *CreateRoleRequest) GetActivePermissionIds() []string {
+func (x *CreateRoleRequest) GetActivePermissionIds() []int64 {
 	if x != nil {
 		return x.ActivePermissionIds
 	}
@@ -11227,31 +10689,31 @@ func (x *CreateRoleRequest) GetOrderRole() int32 {
 
 // Create a event within clan.
 type CreateEventRequest struct {
-	state          protoimpl.MessageState     `protogen:"open.v1"`
-	Title          string                     `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
-	Logo           string                     `protobuf:"bytes,2,opt,name=logo,proto3" json:"logo,omitempty"`
-	Description    string                     `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	ClanId         string                     `protobuf:"bytes,4,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
-	ChannelVoiceId string                     `protobuf:"bytes,5,opt,name=channel_voice_id,json=channelVoiceId,proto3" json:"channel_voice_id,omitempty"`
-	Address        string                     `protobuf:"bytes,6,opt,name=address,proto3" json:"address,omitempty"`
-	StartTime      *timestamppb.Timestamp     `protobuf:"bytes,7,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
-	EndTime        *timestamppb.Timestamp     `protobuf:"bytes,8,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
-	EventId        string                     `protobuf:"bytes,9,opt,name=event_id,json=eventId,proto3" json:"event_id,omitempty"`
-	EventStatus    int32                      `protobuf:"varint,10,opt,name=event_status,json=eventStatus,proto3" json:"event_status,omitempty"`
-	ChannelId      string                     `protobuf:"bytes,11,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	Action         int32                      `protobuf:"varint,12,opt,name=action,proto3" json:"action,omitempty"`
-	RepeatType     int32                      `protobuf:"varint,13,opt,name=repeat_type,json=repeatType,proto3" json:"repeat_type,omitempty"`
-	CreatorId      string                     `protobuf:"bytes,14,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
-	UserId         string                     `protobuf:"bytes,15,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	IsPrivate      *wrapperspb.BoolValue      `protobuf:"bytes,16,opt,name=is_private,json=isPrivate,proto3" json:"is_private,omitempty"`
-	MeetRoom       *GenerateMezonMeetResponse `protobuf:"bytes,17,opt,name=meet_room,json=meetRoom,proto3" json:"meet_room,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state            protoimpl.MessageState     `protogen:"open.v1"`
+	Title            string                     `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
+	Logo             string                     `protobuf:"bytes,2,opt,name=logo,proto3" json:"logo,omitempty"`
+	Description      string                     `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	ClanId           int64                      `protobuf:"varint,4,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ChannelVoiceId   int64                      `protobuf:"varint,5,opt,name=channel_voice_id,json=channelVoiceId,proto3" json:"channel_voice_id,omitempty"`
+	Address          string                     `protobuf:"bytes,6,opt,name=address,proto3" json:"address,omitempty"`
+	StartTimeSeconds uint32                     `protobuf:"varint,7,opt,name=start_time_seconds,json=startTimeSeconds,proto3" json:"start_time_seconds,omitempty"`
+	EndTimeSeconds   uint32                     `protobuf:"varint,8,opt,name=end_time_seconds,json=endTimeSeconds,proto3" json:"end_time_seconds,omitempty"`
+	EventId          int64                      `protobuf:"varint,9,opt,name=event_id,json=eventId,proto3" json:"event_id,omitempty"`
+	EventStatus      int32                      `protobuf:"varint,10,opt,name=event_status,json=eventStatus,proto3" json:"event_status,omitempty"`
+	ChannelId        int64                      `protobuf:"varint,11,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	Action           int32                      `protobuf:"varint,12,opt,name=action,proto3" json:"action,omitempty"`
+	RepeatType       int32                      `protobuf:"varint,13,opt,name=repeat_type,json=repeatType,proto3" json:"repeat_type,omitempty"`
+	CreatorId        int64                      `protobuf:"varint,14,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
+	UserId           int64                      `protobuf:"varint,15,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	IsPrivate        bool                       `protobuf:"varint,16,opt,name=is_private,json=isPrivate,proto3" json:"is_private,omitempty"`
+	MeetRoom         *GenerateMezonMeetResponse `protobuf:"bytes,17,opt,name=meet_room,json=meetRoom,proto3" json:"meet_room,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *CreateEventRequest) Reset() {
 	*x = CreateEventRequest{}
-	mi := &file_api_api_proto_msgTypes[140]
+	mi := &file_api_api_proto_msgTypes[137]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -11263,7 +10725,7 @@ func (x *CreateEventRequest) String() string {
 func (*CreateEventRequest) ProtoMessage() {}
 
 func (x *CreateEventRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[140]
+	mi := &file_api_api_proto_msgTypes[137]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -11276,7 +10738,7 @@ func (x *CreateEventRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateEventRequest.ProtoReflect.Descriptor instead.
 func (*CreateEventRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{140}
+	return file_api_api_proto_rawDescGZIP(), []int{137}
 }
 
 func (x *CreateEventRequest) GetTitle() string {
@@ -11300,18 +10762,18 @@ func (x *CreateEventRequest) GetDescription() string {
 	return ""
 }
 
-func (x *CreateEventRequest) GetClanId() string {
+func (x *CreateEventRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *CreateEventRequest) GetChannelVoiceId() string {
+func (x *CreateEventRequest) GetChannelVoiceId() int64 {
 	if x != nil {
 		return x.ChannelVoiceId
 	}
-	return ""
+	return 0
 }
 
 func (x *CreateEventRequest) GetAddress() string {
@@ -11321,25 +10783,25 @@ func (x *CreateEventRequest) GetAddress() string {
 	return ""
 }
 
-func (x *CreateEventRequest) GetStartTime() *timestamppb.Timestamp {
+func (x *CreateEventRequest) GetStartTimeSeconds() uint32 {
 	if x != nil {
-		return x.StartTime
+		return x.StartTimeSeconds
 	}
-	return nil
+	return 0
 }
 
-func (x *CreateEventRequest) GetEndTime() *timestamppb.Timestamp {
+func (x *CreateEventRequest) GetEndTimeSeconds() uint32 {
 	if x != nil {
-		return x.EndTime
+		return x.EndTimeSeconds
 	}
-	return nil
+	return 0
 }
 
-func (x *CreateEventRequest) GetEventId() string {
+func (x *CreateEventRequest) GetEventId() int64 {
 	if x != nil {
 		return x.EventId
 	}
-	return ""
+	return 0
 }
 
 func (x *CreateEventRequest) GetEventStatus() int32 {
@@ -11349,11 +10811,11 @@ func (x *CreateEventRequest) GetEventStatus() int32 {
 	return 0
 }
 
-func (x *CreateEventRequest) GetChannelId() string {
+func (x *CreateEventRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *CreateEventRequest) GetAction() int32 {
@@ -11370,25 +10832,25 @@ func (x *CreateEventRequest) GetRepeatType() int32 {
 	return 0
 }
 
-func (x *CreateEventRequest) GetCreatorId() string {
+func (x *CreateEventRequest) GetCreatorId() int64 {
 	if x != nil {
 		return x.CreatorId
 	}
-	return ""
+	return 0
 }
 
-func (x *CreateEventRequest) GetUserId() string {
+func (x *CreateEventRequest) GetUserId() int64 {
 	if x != nil {
 		return x.UserId
 	}
-	return ""
+	return 0
 }
 
-func (x *CreateEventRequest) GetIsPrivate() *wrapperspb.BoolValue {
+func (x *CreateEventRequest) GetIsPrivate() bool {
 	if x != nil {
 		return x.IsPrivate
 	}
-	return nil
+	return false
 }
 
 func (x *CreateEventRequest) GetMeetRoom() *GenerateMezonMeetResponse {
@@ -11400,27 +10862,27 @@ func (x *CreateEventRequest) GetMeetRoom() *GenerateMezonMeetResponse {
 
 // update a event within clan.
 type UpdateEventRequest struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	Title          string                 `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
-	Logo           string                 `protobuf:"bytes,2,opt,name=logo,proto3" json:"logo,omitempty"`
-	Description    string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	EventId        string                 `protobuf:"bytes,4,opt,name=event_id,json=eventId,proto3" json:"event_id,omitempty"`
-	ChannelId      string                 `protobuf:"bytes,5,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	Address        string                 `protobuf:"bytes,6,opt,name=address,proto3" json:"address,omitempty"`
-	StartTime      *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
-	EndTime        *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
-	ClanId         string                 `protobuf:"bytes,9,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
-	CreatorId      string                 `protobuf:"bytes,10,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
-	ChannelVoiceId string                 `protobuf:"bytes,11,opt,name=channel_voice_id,json=channelVoiceId,proto3" json:"channel_voice_id,omitempty"`
-	ChannelIdOld   string                 `protobuf:"bytes,12,opt,name=channel_id_old,json=channelIdOld,proto3" json:"channel_id_old,omitempty"`
-	RepeatType     int32                  `protobuf:"varint,13,opt,name=repeat_type,json=repeatType,proto3" json:"repeat_type,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Title            string                 `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
+	Logo             string                 `protobuf:"bytes,2,opt,name=logo,proto3" json:"logo,omitempty"`
+	Description      string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	EventId          int64                  `protobuf:"varint,4,opt,name=event_id,json=eventId,proto3" json:"event_id,omitempty"`
+	ChannelId        int64                  `protobuf:"varint,5,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	Address          string                 `protobuf:"bytes,6,opt,name=address,proto3" json:"address,omitempty"`
+	StartTimeSeconds uint32                 `protobuf:"varint,7,opt,name=start_time_seconds,json=startTimeSeconds,proto3" json:"start_time_seconds,omitempty"`
+	EndTimeSeconds   uint32                 `protobuf:"varint,8,opt,name=end_time_seconds,json=endTimeSeconds,proto3" json:"end_time_seconds,omitempty"`
+	ClanId           int64                  `protobuf:"varint,9,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	CreatorId        int64                  `protobuf:"varint,10,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
+	ChannelVoiceId   int64                  `protobuf:"varint,11,opt,name=channel_voice_id,json=channelVoiceId,proto3" json:"channel_voice_id,omitempty"`
+	ChannelIdOld     int64                  `protobuf:"varint,12,opt,name=channel_id_old,json=channelIdOld,proto3" json:"channel_id_old,omitempty"`
+	RepeatType       int32                  `protobuf:"varint,13,opt,name=repeat_type,json=repeatType,proto3" json:"repeat_type,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *UpdateEventRequest) Reset() {
 	*x = UpdateEventRequest{}
-	mi := &file_api_api_proto_msgTypes[141]
+	mi := &file_api_api_proto_msgTypes[138]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -11432,7 +10894,7 @@ func (x *UpdateEventRequest) String() string {
 func (*UpdateEventRequest) ProtoMessage() {}
 
 func (x *UpdateEventRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[141]
+	mi := &file_api_api_proto_msgTypes[138]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -11445,7 +10907,7 @@ func (x *UpdateEventRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateEventRequest.ProtoReflect.Descriptor instead.
 func (*UpdateEventRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{141}
+	return file_api_api_proto_rawDescGZIP(), []int{138}
 }
 
 func (x *UpdateEventRequest) GetTitle() string {
@@ -11469,18 +10931,18 @@ func (x *UpdateEventRequest) GetDescription() string {
 	return ""
 }
 
-func (x *UpdateEventRequest) GetEventId() string {
+func (x *UpdateEventRequest) GetEventId() int64 {
 	if x != nil {
 		return x.EventId
 	}
-	return ""
+	return 0
 }
 
-func (x *UpdateEventRequest) GetChannelId() string {
+func (x *UpdateEventRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *UpdateEventRequest) GetAddress() string {
@@ -11490,46 +10952,46 @@ func (x *UpdateEventRequest) GetAddress() string {
 	return ""
 }
 
-func (x *UpdateEventRequest) GetStartTime() *timestamppb.Timestamp {
+func (x *UpdateEventRequest) GetStartTimeSeconds() uint32 {
 	if x != nil {
-		return x.StartTime
+		return x.StartTimeSeconds
 	}
-	return nil
+	return 0
 }
 
-func (x *UpdateEventRequest) GetEndTime() *timestamppb.Timestamp {
+func (x *UpdateEventRequest) GetEndTimeSeconds() uint32 {
 	if x != nil {
-		return x.EndTime
+		return x.EndTimeSeconds
 	}
-	return nil
+	return 0
 }
 
-func (x *UpdateEventRequest) GetClanId() string {
+func (x *UpdateEventRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *UpdateEventRequest) GetCreatorId() string {
+func (x *UpdateEventRequest) GetCreatorId() int64 {
 	if x != nil {
 		return x.CreatorId
 	}
-	return ""
+	return 0
 }
 
-func (x *UpdateEventRequest) GetChannelVoiceId() string {
+func (x *UpdateEventRequest) GetChannelVoiceId() int64 {
 	if x != nil {
 		return x.ChannelVoiceId
 	}
-	return ""
+	return 0
 }
 
-func (x *UpdateEventRequest) GetChannelIdOld() string {
+func (x *UpdateEventRequest) GetChannelIdOld() int64 {
 	if x != nil {
 		return x.ChannelIdOld
 	}
-	return ""
+	return 0
 }
 
 func (x *UpdateEventRequest) GetRepeatType() int32 {
@@ -11543,11 +11005,11 @@ func (x *UpdateEventRequest) GetRepeatType() int32 {
 type DeleteRoleRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The id of a role.
-	RoleId string `protobuf:"bytes,1,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`
+	RoleId int64 `protobuf:"varint,1,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`
 	// The id of a channel
-	ChannelId string `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// clan_id
-	ClanId string `protobuf:"bytes,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// role label
 	RoleLabel     string `protobuf:"bytes,4,opt,name=role_label,json=roleLabel,proto3" json:"role_label,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -11556,7 +11018,7 @@ type DeleteRoleRequest struct {
 
 func (x *DeleteRoleRequest) Reset() {
 	*x = DeleteRoleRequest{}
-	mi := &file_api_api_proto_msgTypes[142]
+	mi := &file_api_api_proto_msgTypes[139]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -11568,7 +11030,7 @@ func (x *DeleteRoleRequest) String() string {
 func (*DeleteRoleRequest) ProtoMessage() {}
 
 func (x *DeleteRoleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[142]
+	mi := &file_api_api_proto_msgTypes[139]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -11581,28 +11043,28 @@ func (x *DeleteRoleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteRoleRequest.ProtoReflect.Descriptor instead.
 func (*DeleteRoleRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{142}
+	return file_api_api_proto_rawDescGZIP(), []int{139}
 }
 
-func (x *DeleteRoleRequest) GetRoleId() string {
+func (x *DeleteRoleRequest) GetRoleId() int64 {
 	if x != nil {
 		return x.RoleId
 	}
-	return ""
+	return 0
 }
 
-func (x *DeleteRoleRequest) GetChannelId() string {
+func (x *DeleteRoleRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *DeleteRoleRequest) GetClanId() string {
+func (x *DeleteRoleRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *DeleteRoleRequest) GetRoleLabel() string {
@@ -11615,22 +11077,22 @@ func (x *DeleteRoleRequest) GetRoleLabel() string {
 type DeleteEventRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The id of a event.
-	EventId string `protobuf:"bytes,1,opt,name=event_id,json=eventId,proto3" json:"event_id,omitempty"`
+	EventId int64 `protobuf:"varint,1,opt,name=event_id,json=eventId,proto3" json:"event_id,omitempty"`
 	// clan id
-	ClanId string `protobuf:"bytes,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// creator id
-	CreatorId string `protobuf:"bytes,3,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
+	CreatorId int64 `protobuf:"varint,3,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
 	// event label
 	EventLabel string `protobuf:"bytes,4,opt,name=event_label,json=eventLabel,proto3" json:"event_label,omitempty"`
 	// channel id
-	ChannelId     string `protobuf:"bytes,5,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId     int64 `protobuf:"varint,5,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *DeleteEventRequest) Reset() {
 	*x = DeleteEventRequest{}
-	mi := &file_api_api_proto_msgTypes[143]
+	mi := &file_api_api_proto_msgTypes[140]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -11642,7 +11104,7 @@ func (x *DeleteEventRequest) String() string {
 func (*DeleteEventRequest) ProtoMessage() {}
 
 func (x *DeleteEventRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[143]
+	mi := &file_api_api_proto_msgTypes[140]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -11655,28 +11117,28 @@ func (x *DeleteEventRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteEventRequest.ProtoReflect.Descriptor instead.
 func (*DeleteEventRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{143}
+	return file_api_api_proto_rawDescGZIP(), []int{140}
 }
 
-func (x *DeleteEventRequest) GetEventId() string {
+func (x *DeleteEventRequest) GetEventId() int64 {
 	if x != nil {
 		return x.EventId
 	}
-	return ""
+	return 0
 }
 
-func (x *DeleteEventRequest) GetClanId() string {
+func (x *DeleteEventRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *DeleteEventRequest) GetCreatorId() string {
+func (x *DeleteEventRequest) GetCreatorId() int64 {
 	if x != nil {
 		return x.CreatorId
 	}
-	return ""
+	return 0
 }
 
 func (x *DeleteEventRequest) GetEventLabel() string {
@@ -11686,43 +11148,43 @@ func (x *DeleteEventRequest) GetEventLabel() string {
 	return ""
 }
 
-func (x *DeleteEventRequest) GetChannelId() string {
+func (x *DeleteEventRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 // Update fields in a given role.
 type UpdateRoleRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The ID of the role to update.
-	RoleId        string                  `protobuf:"bytes,1,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`
+	RoleId        int64                   `protobuf:"varint,1,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`
 	Title         *wrapperspb.StringValue `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
 	Color         *wrapperspb.StringValue `protobuf:"bytes,3,opt,name=color,proto3" json:"color,omitempty"`
 	RoleIcon      *wrapperspb.StringValue `protobuf:"bytes,4,opt,name=role_icon,json=roleIcon,proto3" json:"role_icon,omitempty"`
 	Description   *wrapperspb.StringValue `protobuf:"bytes,5,opt,name=description,proto3" json:"description,omitempty"`
-	DisplayOnline *wrapperspb.Int32Value  `protobuf:"bytes,6,opt,name=display_online,json=displayOnline,proto3" json:"display_online,omitempty"`
-	AllowMention  *wrapperspb.Int32Value  `protobuf:"bytes,7,opt,name=allow_mention,json=allowMention,proto3" json:"allow_mention,omitempty"`
+	DisplayOnline int32                   `protobuf:"varint,6,opt,name=display_online,json=displayOnline,proto3" json:"display_online,omitempty"`
+	AllowMention  int32                   `protobuf:"varint,7,opt,name=allow_mention,json=allowMention,proto3" json:"allow_mention,omitempty"`
 	// The users to add.
-	AddUserIds []string `protobuf:"bytes,8,rep,name=add_user_ids,json=addUserIds,proto3" json:"add_user_ids,omitempty"`
+	AddUserIds []int64 `protobuf:"varint,8,rep,packed,name=add_user_ids,json=addUserIds,proto3" json:"add_user_ids,omitempty"`
 	// The permissions to add.
-	ActivePermissionIds []string `protobuf:"bytes,9,rep,name=active_permission_ids,json=activePermissionIds,proto3" json:"active_permission_ids,omitempty"`
+	ActivePermissionIds []int64 `protobuf:"varint,9,rep,packed,name=active_permission_ids,json=activePermissionIds,proto3" json:"active_permission_ids,omitempty"`
 	// The users to remove.
-	RemoveUserIds []string `protobuf:"bytes,10,rep,name=remove_user_ids,json=removeUserIds,proto3" json:"remove_user_ids,omitempty"`
+	RemoveUserIds []int64 `protobuf:"varint,10,rep,packed,name=remove_user_ids,json=removeUserIds,proto3" json:"remove_user_ids,omitempty"`
 	// The permissions to remove.
-	RemovePermissionIds []string `protobuf:"bytes,11,rep,name=remove_permission_ids,json=removePermissionIds,proto3" json:"remove_permission_ids,omitempty"`
+	RemovePermissionIds []int64 `protobuf:"varint,11,rep,packed,name=remove_permission_ids,json=removePermissionIds,proto3" json:"remove_permission_ids,omitempty"`
 	// the clan id
-	ClanId string `protobuf:"bytes,12,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,12,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// id of permission which has max level permission
-	MaxPermissionId string `protobuf:"bytes,13,opt,name=max_permission_id,json=maxPermissionId,proto3" json:"max_permission_id,omitempty"`
+	MaxPermissionId int64 `protobuf:"varint,13,opt,name=max_permission_id,json=maxPermissionId,proto3" json:"max_permission_id,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
 
 func (x *UpdateRoleRequest) Reset() {
 	*x = UpdateRoleRequest{}
-	mi := &file_api_api_proto_msgTypes[144]
+	mi := &file_api_api_proto_msgTypes[141]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -11734,7 +11196,7 @@ func (x *UpdateRoleRequest) String() string {
 func (*UpdateRoleRequest) ProtoMessage() {}
 
 func (x *UpdateRoleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[144]
+	mi := &file_api_api_proto_msgTypes[141]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -11747,14 +11209,14 @@ func (x *UpdateRoleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateRoleRequest.ProtoReflect.Descriptor instead.
 func (*UpdateRoleRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{144}
+	return file_api_api_proto_rawDescGZIP(), []int{141}
 }
 
-func (x *UpdateRoleRequest) GetRoleId() string {
+func (x *UpdateRoleRequest) GetRoleId() int64 {
 	if x != nil {
 		return x.RoleId
 	}
-	return ""
+	return 0
 }
 
 func (x *UpdateRoleRequest) GetTitle() *wrapperspb.StringValue {
@@ -11785,74 +11247,74 @@ func (x *UpdateRoleRequest) GetDescription() *wrapperspb.StringValue {
 	return nil
 }
 
-func (x *UpdateRoleRequest) GetDisplayOnline() *wrapperspb.Int32Value {
+func (x *UpdateRoleRequest) GetDisplayOnline() int32 {
 	if x != nil {
 		return x.DisplayOnline
 	}
-	return nil
+	return 0
 }
 
-func (x *UpdateRoleRequest) GetAllowMention() *wrapperspb.Int32Value {
+func (x *UpdateRoleRequest) GetAllowMention() int32 {
 	if x != nil {
 		return x.AllowMention
 	}
-	return nil
+	return 0
 }
 
-func (x *UpdateRoleRequest) GetAddUserIds() []string {
+func (x *UpdateRoleRequest) GetAddUserIds() []int64 {
 	if x != nil {
 		return x.AddUserIds
 	}
 	return nil
 }
 
-func (x *UpdateRoleRequest) GetActivePermissionIds() []string {
+func (x *UpdateRoleRequest) GetActivePermissionIds() []int64 {
 	if x != nil {
 		return x.ActivePermissionIds
 	}
 	return nil
 }
 
-func (x *UpdateRoleRequest) GetRemoveUserIds() []string {
+func (x *UpdateRoleRequest) GetRemoveUserIds() []int64 {
 	if x != nil {
 		return x.RemoveUserIds
 	}
 	return nil
 }
 
-func (x *UpdateRoleRequest) GetRemovePermissionIds() []string {
+func (x *UpdateRoleRequest) GetRemovePermissionIds() []int64 {
 	if x != nil {
 		return x.RemovePermissionIds
 	}
 	return nil
 }
 
-func (x *UpdateRoleRequest) GetClanId() string {
+func (x *UpdateRoleRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *UpdateRoleRequest) GetMaxPermissionId() string {
+func (x *UpdateRoleRequest) GetMaxPermissionId() int64 {
 	if x != nil {
 		return x.MaxPermissionId
 	}
-	return ""
+	return 0
 }
 
 type UpdateRoleChannelRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The ID of the role to update.
-	RoleId string `protobuf:"bytes,1,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`
+	RoleId int64 `protobuf:"varint,1,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`
 	// The permissions to add.
 	PermissionUpdate []*PermissionUpdate `protobuf:"bytes,2,rep,name=permission_update,json=permissionUpdate,proto3" json:"permission_update,omitempty"`
 	// id of permission which has max level permission
-	MaxPermissionId string `protobuf:"bytes,3,opt,name=max_permission_id,json=maxPermissionId,proto3" json:"max_permission_id,omitempty"`
+	MaxPermissionId int64 `protobuf:"varint,3,opt,name=max_permission_id,json=maxPermissionId,proto3" json:"max_permission_id,omitempty"`
 	// The channel_id
-	ChannelId string `protobuf:"bytes,4,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,4,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// The ID of the role to update.
-	UserId string `protobuf:"bytes,5,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId int64 `protobuf:"varint,5,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	// Role label
 	RoleLabel     string `protobuf:"bytes,6,opt,name=role_label,json=roleLabel,proto3" json:"role_label,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -11861,7 +11323,7 @@ type UpdateRoleChannelRequest struct {
 
 func (x *UpdateRoleChannelRequest) Reset() {
 	*x = UpdateRoleChannelRequest{}
-	mi := &file_api_api_proto_msgTypes[145]
+	mi := &file_api_api_proto_msgTypes[142]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -11873,7 +11335,7 @@ func (x *UpdateRoleChannelRequest) String() string {
 func (*UpdateRoleChannelRequest) ProtoMessage() {}
 
 func (x *UpdateRoleChannelRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[145]
+	mi := &file_api_api_proto_msgTypes[142]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -11886,14 +11348,14 @@ func (x *UpdateRoleChannelRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateRoleChannelRequest.ProtoReflect.Descriptor instead.
 func (*UpdateRoleChannelRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{145}
+	return file_api_api_proto_rawDescGZIP(), []int{142}
 }
 
-func (x *UpdateRoleChannelRequest) GetRoleId() string {
+func (x *UpdateRoleChannelRequest) GetRoleId() int64 {
 	if x != nil {
 		return x.RoleId
 	}
-	return ""
+	return 0
 }
 
 func (x *UpdateRoleChannelRequest) GetPermissionUpdate() []*PermissionUpdate {
@@ -11903,25 +11365,25 @@ func (x *UpdateRoleChannelRequest) GetPermissionUpdate() []*PermissionUpdate {
 	return nil
 }
 
-func (x *UpdateRoleChannelRequest) GetMaxPermissionId() string {
+func (x *UpdateRoleChannelRequest) GetMaxPermissionId() int64 {
 	if x != nil {
 		return x.MaxPermissionId
 	}
-	return ""
+	return 0
 }
 
-func (x *UpdateRoleChannelRequest) GetChannelId() string {
+func (x *UpdateRoleChannelRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *UpdateRoleChannelRequest) GetUserId() string {
+func (x *UpdateRoleChannelRequest) GetUserId() int64 {
 	if x != nil {
 		return x.UserId
 	}
-	return ""
+	return 0
 }
 
 func (x *UpdateRoleChannelRequest) GetRoleLabel() string {
@@ -11934,7 +11396,7 @@ func (x *UpdateRoleChannelRequest) GetRoleLabel() string {
 type PermissionUpdate struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// permission_id
-	PermissionId string `protobuf:"bytes,1,opt,name=permission_id,json=permissionId,proto3" json:"permission_id,omitempty"`
+	PermissionId int64 `protobuf:"varint,1,opt,name=permission_id,json=permissionId,proto3" json:"permission_id,omitempty"`
 	// permission slug
 	Slug string `protobuf:"bytes,2,opt,name=slug,proto3" json:"slug,omitempty"`
 	// type set permission
@@ -11945,7 +11407,7 @@ type PermissionUpdate struct {
 
 func (x *PermissionUpdate) Reset() {
 	*x = PermissionUpdate{}
-	mi := &file_api_api_proto_msgTypes[146]
+	mi := &file_api_api_proto_msgTypes[143]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -11957,7 +11419,7 @@ func (x *PermissionUpdate) String() string {
 func (*PermissionUpdate) ProtoMessage() {}
 
 func (x *PermissionUpdate) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[146]
+	mi := &file_api_api_proto_msgTypes[143]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -11970,14 +11432,14 @@ func (x *PermissionUpdate) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PermissionUpdate.ProtoReflect.Descriptor instead.
 func (*PermissionUpdate) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{146}
+	return file_api_api_proto_rawDescGZIP(), []int{143}
 }
 
-func (x *PermissionUpdate) GetPermissionId() string {
+func (x *PermissionUpdate) GetPermissionId() int64 {
 	if x != nil {
 		return x.PermissionId
 	}
-	return ""
+	return 0
 }
 
 func (x *PermissionUpdate) GetSlug() string {
@@ -12012,7 +11474,7 @@ type UploadAttachmentRequest struct {
 
 func (x *UploadAttachmentRequest) Reset() {
 	*x = UploadAttachmentRequest{}
-	mi := &file_api_api_proto_msgTypes[147]
+	mi := &file_api_api_proto_msgTypes[144]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12024,7 +11486,7 @@ func (x *UploadAttachmentRequest) String() string {
 func (*UploadAttachmentRequest) ProtoMessage() {}
 
 func (x *UploadAttachmentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[147]
+	mi := &file_api_api_proto_msgTypes[144]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12037,7 +11499,7 @@ func (x *UploadAttachmentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UploadAttachmentRequest.ProtoReflect.Descriptor instead.
 func (*UploadAttachmentRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{147}
+	return file_api_api_proto_rawDescGZIP(), []int{144}
 }
 
 func (x *UploadAttachmentRequest) GetFilename() string {
@@ -12078,9 +11540,9 @@ func (x *UploadAttachmentRequest) GetHeight() int32 {
 type ListMessageMentionRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Max number of records to return. Between 1 and 100.
-	Limit *wrapperspb.Int32Value `protobuf:"bytes,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit int32 `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
 	// True if listing should be older messages to newer, false if reverse.
-	Forward *wrapperspb.BoolValue `protobuf:"bytes,2,opt,name=forward,proto3" json:"forward,omitempty"`
+	Forward bool `protobuf:"varint,2,opt,name=forward,proto3" json:"forward,omitempty"`
 	// A pagination cursor, if any.
 	Cursor        string `protobuf:"bytes,3,opt,name=cursor,proto3" json:"cursor,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -12089,7 +11551,7 @@ type ListMessageMentionRequest struct {
 
 func (x *ListMessageMentionRequest) Reset() {
 	*x = ListMessageMentionRequest{}
-	mi := &file_api_api_proto_msgTypes[148]
+	mi := &file_api_api_proto_msgTypes[145]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12101,7 +11563,7 @@ func (x *ListMessageMentionRequest) String() string {
 func (*ListMessageMentionRequest) ProtoMessage() {}
 
 func (x *ListMessageMentionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[148]
+	mi := &file_api_api_proto_msgTypes[145]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12114,21 +11576,21 @@ func (x *ListMessageMentionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMessageMentionRequest.ProtoReflect.Descriptor instead.
 func (*ListMessageMentionRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{148}
+	return file_api_api_proto_rawDescGZIP(), []int{145}
 }
 
-func (x *ListMessageMentionRequest) GetLimit() *wrapperspb.Int32Value {
+func (x *ListMessageMentionRequest) GetLimit() int32 {
 	if x != nil {
 		return x.Limit
 	}
-	return nil
+	return 0
 }
 
-func (x *ListMessageMentionRequest) GetForward() *wrapperspb.BoolValue {
+func (x *ListMessageMentionRequest) GetForward() bool {
 	if x != nil {
 		return x.Forward
 	}
-	return nil
+	return false
 }
 
 func (x *ListMessageMentionRequest) GetCursor() string {
@@ -12150,7 +11612,7 @@ type UploadAttachment struct {
 
 func (x *UploadAttachment) Reset() {
 	*x = UploadAttachment{}
-	mi := &file_api_api_proto_msgTypes[149]
+	mi := &file_api_api_proto_msgTypes[146]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12162,7 +11624,7 @@ func (x *UploadAttachment) String() string {
 func (*UploadAttachment) ProtoMessage() {}
 
 func (x *UploadAttachment) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[149]
+	mi := &file_api_api_proto_msgTypes[146]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12175,7 +11637,7 @@ func (x *UploadAttachment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UploadAttachment.ProtoReflect.Descriptor instead.
 func (*UploadAttachment) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{149}
+	return file_api_api_proto_rawDescGZIP(), []int{146}
 }
 
 func (x *UploadAttachment) GetFilename() string {
@@ -12196,9 +11658,9 @@ type SearchMessageRequest struct {
 	state   protoimpl.MessageState `protogen:"open.v1"`
 	Filters []*FilterParam         `protobuf:"bytes,1,rep,name=filters,proto3" json:"filters,omitempty"`
 	// Offset value
-	From *wrapperspb.Int32Value `protobuf:"bytes,3,opt,name=from,proto3" json:"from,omitempty"`
+	From int32 `protobuf:"varint,3,opt,name=from,proto3" json:"from,omitempty"`
 	// Page size
-	Size *wrapperspb.Int32Value `protobuf:"bytes,4,opt,name=size,proto3" json:"size,omitempty"`
+	Size int32 `protobuf:"varint,4,opt,name=size,proto3" json:"size,omitempty"`
 	// Sort information
 	Sorts         []*SortParam `protobuf:"bytes,5,rep,name=sorts,proto3" json:"sorts,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -12207,7 +11669,7 @@ type SearchMessageRequest struct {
 
 func (x *SearchMessageRequest) Reset() {
 	*x = SearchMessageRequest{}
-	mi := &file_api_api_proto_msgTypes[150]
+	mi := &file_api_api_proto_msgTypes[147]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12219,7 +11681,7 @@ func (x *SearchMessageRequest) String() string {
 func (*SearchMessageRequest) ProtoMessage() {}
 
 func (x *SearchMessageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[150]
+	mi := &file_api_api_proto_msgTypes[147]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12232,7 +11694,7 @@ func (x *SearchMessageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchMessageRequest.ProtoReflect.Descriptor instead.
 func (*SearchMessageRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{150}
+	return file_api_api_proto_rawDescGZIP(), []int{147}
 }
 
 func (x *SearchMessageRequest) GetFilters() []*FilterParam {
@@ -12242,18 +11704,18 @@ func (x *SearchMessageRequest) GetFilters() []*FilterParam {
 	return nil
 }
 
-func (x *SearchMessageRequest) GetFrom() *wrapperspb.Int32Value {
+func (x *SearchMessageRequest) GetFrom() int32 {
 	if x != nil {
 		return x.From
 	}
-	return nil
+	return 0
 }
 
-func (x *SearchMessageRequest) GetSize() *wrapperspb.Int32Value {
+func (x *SearchMessageRequest) GetSize() int32 {
 	if x != nil {
 		return x.Size
 	}
-	return nil
+	return 0
 }
 
 func (x *SearchMessageRequest) GetSorts() []*SortParam {
@@ -12275,7 +11737,7 @@ type SortParam struct {
 
 func (x *SortParam) Reset() {
 	*x = SortParam{}
-	mi := &file_api_api_proto_msgTypes[151]
+	mi := &file_api_api_proto_msgTypes[148]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12287,7 +11749,7 @@ func (x *SortParam) String() string {
 func (*SortParam) ProtoMessage() {}
 
 func (x *SortParam) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[151]
+	mi := &file_api_api_proto_msgTypes[148]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12300,7 +11762,7 @@ func (x *SortParam) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SortParam.ProtoReflect.Descriptor instead.
 func (*SortParam) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{151}
+	return file_api_api_proto_rawDescGZIP(), []int{148}
 }
 
 func (x *SortParam) GetFieldName() string {
@@ -12329,7 +11791,7 @@ type FilterParam struct {
 
 func (x *FilterParam) Reset() {
 	*x = FilterParam{}
-	mi := &file_api_api_proto_msgTypes[152]
+	mi := &file_api_api_proto_msgTypes[149]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12341,7 +11803,7 @@ func (x *FilterParam) String() string {
 func (*FilterParam) ProtoMessage() {}
 
 func (x *FilterParam) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[152]
+	mi := &file_api_api_proto_msgTypes[149]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12354,7 +11816,7 @@ func (x *FilterParam) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FilterParam.ProtoReflect.Descriptor instead.
 func (*FilterParam) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{152}
+	return file_api_api_proto_rawDescGZIP(), []int{149}
 }
 
 func (x *FilterParam) GetFieldName() string {
@@ -12388,7 +11850,7 @@ type SearchMessageDocument struct {
 	// Reactions
 	Reactions string `protobuf:"bytes,7,opt,name=reactions,proto3" json:"reactions,omitempty"`
 	// Attachment
-	Attachments []*MessageAttachment `protobuf:"bytes,8,rep,name=attachments,proto3" json:"attachments,omitempty"`
+	Attachments string `protobuf:"bytes,8,opt,name=attachments,proto3" json:"attachments,omitempty"`
 	// Reference users
 	References string `protobuf:"bytes,9,opt,name=references,proto3" json:"references,omitempty"`
 	// Message create time
@@ -12413,7 +11875,7 @@ type SearchMessageDocument struct {
 
 func (x *SearchMessageDocument) Reset() {
 	*x = SearchMessageDocument{}
-	mi := &file_api_api_proto_msgTypes[153]
+	mi := &file_api_api_proto_msgTypes[150]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12425,7 +11887,7 @@ func (x *SearchMessageDocument) String() string {
 func (*SearchMessageDocument) ProtoMessage() {}
 
 func (x *SearchMessageDocument) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[153]
+	mi := &file_api_api_proto_msgTypes[150]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12438,7 +11900,7 @@ func (x *SearchMessageDocument) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchMessageDocument.ProtoReflect.Descriptor instead.
 func (*SearchMessageDocument) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{153}
+	return file_api_api_proto_rawDescGZIP(), []int{150}
 }
 
 func (x *SearchMessageDocument) GetMessageId() string {
@@ -12490,11 +11952,11 @@ func (x *SearchMessageDocument) GetReactions() string {
 	return ""
 }
 
-func (x *SearchMessageDocument) GetAttachments() []*MessageAttachment {
+func (x *SearchMessageDocument) GetAttachments() string {
 	if x != nil {
 		return x.Attachments
 	}
-	return nil
+	return ""
 }
 
 func (x *SearchMessageDocument) GetReferences() string {
@@ -12572,7 +12034,7 @@ type SearchMessageResponse struct {
 
 func (x *SearchMessageResponse) Reset() {
 	*x = SearchMessageResponse{}
-	mi := &file_api_api_proto_msgTypes[154]
+	mi := &file_api_api_proto_msgTypes[151]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12584,7 +12046,7 @@ func (x *SearchMessageResponse) String() string {
 func (*SearchMessageResponse) ProtoMessage() {}
 
 func (x *SearchMessageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[154]
+	mi := &file_api_api_proto_msgTypes[151]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12597,7 +12059,7 @@ func (x *SearchMessageResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchMessageResponse.ProtoReflect.Descriptor instead.
 func (*SearchMessageResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{154}
+	return file_api_api_proto_rawDescGZIP(), []int{151}
 }
 
 func (x *SearchMessageResponse) GetMessages() []*SearchMessageDocument {
@@ -12638,7 +12100,7 @@ type RegistrationEmailRequest struct {
 
 func (x *RegistrationEmailRequest) Reset() {
 	*x = RegistrationEmailRequest{}
-	mi := &file_api_api_proto_msgTypes[155]
+	mi := &file_api_api_proto_msgTypes[152]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12650,7 +12112,7 @@ func (x *RegistrationEmailRequest) String() string {
 func (*RegistrationEmailRequest) ProtoMessage() {}
 
 func (x *RegistrationEmailRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[155]
+	mi := &file_api_api_proto_msgTypes[152]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12663,7 +12125,7 @@ func (x *RegistrationEmailRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegistrationEmailRequest.ProtoReflect.Descriptor instead.
 func (*RegistrationEmailRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{155}
+	return file_api_api_proto_rawDescGZIP(), []int{152}
 }
 
 func (x *RegistrationEmailRequest) GetEmail() string {
@@ -12724,7 +12186,7 @@ func (x *RegistrationEmailRequest) GetVars() map[string]string {
 
 type ClanEmoji struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	Id    string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id    int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// src url
 	Src string `protobuf:"bytes,2,opt,name=src,proto3" json:"src,omitempty"`
 	// shortname
@@ -12732,9 +12194,9 @@ type ClanEmoji struct {
 	// category
 	Category string `protobuf:"bytes,4,opt,name=category,proto3" json:"category,omitempty"`
 	// creator id
-	CreatorId string `protobuf:"bytes,5,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
+	CreatorId int64 `protobuf:"varint,5,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
 	// clan_id
-	ClanId string `protobuf:"bytes,6,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,6,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// clan logo
 	Logo string `protobuf:"bytes,7,opt,name=logo,proto3" json:"logo,omitempty"`
 	// clan name
@@ -12747,7 +12209,7 @@ type ClanEmoji struct {
 
 func (x *ClanEmoji) Reset() {
 	*x = ClanEmoji{}
-	mi := &file_api_api_proto_msgTypes[156]
+	mi := &file_api_api_proto_msgTypes[153]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12759,7 +12221,7 @@ func (x *ClanEmoji) String() string {
 func (*ClanEmoji) ProtoMessage() {}
 
 func (x *ClanEmoji) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[156]
+	mi := &file_api_api_proto_msgTypes[153]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12772,14 +12234,14 @@ func (x *ClanEmoji) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClanEmoji.ProtoReflect.Descriptor instead.
 func (*ClanEmoji) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{156}
+	return file_api_api_proto_rawDescGZIP(), []int{153}
 }
 
-func (x *ClanEmoji) GetId() string {
+func (x *ClanEmoji) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 func (x *ClanEmoji) GetSrc() string {
@@ -12803,18 +12265,18 @@ func (x *ClanEmoji) GetCategory() string {
 	return ""
 }
 
-func (x *ClanEmoji) GetCreatorId() string {
+func (x *ClanEmoji) GetCreatorId() int64 {
 	if x != nil {
 		return x.CreatorId
 	}
-	return ""
+	return 0
 }
 
-func (x *ClanEmoji) GetClanId() string {
+func (x *ClanEmoji) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *ClanEmoji) GetLogo() string {
@@ -12847,7 +12309,7 @@ type EmojiListedResponse struct {
 
 func (x *EmojiListedResponse) Reset() {
 	*x = EmojiListedResponse{}
-	mi := &file_api_api_proto_msgTypes[157]
+	mi := &file_api_api_proto_msgTypes[154]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12859,7 +12321,7 @@ func (x *EmojiListedResponse) String() string {
 func (*EmojiListedResponse) ProtoMessage() {}
 
 func (x *EmojiListedResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[157]
+	mi := &file_api_api_proto_msgTypes[154]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12872,7 +12334,7 @@ func (x *EmojiListedResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EmojiListedResponse.ProtoReflect.Descriptor instead.
 func (*EmojiListedResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{157}
+	return file_api_api_proto_rawDescGZIP(), []int{154}
 }
 
 func (x *EmojiListedResponse) GetEmojiList() []*ClanEmoji {
@@ -12891,7 +12353,7 @@ type StickerListedResponse struct {
 
 func (x *StickerListedResponse) Reset() {
 	*x = StickerListedResponse{}
-	mi := &file_api_api_proto_msgTypes[158]
+	mi := &file_api_api_proto_msgTypes[155]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12903,7 +12365,7 @@ func (x *StickerListedResponse) String() string {
 func (*StickerListedResponse) ProtoMessage() {}
 
 func (x *StickerListedResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[158]
+	mi := &file_api_api_proto_msgTypes[155]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12916,7 +12378,7 @@ func (x *StickerListedResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StickerListedResponse.ProtoReflect.Descriptor instead.
 func (*StickerListedResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{158}
+	return file_api_api_proto_rawDescGZIP(), []int{155}
 }
 
 func (x *StickerListedResponse) GetStickers() []*ClanSticker {
@@ -12927,17 +12389,17 @@ func (x *StickerListedResponse) GetStickers() []*ClanSticker {
 }
 
 type ClanSticker struct {
-	state      protoimpl.MessageState `protogen:"open.v1"`
-	Id         string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Source     string                 `protobuf:"bytes,2,opt,name=source,proto3" json:"source,omitempty"`
-	Shortname  string                 `protobuf:"bytes,3,opt,name=shortname,proto3" json:"shortname,omitempty"`
-	Category   string                 `protobuf:"bytes,4,opt,name=category,proto3" json:"category,omitempty"`
-	CreatorId  string                 `protobuf:"bytes,5,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
-	CreateTime *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
-	ClanId     string                 `protobuf:"bytes,7,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
-	Logo       string                 `protobuf:"bytes,8,opt,name=logo,proto3" json:"logo,omitempty"`
-	ClanName   string                 `protobuf:"bytes,9,opt,name=clan_name,json=clanName,proto3" json:"clan_name,omitempty"`
-	MediaType  int32                  `protobuf:"varint,10,opt,name=media_type,json=mediaType,proto3" json:"media_type,omitempty"`
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	Id                int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Source            string                 `protobuf:"bytes,2,opt,name=source,proto3" json:"source,omitempty"`
+	Shortname         string                 `protobuf:"bytes,3,opt,name=shortname,proto3" json:"shortname,omitempty"`
+	Category          string                 `protobuf:"bytes,4,opt,name=category,proto3" json:"category,omitempty"`
+	CreatorId         int64                  `protobuf:"varint,5,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
+	CreateTimeSeconds uint32                 `protobuf:"varint,6,opt,name=create_time_seconds,json=createTimeSeconds,proto3" json:"create_time_seconds,omitempty"`
+	ClanId            int64                  `protobuf:"varint,7,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	Logo              string                 `protobuf:"bytes,8,opt,name=logo,proto3" json:"logo,omitempty"`
+	ClanName          string                 `protobuf:"bytes,9,opt,name=clan_name,json=clanName,proto3" json:"clan_name,omitempty"`
+	MediaType         int32                  `protobuf:"varint,10,opt,name=media_type,json=mediaType,proto3" json:"media_type,omitempty"`
 	// is for sale
 	IsForSale     bool `protobuf:"varint,11,opt,name=is_for_sale,json=isForSale,proto3" json:"is_for_sale,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -12946,7 +12408,7 @@ type ClanSticker struct {
 
 func (x *ClanSticker) Reset() {
 	*x = ClanSticker{}
-	mi := &file_api_api_proto_msgTypes[159]
+	mi := &file_api_api_proto_msgTypes[156]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -12958,7 +12420,7 @@ func (x *ClanSticker) String() string {
 func (*ClanSticker) ProtoMessage() {}
 
 func (x *ClanSticker) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[159]
+	mi := &file_api_api_proto_msgTypes[156]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -12971,14 +12433,14 @@ func (x *ClanSticker) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClanSticker.ProtoReflect.Descriptor instead.
 func (*ClanSticker) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{159}
+	return file_api_api_proto_rawDescGZIP(), []int{156}
 }
 
-func (x *ClanSticker) GetId() string {
+func (x *ClanSticker) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 func (x *ClanSticker) GetSource() string {
@@ -13002,25 +12464,25 @@ func (x *ClanSticker) GetCategory() string {
 	return ""
 }
 
-func (x *ClanSticker) GetCreatorId() string {
+func (x *ClanSticker) GetCreatorId() int64 {
 	if x != nil {
 		return x.CreatorId
 	}
-	return ""
+	return 0
 }
 
-func (x *ClanSticker) GetCreateTime() *timestamppb.Timestamp {
+func (x *ClanSticker) GetCreateTimeSeconds() uint32 {
 	if x != nil {
-		return x.CreateTime
+		return x.CreateTimeSeconds
 	}
-	return nil
+	return 0
 }
 
-func (x *ClanSticker) GetClanId() string {
+func (x *ClanSticker) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *ClanSticker) GetLogo() string {
@@ -13053,15 +12515,15 @@ func (x *ClanSticker) GetIsForSale() bool {
 
 type AllUsersAddChannelRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ChannelId     string                 `protobuf:"bytes,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	Limit         *wrapperspb.Int32Value `protobuf:"bytes,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	ChannelId     int64                  `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	Limit         int32                  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AllUsersAddChannelRequest) Reset() {
 	*x = AllUsersAddChannelRequest{}
-	mi := &file_api_api_proto_msgTypes[160]
+	mi := &file_api_api_proto_msgTypes[157]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13073,7 +12535,7 @@ func (x *AllUsersAddChannelRequest) String() string {
 func (*AllUsersAddChannelRequest) ProtoMessage() {}
 
 func (x *AllUsersAddChannelRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[160]
+	mi := &file_api_api_proto_msgTypes[157]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13086,28 +12548,28 @@ func (x *AllUsersAddChannelRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AllUsersAddChannelRequest.ProtoReflect.Descriptor instead.
 func (*AllUsersAddChannelRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{160}
+	return file_api_api_proto_rawDescGZIP(), []int{157}
 }
 
-func (x *AllUsersAddChannelRequest) GetChannelId() string {
+func (x *AllUsersAddChannelRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *AllUsersAddChannelRequest) GetLimit() *wrapperspb.Int32Value {
+func (x *AllUsersAddChannelRequest) GetLimit() int32 {
 	if x != nil {
 		return x.Limit
 	}
-	return nil
+	return 0
 }
 
 type AllUsersAddChannelResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ChannelId     string                 `protobuf:"bytes,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	UserIds       []string               `protobuf:"bytes,2,rep,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
-	Limit         *wrapperspb.Int32Value `protobuf:"bytes,3,opt,name=limit,proto3" json:"limit,omitempty"`
+	ChannelId     int64                  `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	UserIds       []int64                `protobuf:"varint,2,rep,packed,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
+	Limit         int32                  `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
 	Usernames     []string               `protobuf:"bytes,4,rep,name=usernames,proto3" json:"usernames,omitempty"`
 	DisplayNames  []string               `protobuf:"bytes,5,rep,name=display_names,json=displayNames,proto3" json:"display_names,omitempty"`
 	Avatars       []string               `protobuf:"bytes,6,rep,name=avatars,proto3" json:"avatars,omitempty"`
@@ -13118,7 +12580,7 @@ type AllUsersAddChannelResponse struct {
 
 func (x *AllUsersAddChannelResponse) Reset() {
 	*x = AllUsersAddChannelResponse{}
-	mi := &file_api_api_proto_msgTypes[161]
+	mi := &file_api_api_proto_msgTypes[158]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13130,7 +12592,7 @@ func (x *AllUsersAddChannelResponse) String() string {
 func (*AllUsersAddChannelResponse) ProtoMessage() {}
 
 func (x *AllUsersAddChannelResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[161]
+	mi := &file_api_api_proto_msgTypes[158]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13143,28 +12605,28 @@ func (x *AllUsersAddChannelResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AllUsersAddChannelResponse.ProtoReflect.Descriptor instead.
 func (*AllUsersAddChannelResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{161}
+	return file_api_api_proto_rawDescGZIP(), []int{158}
 }
 
-func (x *AllUsersAddChannelResponse) GetChannelId() string {
+func (x *AllUsersAddChannelResponse) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *AllUsersAddChannelResponse) GetUserIds() []string {
+func (x *AllUsersAddChannelResponse) GetUserIds() []int64 {
 	if x != nil {
 		return x.UserIds
 	}
 	return nil
 }
 
-func (x *AllUsersAddChannelResponse) GetLimit() *wrapperspb.Int32Value {
+func (x *AllUsersAddChannelResponse) GetLimit() int32 {
 	if x != nil {
 		return x.Limit
 	}
-	return nil
+	return 0
 }
 
 func (x *AllUsersAddChannelResponse) GetUsernames() []string {
@@ -13197,11 +12659,11 @@ func (x *AllUsersAddChannelResponse) GetOnlines() []bool {
 
 type ClanEmojiCreateRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ClanId        string                 `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	Source        string                 `protobuf:"bytes,2,opt,name=source,proto3" json:"source,omitempty"`
 	Shortname     string                 `protobuf:"bytes,3,opt,name=shortname,proto3" json:"shortname,omitempty"`
 	Category      string                 `protobuf:"bytes,4,opt,name=category,proto3" json:"category,omitempty"`
-	Id            string                 `protobuf:"bytes,5,opt,name=id,proto3" json:"id,omitempty"`
+	Id            int64                  `protobuf:"varint,5,opt,name=id,proto3" json:"id,omitempty"`
 	IsForSale     bool                   `protobuf:"varint,6,opt,name=is_for_sale,json=isForSale,proto3" json:"is_for_sale,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -13209,7 +12671,7 @@ type ClanEmojiCreateRequest struct {
 
 func (x *ClanEmojiCreateRequest) Reset() {
 	*x = ClanEmojiCreateRequest{}
-	mi := &file_api_api_proto_msgTypes[162]
+	mi := &file_api_api_proto_msgTypes[159]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13221,7 +12683,7 @@ func (x *ClanEmojiCreateRequest) String() string {
 func (*ClanEmojiCreateRequest) ProtoMessage() {}
 
 func (x *ClanEmojiCreateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[162]
+	mi := &file_api_api_proto_msgTypes[159]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13234,14 +12696,14 @@ func (x *ClanEmojiCreateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClanEmojiCreateRequest.ProtoReflect.Descriptor instead.
 func (*ClanEmojiCreateRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{162}
+	return file_api_api_proto_rawDescGZIP(), []int{159}
 }
 
-func (x *ClanEmojiCreateRequest) GetClanId() string {
+func (x *ClanEmojiCreateRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *ClanEmojiCreateRequest) GetSource() string {
@@ -13265,11 +12727,11 @@ func (x *ClanEmojiCreateRequest) GetCategory() string {
 	return ""
 }
 
-func (x *ClanEmojiCreateRequest) GetId() string {
+func (x *ClanEmojiCreateRequest) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 func (x *ClanEmojiCreateRequest) GetIsForSale() bool {
@@ -13281,14 +12743,14 @@ func (x *ClanEmojiCreateRequest) GetIsForSale() bool {
 
 type ClanEmojiGetByClanIdRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ClanId        string                 `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ClanEmojiGetByClanIdRequest) Reset() {
 	*x = ClanEmojiGetByClanIdRequest{}
-	mi := &file_api_api_proto_msgTypes[163]
+	mi := &file_api_api_proto_msgTypes[160]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13300,7 +12762,7 @@ func (x *ClanEmojiGetByClanIdRequest) String() string {
 func (*ClanEmojiGetByClanIdRequest) ProtoMessage() {}
 
 func (x *ClanEmojiGetByClanIdRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[163]
+	mi := &file_api_api_proto_msgTypes[160]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13313,20 +12775,20 @@ func (x *ClanEmojiGetByClanIdRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClanEmojiGetByClanIdRequest.ProtoReflect.Descriptor instead.
 func (*ClanEmojiGetByClanIdRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{163}
+	return file_api_api_proto_rawDescGZIP(), []int{160}
 }
 
-func (x *ClanEmojiGetByClanIdRequest) GetClanId() string {
+func (x *ClanEmojiGetByClanIdRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 type ClanEmojiDeleteRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	ClanId        string                 `protobuf:"bytes,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	EmojiLabel    string                 `protobuf:"bytes,3,opt,name=emoji_label,json=emojiLabel,proto3" json:"emoji_label,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -13334,7 +12796,7 @@ type ClanEmojiDeleteRequest struct {
 
 func (x *ClanEmojiDeleteRequest) Reset() {
 	*x = ClanEmojiDeleteRequest{}
-	mi := &file_api_api_proto_msgTypes[164]
+	mi := &file_api_api_proto_msgTypes[161]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13346,7 +12808,7 @@ func (x *ClanEmojiDeleteRequest) String() string {
 func (*ClanEmojiDeleteRequest) ProtoMessage() {}
 
 func (x *ClanEmojiDeleteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[164]
+	mi := &file_api_api_proto_msgTypes[161]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13359,21 +12821,21 @@ func (x *ClanEmojiDeleteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClanEmojiDeleteRequest.ProtoReflect.Descriptor instead.
 func (*ClanEmojiDeleteRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{164}
+	return file_api_api_proto_rawDescGZIP(), []int{161}
 }
 
-func (x *ClanEmojiDeleteRequest) GetId() string {
+func (x *ClanEmojiDeleteRequest) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
-func (x *ClanEmojiDeleteRequest) GetClanId() string {
+func (x *ClanEmojiDeleteRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *ClanEmojiDeleteRequest) GetEmojiLabel() string {
@@ -13385,16 +12847,16 @@ func (x *ClanEmojiDeleteRequest) GetEmojiLabel() string {
 
 type ClanEmojiUpdateRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Shortname     string                 `protobuf:"bytes,2,opt,name=shortname,proto3" json:"shortname,omitempty"`
-	ClanId        string                 `protobuf:"bytes,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ClanEmojiUpdateRequest) Reset() {
 	*x = ClanEmojiUpdateRequest{}
-	mi := &file_api_api_proto_msgTypes[165]
+	mi := &file_api_api_proto_msgTypes[162]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13406,7 +12868,7 @@ func (x *ClanEmojiUpdateRequest) String() string {
 func (*ClanEmojiUpdateRequest) ProtoMessage() {}
 
 func (x *ClanEmojiUpdateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[165]
+	mi := &file_api_api_proto_msgTypes[162]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13419,14 +12881,14 @@ func (x *ClanEmojiUpdateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClanEmojiUpdateRequest.ProtoReflect.Descriptor instead.
 func (*ClanEmojiUpdateRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{165}
+	return file_api_api_proto_rawDescGZIP(), []int{162}
 }
 
-func (x *ClanEmojiUpdateRequest) GetId() string {
+func (x *ClanEmojiUpdateRequest) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 func (x *ClanEmojiUpdateRequest) GetShortname() string {
@@ -13436,34 +12898,34 @@ func (x *ClanEmojiUpdateRequest) GetShortname() string {
 	return ""
 }
 
-func (x *ClanEmojiUpdateRequest) GetClanId() string {
+func (x *ClanEmojiUpdateRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 type Webhook struct {
 	state       protoimpl.MessageState `protogen:"open.v1"`
-	Id          string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id          int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	WebhookName string                 `protobuf:"bytes,2,opt,name=webhook_name,json=webhookName,proto3" json:"webhook_name,omitempty"`
-	ChannelId   string                 `protobuf:"bytes,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId   int64                  `protobuf:"varint,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	Active      int32                  `protobuf:"varint,4,opt,name=active,proto3" json:"active,omitempty"`
 	// URL of the webhook, which is automatically generated and different from the avatar
 	Url           string `protobuf:"bytes,5,opt,name=url,proto3" json:"url,omitempty"`
-	CreatorId     string `protobuf:"bytes,6,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
+	CreatorId     int64  `protobuf:"varint,6,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
 	CreateTime    string `protobuf:"bytes,7,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
 	UpdateTime    string `protobuf:"bytes,8,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
 	Avatar        string `protobuf:"bytes,9,opt,name=avatar,proto3" json:"avatar,omitempty"`
 	Status        int32  `protobuf:"varint,10,opt,name=status,proto3" json:"status,omitempty"`
-	ClanId        string `protobuf:"bytes,11,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64  `protobuf:"varint,11,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Webhook) Reset() {
 	*x = Webhook{}
-	mi := &file_api_api_proto_msgTypes[166]
+	mi := &file_api_api_proto_msgTypes[163]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13475,7 +12937,7 @@ func (x *Webhook) String() string {
 func (*Webhook) ProtoMessage() {}
 
 func (x *Webhook) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[166]
+	mi := &file_api_api_proto_msgTypes[163]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13488,14 +12950,14 @@ func (x *Webhook) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Webhook.ProtoReflect.Descriptor instead.
 func (*Webhook) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{166}
+	return file_api_api_proto_rawDescGZIP(), []int{163}
 }
 
-func (x *Webhook) GetId() string {
+func (x *Webhook) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 func (x *Webhook) GetWebhookName() string {
@@ -13505,11 +12967,11 @@ func (x *Webhook) GetWebhookName() string {
 	return ""
 }
 
-func (x *Webhook) GetChannelId() string {
+func (x *Webhook) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *Webhook) GetActive() int32 {
@@ -13526,11 +12988,11 @@ func (x *Webhook) GetUrl() string {
 	return ""
 }
 
-func (x *Webhook) GetCreatorId() string {
+func (x *Webhook) GetCreatorId() int64 {
 	if x != nil {
 		return x.CreatorId
 	}
-	return ""
+	return 0
 }
 
 func (x *Webhook) GetCreateTime() string {
@@ -13561,26 +13023,26 @@ func (x *Webhook) GetStatus() int32 {
 	return 0
 }
 
-func (x *Webhook) GetClanId() string {
+func (x *Webhook) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 type WebhookCreateRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	WebhookName   string                 `protobuf:"bytes,1,opt,name=webhook_name,json=webhookName,proto3" json:"webhook_name,omitempty"`
-	ChannelId     string                 `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId     int64                  `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	Avatar        string                 `protobuf:"bytes,3,opt,name=avatar,proto3" json:"avatar,omitempty"`
-	ClanId        string                 `protobuf:"bytes,4,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,4,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *WebhookCreateRequest) Reset() {
 	*x = WebhookCreateRequest{}
-	mi := &file_api_api_proto_msgTypes[167]
+	mi := &file_api_api_proto_msgTypes[164]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13592,7 +13054,7 @@ func (x *WebhookCreateRequest) String() string {
 func (*WebhookCreateRequest) ProtoMessage() {}
 
 func (x *WebhookCreateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[167]
+	mi := &file_api_api_proto_msgTypes[164]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13605,7 +13067,7 @@ func (x *WebhookCreateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WebhookCreateRequest.ProtoReflect.Descriptor instead.
 func (*WebhookCreateRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{167}
+	return file_api_api_proto_rawDescGZIP(), []int{164}
 }
 
 func (x *WebhookCreateRequest) GetWebhookName() string {
@@ -13615,11 +13077,11 @@ func (x *WebhookCreateRequest) GetWebhookName() string {
 	return ""
 }
 
-func (x *WebhookCreateRequest) GetChannelId() string {
+func (x *WebhookCreateRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *WebhookCreateRequest) GetAvatar() string {
@@ -13629,23 +13091,23 @@ func (x *WebhookCreateRequest) GetAvatar() string {
 	return ""
 }
 
-func (x *WebhookCreateRequest) GetClanId() string {
+func (x *WebhookCreateRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 type WebhookListRequestById struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *WebhookListRequestById) Reset() {
 	*x = WebhookListRequestById{}
-	mi := &file_api_api_proto_msgTypes[168]
+	mi := &file_api_api_proto_msgTypes[165]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13657,7 +13119,7 @@ func (x *WebhookListRequestById) String() string {
 func (*WebhookListRequestById) ProtoMessage() {}
 
 func (x *WebhookListRequestById) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[168]
+	mi := &file_api_api_proto_msgTypes[165]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13670,37 +13132,37 @@ func (x *WebhookListRequestById) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WebhookListRequestById.ProtoReflect.Descriptor instead.
 func (*WebhookListRequestById) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{168}
+	return file_api_api_proto_rawDescGZIP(), []int{165}
 }
 
-func (x *WebhookListRequestById) GetId() string {
+func (x *WebhookListRequestById) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 type WebhookUpdateRequestById struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// webhook Id
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// webhook name
 	WebhookName string `protobuf:"bytes,2,opt,name=webhook_name,json=webhookName,proto3" json:"webhook_name,omitempty"`
 	// change channel_id of webhook
-	ChannelIdUpdate string `protobuf:"bytes,3,opt,name=channel_id_update,json=channelIdUpdate,proto3" json:"channel_id_update,omitempty"`
+	ChannelIdUpdate int64 `protobuf:"varint,3,opt,name=channel_id_update,json=channelIdUpdate,proto3" json:"channel_id_update,omitempty"`
 	// webhook avatar
 	Avatar string `protobuf:"bytes,4,opt,name=avatar,proto3" json:"avatar,omitempty"`
 	// channel id
-	ChannelId string `protobuf:"bytes,5,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,5,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// clan id
-	ClanId        string `protobuf:"bytes,6,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64 `protobuf:"varint,6,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *WebhookUpdateRequestById) Reset() {
 	*x = WebhookUpdateRequestById{}
-	mi := &file_api_api_proto_msgTypes[169]
+	mi := &file_api_api_proto_msgTypes[166]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13712,7 +13174,7 @@ func (x *WebhookUpdateRequestById) String() string {
 func (*WebhookUpdateRequestById) ProtoMessage() {}
 
 func (x *WebhookUpdateRequestById) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[169]
+	mi := &file_api_api_proto_msgTypes[166]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13725,14 +13187,14 @@ func (x *WebhookUpdateRequestById) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WebhookUpdateRequestById.ProtoReflect.Descriptor instead.
 func (*WebhookUpdateRequestById) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{169}
+	return file_api_api_proto_rawDescGZIP(), []int{166}
 }
 
-func (x *WebhookUpdateRequestById) GetId() string {
+func (x *WebhookUpdateRequestById) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 func (x *WebhookUpdateRequestById) GetWebhookName() string {
@@ -13742,11 +13204,11 @@ func (x *WebhookUpdateRequestById) GetWebhookName() string {
 	return ""
 }
 
-func (x *WebhookUpdateRequestById) GetChannelIdUpdate() string {
+func (x *WebhookUpdateRequestById) GetChannelIdUpdate() int64 {
 	if x != nil {
 		return x.ChannelIdUpdate
 	}
-	return ""
+	return 0
 }
 
 func (x *WebhookUpdateRequestById) GetAvatar() string {
@@ -13756,32 +13218,32 @@ func (x *WebhookUpdateRequestById) GetAvatar() string {
 	return ""
 }
 
-func (x *WebhookUpdateRequestById) GetChannelId() string {
+func (x *WebhookUpdateRequestById) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *WebhookUpdateRequestById) GetClanId() string {
+func (x *WebhookUpdateRequestById) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 type WebhookDeleteRequestById struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	ClanId        string                 `protobuf:"bytes,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
-	ChannelId     string                 `protobuf:"bytes,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ChannelId     int64                  `protobuf:"varint,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *WebhookDeleteRequestById) Reset() {
 	*x = WebhookDeleteRequestById{}
-	mi := &file_api_api_proto_msgTypes[170]
+	mi := &file_api_api_proto_msgTypes[167]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13793,7 +13255,7 @@ func (x *WebhookDeleteRequestById) String() string {
 func (*WebhookDeleteRequestById) ProtoMessage() {}
 
 func (x *WebhookDeleteRequestById) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[170]
+	mi := &file_api_api_proto_msgTypes[167]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13806,41 +13268,41 @@ func (x *WebhookDeleteRequestById) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WebhookDeleteRequestById.ProtoReflect.Descriptor instead.
 func (*WebhookDeleteRequestById) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{170}
+	return file_api_api_proto_rawDescGZIP(), []int{167}
 }
 
-func (x *WebhookDeleteRequestById) GetId() string {
+func (x *WebhookDeleteRequestById) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
-func (x *WebhookDeleteRequestById) GetClanId() string {
+func (x *WebhookDeleteRequestById) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *WebhookDeleteRequestById) GetChannelId() string {
+func (x *WebhookDeleteRequestById) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 type WebhookListRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ChannelId     string                 `protobuf:"bytes,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	ClanId        string                 `protobuf:"bytes,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ChannelId     int64                  `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *WebhookListRequest) Reset() {
 	*x = WebhookListRequest{}
-	mi := &file_api_api_proto_msgTypes[171]
+	mi := &file_api_api_proto_msgTypes[168]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13852,7 +13314,7 @@ func (x *WebhookListRequest) String() string {
 func (*WebhookListRequest) ProtoMessage() {}
 
 func (x *WebhookListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[171]
+	mi := &file_api_api_proto_msgTypes[168]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13865,21 +13327,21 @@ func (x *WebhookListRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WebhookListRequest.ProtoReflect.Descriptor instead.
 func (*WebhookListRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{171}
+	return file_api_api_proto_rawDescGZIP(), []int{168}
 }
 
-func (x *WebhookListRequest) GetChannelId() string {
+func (x *WebhookListRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *WebhookListRequest) GetClanId() string {
+func (x *WebhookListRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 type WebhookListResponse struct {
@@ -13891,7 +13353,7 @@ type WebhookListResponse struct {
 
 func (x *WebhookListResponse) Reset() {
 	*x = WebhookListResponse{}
-	mi := &file_api_api_proto_msgTypes[172]
+	mi := &file_api_api_proto_msgTypes[169]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13903,7 +13365,7 @@ func (x *WebhookListResponse) String() string {
 func (*WebhookListResponse) ProtoMessage() {}
 
 func (x *WebhookListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[172]
+	mi := &file_api_api_proto_msgTypes[169]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13916,7 +13378,7 @@ func (x *WebhookListResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WebhookListResponse.ProtoReflect.Descriptor instead.
 func (*WebhookListResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{172}
+	return file_api_api_proto_rawDescGZIP(), []int{169}
 }
 
 func (x *WebhookListResponse) GetWebhooks() []*Webhook {
@@ -13930,7 +13392,7 @@ type WebhookGenerateResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Url           string                 `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
 	HookName      string                 `protobuf:"bytes,2,opt,name=hook_name,json=hookName,proto3" json:"hook_name,omitempty"`
-	ChannelId     string                 `protobuf:"bytes,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId     int64                  `protobuf:"varint,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	Avatar        string                 `protobuf:"bytes,4,opt,name=avatar,proto3" json:"avatar,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -13938,7 +13400,7 @@ type WebhookGenerateResponse struct {
 
 func (x *WebhookGenerateResponse) Reset() {
 	*x = WebhookGenerateResponse{}
-	mi := &file_api_api_proto_msgTypes[173]
+	mi := &file_api_api_proto_msgTypes[170]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -13950,7 +13412,7 @@ func (x *WebhookGenerateResponse) String() string {
 func (*WebhookGenerateResponse) ProtoMessage() {}
 
 func (x *WebhookGenerateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[173]
+	mi := &file_api_api_proto_msgTypes[170]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -13963,7 +13425,7 @@ func (x *WebhookGenerateResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WebhookGenerateResponse.ProtoReflect.Descriptor instead.
 func (*WebhookGenerateResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{173}
+	return file_api_api_proto_rawDescGZIP(), []int{170}
 }
 
 func (x *WebhookGenerateResponse) GetUrl() string {
@@ -13980,76 +13442,16 @@ func (x *WebhookGenerateResponse) GetHookName() string {
 	return ""
 }
 
-func (x *WebhookGenerateResponse) GetChannelId() string {
+func (x *WebhookGenerateResponse) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *WebhookGenerateResponse) GetAvatar() string {
 	if x != nil {
 		return x.Avatar
-	}
-	return ""
-}
-
-type WebhookHandlerRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Body          *structpb.Struct       `protobuf:"bytes,1,opt,name=body,proto3" json:"body,omitempty"`
-	ChannelId     string                 `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	Token         string                 `protobuf:"bytes,3,opt,name=token,proto3" json:"token,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *WebhookHandlerRequest) Reset() {
-	*x = WebhookHandlerRequest{}
-	mi := &file_api_api_proto_msgTypes[174]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *WebhookHandlerRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*WebhookHandlerRequest) ProtoMessage() {}
-
-func (x *WebhookHandlerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[174]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use WebhookHandlerRequest.ProtoReflect.Descriptor instead.
-func (*WebhookHandlerRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{174}
-}
-
-func (x *WebhookHandlerRequest) GetBody() *structpb.Struct {
-	if x != nil {
-		return x.Body
-	}
-	return nil
-}
-
-func (x *WebhookHandlerRequest) GetChannelId() string {
-	if x != nil {
-		return x.ChannelId
-	}
-	return ""
-}
-
-func (x *WebhookHandlerRequest) GetToken() string {
-	if x != nil {
-		return x.Token
 	}
 	return ""
 }
@@ -14063,7 +13465,7 @@ type CheckDuplicateClanNameRequest struct {
 
 func (x *CheckDuplicateClanNameRequest) Reset() {
 	*x = CheckDuplicateClanNameRequest{}
-	mi := &file_api_api_proto_msgTypes[175]
+	mi := &file_api_api_proto_msgTypes[171]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14075,7 +13477,7 @@ func (x *CheckDuplicateClanNameRequest) String() string {
 func (*CheckDuplicateClanNameRequest) ProtoMessage() {}
 
 func (x *CheckDuplicateClanNameRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[175]
+	mi := &file_api_api_proto_msgTypes[171]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14088,7 +13490,7 @@ func (x *CheckDuplicateClanNameRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckDuplicateClanNameRequest.ProtoReflect.Descriptor instead.
 func (*CheckDuplicateClanNameRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{175}
+	return file_api_api_proto_rawDescGZIP(), []int{171}
 }
 
 func (x *CheckDuplicateClanNameRequest) GetClanName() string {
@@ -14107,7 +13509,7 @@ type CheckDuplicateClanNameResponse struct {
 
 func (x *CheckDuplicateClanNameResponse) Reset() {
 	*x = CheckDuplicateClanNameResponse{}
-	mi := &file_api_api_proto_msgTypes[176]
+	mi := &file_api_api_proto_msgTypes[172]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14119,7 +13521,7 @@ func (x *CheckDuplicateClanNameResponse) String() string {
 func (*CheckDuplicateClanNameResponse) ProtoMessage() {}
 
 func (x *CheckDuplicateClanNameResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[176]
+	mi := &file_api_api_proto_msgTypes[172]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14132,7 +13534,7 @@ func (x *CheckDuplicateClanNameResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckDuplicateClanNameResponse.ProtoReflect.Descriptor instead.
 func (*CheckDuplicateClanNameResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{176}
+	return file_api_api_proto_rawDescGZIP(), []int{172}
 }
 
 func (x *CheckDuplicateClanNameResponse) GetIsDuplicate() bool {
@@ -14147,9 +13549,9 @@ type ClanStickerAddRequest struct {
 	Source    string                 `protobuf:"bytes,1,opt,name=source,proto3" json:"source,omitempty"`
 	Shortname string                 `protobuf:"bytes,2,opt,name=shortname,proto3" json:"shortname,omitempty"`
 	Category  string                 `protobuf:"bytes,3,opt,name=category,proto3" json:"category,omitempty"`
-	ClanId    string                 `protobuf:"bytes,4,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId    int64                  `protobuf:"varint,4,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// UNIQUE include type number
-	Id string `protobuf:"bytes,5,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,5,opt,name=id,proto3" json:"id,omitempty"`
 	// media type for image or audio
 	MediaType int32 `protobuf:"varint,6,opt,name=media_type,json=mediaType,proto3" json:"media_type,omitempty"`
 	// is for sale
@@ -14160,7 +13562,7 @@ type ClanStickerAddRequest struct {
 
 func (x *ClanStickerAddRequest) Reset() {
 	*x = ClanStickerAddRequest{}
-	mi := &file_api_api_proto_msgTypes[177]
+	mi := &file_api_api_proto_msgTypes[173]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14172,7 +13574,7 @@ func (x *ClanStickerAddRequest) String() string {
 func (*ClanStickerAddRequest) ProtoMessage() {}
 
 func (x *ClanStickerAddRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[177]
+	mi := &file_api_api_proto_msgTypes[173]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14185,7 +13587,7 @@ func (x *ClanStickerAddRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClanStickerAddRequest.ProtoReflect.Descriptor instead.
 func (*ClanStickerAddRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{177}
+	return file_api_api_proto_rawDescGZIP(), []int{173}
 }
 
 func (x *ClanStickerAddRequest) GetSource() string {
@@ -14209,18 +13611,18 @@ func (x *ClanStickerAddRequest) GetCategory() string {
 	return ""
 }
 
-func (x *ClanStickerAddRequest) GetClanId() string {
+func (x *ClanStickerAddRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *ClanStickerAddRequest) GetId() string {
+func (x *ClanStickerAddRequest) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 func (x *ClanStickerAddRequest) GetMediaType() int32 {
@@ -14239,14 +13641,14 @@ func (x *ClanStickerAddRequest) GetIsForSale() bool {
 
 type ClanStickerListByClanIdRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ClanId        string                 `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ClanStickerListByClanIdRequest) Reset() {
 	*x = ClanStickerListByClanIdRequest{}
-	mi := &file_api_api_proto_msgTypes[178]
+	mi := &file_api_api_proto_msgTypes[174]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14258,7 +13660,7 @@ func (x *ClanStickerListByClanIdRequest) String() string {
 func (*ClanStickerListByClanIdRequest) ProtoMessage() {}
 
 func (x *ClanStickerListByClanIdRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[178]
+	mi := &file_api_api_proto_msgTypes[174]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14271,30 +13673,30 @@ func (x *ClanStickerListByClanIdRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClanStickerListByClanIdRequest.ProtoReflect.Descriptor instead.
 func (*ClanStickerListByClanIdRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{178}
+	return file_api_api_proto_rawDescGZIP(), []int{174}
 }
 
-func (x *ClanStickerListByClanIdRequest) GetClanId() string {
+func (x *ClanStickerListByClanIdRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 type ClanStickerUpdateByIdRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Source        string                 `protobuf:"bytes,2,opt,name=source,proto3" json:"source,omitempty"`
 	Shortname     string                 `protobuf:"bytes,3,opt,name=shortname,proto3" json:"shortname,omitempty"`
 	Category      string                 `protobuf:"bytes,4,opt,name=category,proto3" json:"category,omitempty"`
-	ClanId        string                 `protobuf:"bytes,5,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,5,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ClanStickerUpdateByIdRequest) Reset() {
 	*x = ClanStickerUpdateByIdRequest{}
-	mi := &file_api_api_proto_msgTypes[179]
+	mi := &file_api_api_proto_msgTypes[175]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14306,7 +13708,7 @@ func (x *ClanStickerUpdateByIdRequest) String() string {
 func (*ClanStickerUpdateByIdRequest) ProtoMessage() {}
 
 func (x *ClanStickerUpdateByIdRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[179]
+	mi := &file_api_api_proto_msgTypes[175]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14319,14 +13721,14 @@ func (x *ClanStickerUpdateByIdRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClanStickerUpdateByIdRequest.ProtoReflect.Descriptor instead.
 func (*ClanStickerUpdateByIdRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{179}
+	return file_api_api_proto_rawDescGZIP(), []int{175}
 }
 
-func (x *ClanStickerUpdateByIdRequest) GetId() string {
+func (x *ClanStickerUpdateByIdRequest) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 func (x *ClanStickerUpdateByIdRequest) GetSource() string {
@@ -14350,17 +13752,17 @@ func (x *ClanStickerUpdateByIdRequest) GetCategory() string {
 	return ""
 }
 
-func (x *ClanStickerUpdateByIdRequest) GetClanId() string {
+func (x *ClanStickerUpdateByIdRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 type ClanStickerDeleteRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	ClanId        string                 `protobuf:"bytes,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	StickerLabel  string                 `protobuf:"bytes,3,opt,name=sticker_label,json=stickerLabel,proto3" json:"sticker_label,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -14368,7 +13770,7 @@ type ClanStickerDeleteRequest struct {
 
 func (x *ClanStickerDeleteRequest) Reset() {
 	*x = ClanStickerDeleteRequest{}
-	mi := &file_api_api_proto_msgTypes[180]
+	mi := &file_api_api_proto_msgTypes[176]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14380,7 +13782,7 @@ func (x *ClanStickerDeleteRequest) String() string {
 func (*ClanStickerDeleteRequest) ProtoMessage() {}
 
 func (x *ClanStickerDeleteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[180]
+	mi := &file_api_api_proto_msgTypes[176]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14393,21 +13795,21 @@ func (x *ClanStickerDeleteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClanStickerDeleteRequest.ProtoReflect.Descriptor instead.
 func (*ClanStickerDeleteRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{180}
+	return file_api_api_proto_rawDescGZIP(), []int{176}
 }
 
-func (x *ClanStickerDeleteRequest) GetId() string {
+func (x *ClanStickerDeleteRequest) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
-func (x *ClanStickerDeleteRequest) GetClanId() string {
+func (x *ClanStickerDeleteRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *ClanStickerDeleteRequest) GetStickerLabel() string {
@@ -14419,16 +13821,16 @@ func (x *ClanStickerDeleteRequest) GetStickerLabel() string {
 
 type ChangeChannelCategoryRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ClanId        string                 `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
-	ChannelId     string                 `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	NewCategoryId string                 `protobuf:"bytes,3,opt,name=new_category_id,json=newCategoryId,proto3" json:"new_category_id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ChannelId     int64                  `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	NewCategoryId int64                  `protobuf:"varint,3,opt,name=new_category_id,json=newCategoryId,proto3" json:"new_category_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ChangeChannelCategoryRequest) Reset() {
 	*x = ChangeChannelCategoryRequest{}
-	mi := &file_api_api_proto_msgTypes[181]
+	mi := &file_api_api_proto_msgTypes[177]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14440,7 +13842,7 @@ func (x *ChangeChannelCategoryRequest) String() string {
 func (*ChangeChannelCategoryRequest) ProtoMessage() {}
 
 func (x *ChangeChannelCategoryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[181]
+	mi := &file_api_api_proto_msgTypes[177]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14453,47 +13855,47 @@ func (x *ChangeChannelCategoryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeChannelCategoryRequest.ProtoReflect.Descriptor instead.
 func (*ChangeChannelCategoryRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{181}
+	return file_api_api_proto_rawDescGZIP(), []int{177}
 }
 
-func (x *ChangeChannelCategoryRequest) GetClanId() string {
+func (x *ChangeChannelCategoryRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *ChangeChannelCategoryRequest) GetChannelId() string {
+func (x *ChangeChannelCategoryRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *ChangeChannelCategoryRequest) GetNewCategoryId() string {
+func (x *ChangeChannelCategoryRequest) GetNewCategoryId() int64 {
 	if x != nil {
 		return x.NewCategoryId
 	}
-	return ""
+	return 0
 }
 
 // App information.
 type App struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// app id
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// appname
 	Appname string `protobuf:"bytes,2,opt,name=appname,proto3" json:"appname,omitempty"`
 	// creator_id
-	CreatorId string `protobuf:"bytes,3,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
+	CreatorId int64 `protobuf:"varint,3,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
 	// logo
 	Applogo string `protobuf:"bytes,4,opt,name=applogo,proto3" json:"applogo,omitempty"`
 	// status online
 	IsShadow bool `protobuf:"varint,5,opt,name=is_shadow,json=isShadow,proto3" json:"is_shadow,omitempty"`
 	// The UNIX time when the app was disabled.
-	DisableTime *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=disable_time,json=disableTime,proto3" json:"disable_time,omitempty"`
+	DisableTimeSeconds uint32 `protobuf:"varint,6,opt,name=disable_time_seconds,json=disableTimeSeconds,proto3" json:"disable_time_seconds,omitempty"`
 	// The UNIX time when the app was created
-	CreateTime *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
+	CreateTimeSeconds uint32 `protobuf:"varint,7,opt,name=create_time_seconds,json=createTimeSeconds,proto3" json:"create_time_seconds,omitempty"`
 	// string token
 	Token string `protobuf:"bytes,8,opt,name=token,proto3" json:"token,omitempty"`
 	// role
@@ -14508,7 +13910,7 @@ type App struct {
 
 func (x *App) Reset() {
 	*x = App{}
-	mi := &file_api_api_proto_msgTypes[182]
+	mi := &file_api_api_proto_msgTypes[178]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14520,7 +13922,7 @@ func (x *App) String() string {
 func (*App) ProtoMessage() {}
 
 func (x *App) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[182]
+	mi := &file_api_api_proto_msgTypes[178]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14533,14 +13935,14 @@ func (x *App) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use App.ProtoReflect.Descriptor instead.
 func (*App) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{182}
+	return file_api_api_proto_rawDescGZIP(), []int{178}
 }
 
-func (x *App) GetId() string {
+func (x *App) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 func (x *App) GetAppname() string {
@@ -14550,11 +13952,11 @@ func (x *App) GetAppname() string {
 	return ""
 }
 
-func (x *App) GetCreatorId() string {
+func (x *App) GetCreatorId() int64 {
 	if x != nil {
 		return x.CreatorId
 	}
-	return ""
+	return 0
 }
 
 func (x *App) GetApplogo() string {
@@ -14571,18 +13973,18 @@ func (x *App) GetIsShadow() bool {
 	return false
 }
 
-func (x *App) GetDisableTime() *timestamppb.Timestamp {
+func (x *App) GetDisableTimeSeconds() uint32 {
 	if x != nil {
-		return x.DisableTime
+		return x.DisableTimeSeconds
 	}
-	return nil
+	return 0
 }
 
-func (x *App) GetCreateTime() *timestamppb.Timestamp {
+func (x *App) GetCreateTimeSeconds() uint32 {
 	if x != nil {
-		return x.CreateTime
+		return x.CreateTimeSeconds
 	}
-	return nil
+	return 0
 }
 
 func (x *App) GetToken() string {
@@ -14617,16 +14019,16 @@ func (x *App) GetAppUrl() string {
 type AppDeleteRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The unique identifier of the app.
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Record the app deletion - used for GDPR compliance.
-	RecordDeletion *wrapperspb.BoolValue `protobuf:"bytes,2,opt,name=record_deletion,json=recordDeletion,proto3" json:"record_deletion,omitempty"`
+	RecordDeletion bool `protobuf:"varint,2,opt,name=record_deletion,json=recordDeletion,proto3" json:"record_deletion,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
 
 func (x *AppDeleteRequest) Reset() {
 	*x = AppDeleteRequest{}
-	mi := &file_api_api_proto_msgTypes[183]
+	mi := &file_api_api_proto_msgTypes[179]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14638,7 +14040,7 @@ func (x *AppDeleteRequest) String() string {
 func (*AppDeleteRequest) ProtoMessage() {}
 
 func (x *AppDeleteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[183]
+	mi := &file_api_api_proto_msgTypes[179]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14651,21 +14053,21 @@ func (x *AppDeleteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppDeleteRequest.ProtoReflect.Descriptor instead.
 func (*AppDeleteRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{183}
+	return file_api_api_proto_rawDescGZIP(), []int{179}
 }
 
-func (x *AppDeleteRequest) GetId() string {
+func (x *AppDeleteRequest) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
-func (x *AppDeleteRequest) GetRecordDeletion() *wrapperspb.BoolValue {
+func (x *AppDeleteRequest) GetRecordDeletion() bool {
 	if x != nil {
 		return x.RecordDeletion
 	}
-	return nil
+	return false
 }
 
 // A list of apps.
@@ -14683,7 +14085,7 @@ type AppList struct {
 
 func (x *AppList) Reset() {
 	*x = AppList{}
-	mi := &file_api_api_proto_msgTypes[184]
+	mi := &file_api_api_proto_msgTypes[180]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14695,7 +14097,7 @@ func (x *AppList) String() string {
 func (*AppList) ProtoMessage() {}
 
 func (x *AppList) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[184]
+	mi := &file_api_api_proto_msgTypes[180]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14708,7 +14110,7 @@ func (x *AppList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppList.ProtoReflect.Descriptor instead.
 func (*AppList) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{184}
+	return file_api_api_proto_rawDescGZIP(), []int{180}
 }
 
 func (x *AppList) GetApps() []*App {
@@ -14740,7 +14142,7 @@ type AddAppRequest struct {
 	// The password.
 	Token string `protobuf:"bytes,2,opt,name=token,proto3" json:"token,omitempty"`
 	// Creator of the app.
-	CreatorId string `protobuf:"bytes,3,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
+	CreatorId int64 `protobuf:"varint,3,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
 	// Role of this app.
 	Role int32 `protobuf:"varint,4,opt,name=role,proto3" json:"role,omitempty"`
 	// Is shadow.
@@ -14757,7 +14159,7 @@ type AddAppRequest struct {
 
 func (x *AddAppRequest) Reset() {
 	*x = AddAppRequest{}
-	mi := &file_api_api_proto_msgTypes[185]
+	mi := &file_api_api_proto_msgTypes[181]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14769,7 +14171,7 @@ func (x *AddAppRequest) String() string {
 func (*AddAppRequest) ProtoMessage() {}
 
 func (x *AddAppRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[185]
+	mi := &file_api_api_proto_msgTypes[181]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14782,7 +14184,7 @@ func (x *AddAppRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddAppRequest.ProtoReflect.Descriptor instead.
 func (*AddAppRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{185}
+	return file_api_api_proto_rawDescGZIP(), []int{181}
 }
 
 func (x *AddAppRequest) GetAppname() string {
@@ -14799,11 +14201,11 @@ func (x *AddAppRequest) GetToken() string {
 	return ""
 }
 
-func (x *AddAppRequest) GetCreatorId() string {
+func (x *AddAppRequest) GetCreatorId() int64 {
 	if x != nil {
 		return x.CreatorId
 	}
-	return ""
+	return 0
 }
 
 func (x *AddAppRequest) GetRole() int32 {
@@ -14856,7 +14258,7 @@ type ListAppsRequest struct {
 
 func (x *ListAppsRequest) Reset() {
 	*x = ListAppsRequest{}
-	mi := &file_api_api_proto_msgTypes[186]
+	mi := &file_api_api_proto_msgTypes[182]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14868,7 +14270,7 @@ func (x *ListAppsRequest) String() string {
 func (*ListAppsRequest) ProtoMessage() {}
 
 func (x *ListAppsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[186]
+	mi := &file_api_api_proto_msgTypes[182]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14881,7 +14283,7 @@ func (x *ListAppsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAppsRequest.ProtoReflect.Descriptor instead.
 func (*ListAppsRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{186}
+	return file_api_api_proto_rawDescGZIP(), []int{182}
 }
 
 func (x *ListAppsRequest) GetFilter() string {
@@ -14909,7 +14311,7 @@ func (x *ListAppsRequest) GetCursor() string {
 type UpdateAppRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// User ID to update.
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Username.
 	Appname *wrapperspb.StringValue `protobuf:"bytes,2,opt,name=appname,proto3" json:"appname,omitempty"`
 	// Metadata.
@@ -14930,7 +14332,7 @@ type UpdateAppRequest struct {
 
 func (x *UpdateAppRequest) Reset() {
 	*x = UpdateAppRequest{}
-	mi := &file_api_api_proto_msgTypes[187]
+	mi := &file_api_api_proto_msgTypes[183]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -14942,7 +14344,7 @@ func (x *UpdateAppRequest) String() string {
 func (*UpdateAppRequest) ProtoMessage() {}
 
 func (x *UpdateAppRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[187]
+	mi := &file_api_api_proto_msgTypes[183]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -14955,14 +14357,14 @@ func (x *UpdateAppRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAppRequest.ProtoReflect.Descriptor instead.
 func (*UpdateAppRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{187}
+	return file_api_api_proto_rawDescGZIP(), []int{183}
 }
 
-func (x *UpdateAppRequest) GetId() string {
+func (x *UpdateAppRequest) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 func (x *UpdateAppRequest) GetAppname() *wrapperspb.StringValue {
@@ -15018,14 +14420,14 @@ func (x *UpdateAppRequest) GetIsShadow() string {
 type AppId struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The unique identifier of the app.
-	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id            int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AppId) Reset() {
 	*x = AppId{}
-	mi := &file_api_api_proto_msgTypes[188]
+	mi := &file_api_api_proto_msgTypes[184]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15037,7 +14439,7 @@ func (x *AppId) String() string {
 func (*AppId) ProtoMessage() {}
 
 func (x *AppId) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[188]
+	mi := &file_api_api_proto_msgTypes[184]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15050,29 +14452,29 @@ func (x *AppId) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppId.ProtoReflect.Descriptor instead.
 func (*AppId) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{188}
+	return file_api_api_proto_rawDescGZIP(), []int{184}
 }
 
-func (x *AppId) GetId() string {
+func (x *AppId) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 // The identifier for an app.
 type AppClan struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The unique identifier of the app.
-	AppId         string `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
-	ClanId        string `protobuf:"bytes,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	AppId         int64 `protobuf:"varint,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	ClanId        int64 `protobuf:"varint,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AppClan) Reset() {
 	*x = AppClan{}
-	mi := &file_api_api_proto_msgTypes[189]
+	mi := &file_api_api_proto_msgTypes[185]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15084,7 +14486,7 @@ func (x *AppClan) String() string {
 func (*AppClan) ProtoMessage() {}
 
 func (x *AppClan) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[189]
+	mi := &file_api_api_proto_msgTypes[185]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15097,37 +14499,37 @@ func (x *AppClan) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppClan.ProtoReflect.Descriptor instead.
 func (*AppClan) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{189}
+	return file_api_api_proto_rawDescGZIP(), []int{185}
 }
 
-func (x *AppClan) GetAppId() string {
+func (x *AppClan) GetAppId() int64 {
 	if x != nil {
 		return x.AppId
 	}
-	return ""
+	return 0
 }
 
-func (x *AppClan) GetClanId() string {
+func (x *AppClan) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 // Delete channel messages by timestamp or/and ids.
 type DeleteChannelMessagesRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Timestamp before which messages will be deleted.
-	Before *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=before,proto3" json:"before,omitempty"`
+	BeforeSeconds uint32 `protobuf:"varint,1,opt,name=before_seconds,json=beforeSeconds,proto3" json:"before_seconds,omitempty"`
 	// IDs of the messages to delete.
-	Ids           []string `protobuf:"bytes,2,rep,name=ids,proto3" json:"ids,omitempty"`
+	Ids           []int64 `protobuf:"varint,2,rep,packed,name=ids,proto3" json:"ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *DeleteChannelMessagesRequest) Reset() {
 	*x = DeleteChannelMessagesRequest{}
-	mi := &file_api_api_proto_msgTypes[190]
+	mi := &file_api_api_proto_msgTypes[186]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15139,7 +14541,7 @@ func (x *DeleteChannelMessagesRequest) String() string {
 func (*DeleteChannelMessagesRequest) ProtoMessage() {}
 
 func (x *DeleteChannelMessagesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[190]
+	mi := &file_api_api_proto_msgTypes[186]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15152,17 +14554,17 @@ func (x *DeleteChannelMessagesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteChannelMessagesRequest.ProtoReflect.Descriptor instead.
 func (*DeleteChannelMessagesRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{190}
+	return file_api_api_proto_rawDescGZIP(), []int{186}
 }
 
-func (x *DeleteChannelMessagesRequest) GetBefore() *timestamppb.Timestamp {
+func (x *DeleteChannelMessagesRequest) GetBeforeSeconds() uint32 {
 	if x != nil {
-		return x.Before
+		return x.BeforeSeconds
 	}
-	return nil
+	return 0
 }
 
-func (x *DeleteChannelMessagesRequest) GetIds() []string {
+func (x *DeleteChannelMessagesRequest) GetIds() []int64 {
 	if x != nil {
 		return x.Ids
 	}
@@ -15179,7 +14581,7 @@ type DeleteChannelMessagesResponse struct {
 
 func (x *DeleteChannelMessagesResponse) Reset() {
 	*x = DeleteChannelMessagesResponse{}
-	mi := &file_api_api_proto_msgTypes[191]
+	mi := &file_api_api_proto_msgTypes[187]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15191,7 +14593,7 @@ func (x *DeleteChannelMessagesResponse) String() string {
 func (*DeleteChannelMessagesResponse) ProtoMessage() {}
 
 func (x *DeleteChannelMessagesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[191]
+	mi := &file_api_api_proto_msgTypes[187]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15204,7 +14606,7 @@ func (x *DeleteChannelMessagesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteChannelMessagesResponse.ProtoReflect.Descriptor instead.
 func (*DeleteChannelMessagesResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{191}
+	return file_api_api_proto_rawDescGZIP(), []int{187}
 }
 
 func (x *DeleteChannelMessagesResponse) GetTotal() int64 {
@@ -15218,11 +14620,11 @@ func (x *DeleteChannelMessagesResponse) GetTotal() int64 {
 type SystemMessage struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// ID
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Clan ID
-	ClanId string `protobuf:"bytes,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// Channel ID
-	ChannelId string `protobuf:"bytes,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// Welcome random
 	WelcomeRandom string `protobuf:"bytes,4,opt,name=welcome_random,json=welcomeRandom,proto3" json:"welcome_random,omitempty"`
 	// Welcome sticker
@@ -15232,14 +14634,14 @@ type SystemMessage struct {
 	// Setup tips
 	SetupTips string `protobuf:"bytes,7,opt,name=setup_tips,json=setupTips,proto3" json:"setup_tips,omitempty"`
 	// Hide audit log
-	HideAuditLog  string `protobuf:"bytes,8,opt,name=hide_audit_log,json=hideAuditLog,proto3" json:"hide_audit_log,omitempty"`
+	HideAuditLog  bool `protobuf:"varint,8,opt,name=hide_audit_log,json=hideAuditLog,proto3" json:"hide_audit_log,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *SystemMessage) Reset() {
 	*x = SystemMessage{}
-	mi := &file_api_api_proto_msgTypes[192]
+	mi := &file_api_api_proto_msgTypes[188]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15251,7 +14653,7 @@ func (x *SystemMessage) String() string {
 func (*SystemMessage) ProtoMessage() {}
 
 func (x *SystemMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[192]
+	mi := &file_api_api_proto_msgTypes[188]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15264,28 +14666,28 @@ func (x *SystemMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SystemMessage.ProtoReflect.Descriptor instead.
 func (*SystemMessage) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{192}
+	return file_api_api_proto_rawDescGZIP(), []int{188}
 }
 
-func (x *SystemMessage) GetId() string {
+func (x *SystemMessage) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
-func (x *SystemMessage) GetClanId() string {
+func (x *SystemMessage) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *SystemMessage) GetChannelId() string {
+func (x *SystemMessage) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *SystemMessage) GetWelcomeRandom() string {
@@ -15316,11 +14718,11 @@ func (x *SystemMessage) GetSetupTips() string {
 	return ""
 }
 
-func (x *SystemMessage) GetHideAuditLog() string {
+func (x *SystemMessage) GetHideAuditLog() bool {
 	if x != nil {
 		return x.HideAuditLog
 	}
-	return ""
+	return false
 }
 
 // List of system message.
@@ -15333,7 +14735,7 @@ type SystemMessagesList struct {
 
 func (x *SystemMessagesList) Reset() {
 	*x = SystemMessagesList{}
-	mi := &file_api_api_proto_msgTypes[193]
+	mi := &file_api_api_proto_msgTypes[189]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15345,7 +14747,7 @@ func (x *SystemMessagesList) String() string {
 func (*SystemMessagesList) ProtoMessage() {}
 
 func (x *SystemMessagesList) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[193]
+	mi := &file_api_api_proto_msgTypes[189]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15358,7 +14760,7 @@ func (x *SystemMessagesList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SystemMessagesList.ProtoReflect.Descriptor instead.
 func (*SystemMessagesList) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{193}
+	return file_api_api_proto_rawDescGZIP(), []int{189}
 }
 
 func (x *SystemMessagesList) GetSystemMessagesList() []*SystemMessage {
@@ -15372,9 +14774,9 @@ func (x *SystemMessagesList) GetSystemMessagesList() []*SystemMessage {
 type SystemMessageRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Clan ID
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// Channel ID
-	ChannelId string `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// Welcome random
 	WelcomeRandom string `protobuf:"bytes,3,opt,name=welcome_random,json=welcomeRandom,proto3" json:"welcome_random,omitempty"`
 	// Welcome sticker
@@ -15384,14 +14786,14 @@ type SystemMessageRequest struct {
 	// Setup tips
 	SetupTips string `protobuf:"bytes,6,opt,name=setup_tips,json=setupTips,proto3" json:"setup_tips,omitempty"`
 	// Hide audit log
-	HideAuditLog  string `protobuf:"bytes,7,opt,name=hide_audit_log,json=hideAuditLog,proto3" json:"hide_audit_log,omitempty"`
+	HideAuditLog  bool `protobuf:"varint,7,opt,name=hide_audit_log,json=hideAuditLog,proto3" json:"hide_audit_log,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *SystemMessageRequest) Reset() {
 	*x = SystemMessageRequest{}
-	mi := &file_api_api_proto_msgTypes[194]
+	mi := &file_api_api_proto_msgTypes[190]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15403,7 +14805,7 @@ func (x *SystemMessageRequest) String() string {
 func (*SystemMessageRequest) ProtoMessage() {}
 
 func (x *SystemMessageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[194]
+	mi := &file_api_api_proto_msgTypes[190]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15416,21 +14818,21 @@ func (x *SystemMessageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SystemMessageRequest.ProtoReflect.Descriptor instead.
 func (*SystemMessageRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{194}
+	return file_api_api_proto_rawDescGZIP(), []int{190}
 }
 
-func (x *SystemMessageRequest) GetClanId() string {
+func (x *SystemMessageRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *SystemMessageRequest) GetChannelId() string {
+func (x *SystemMessageRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *SystemMessageRequest) GetWelcomeRandom() string {
@@ -15461,25 +14863,25 @@ func (x *SystemMessageRequest) GetSetupTips() string {
 	return ""
 }
 
-func (x *SystemMessageRequest) GetHideAuditLog() string {
+func (x *SystemMessageRequest) GetHideAuditLog() bool {
 	if x != nil {
 		return x.HideAuditLog
 	}
-	return ""
+	return false
 }
 
 // Request to delete a system message by clan ID.
 type DeleteSystemMessage struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Clan ID
-	ClanId        string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *DeleteSystemMessage) Reset() {
 	*x = DeleteSystemMessage{}
-	mi := &file_api_api_proto_msgTypes[195]
+	mi := &file_api_api_proto_msgTypes[191]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15491,7 +14893,7 @@ func (x *DeleteSystemMessage) String() string {
 func (*DeleteSystemMessage) ProtoMessage() {}
 
 func (x *DeleteSystemMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[195]
+	mi := &file_api_api_proto_msgTypes[191]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15504,28 +14906,28 @@ func (x *DeleteSystemMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteSystemMessage.ProtoReflect.Descriptor instead.
 func (*DeleteSystemMessage) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{195}
+	return file_api_api_proto_rawDescGZIP(), []int{191}
 }
 
-func (x *DeleteSystemMessage) GetClanId() string {
+func (x *DeleteSystemMessage) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 // Request to get system message by clan ID.
 type GetSystemMessage struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Clan ID
-	ClanId        string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetSystemMessage) Reset() {
 	*x = GetSystemMessage{}
-	mi := &file_api_api_proto_msgTypes[196]
+	mi := &file_api_api_proto_msgTypes[192]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15537,7 +14939,7 @@ func (x *GetSystemMessage) String() string {
 func (*GetSystemMessage) ProtoMessage() {}
 
 func (x *GetSystemMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[196]
+	mi := &file_api_api_proto_msgTypes[192]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15550,26 +14952,26 @@ func (x *GetSystemMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSystemMessage.ProtoReflect.Descriptor instead.
 func (*GetSystemMessage) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{196}
+	return file_api_api_proto_rawDescGZIP(), []int{192}
 }
 
-func (x *GetSystemMessage) GetClanId() string {
+func (x *GetSystemMessage) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 type DeleteCategoryOrderRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ClanId        string                 `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *DeleteCategoryOrderRequest) Reset() {
 	*x = DeleteCategoryOrderRequest{}
-	mi := &file_api_api_proto_msgTypes[197]
+	mi := &file_api_api_proto_msgTypes[193]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15581,7 +14983,7 @@ func (x *DeleteCategoryOrderRequest) String() string {
 func (*DeleteCategoryOrderRequest) ProtoMessage() {}
 
 func (x *DeleteCategoryOrderRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[197]
+	mi := &file_api_api_proto_msgTypes[193]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15594,28 +14996,28 @@ func (x *DeleteCategoryOrderRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteCategoryOrderRequest.ProtoReflect.Descriptor instead.
 func (*DeleteCategoryOrderRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{197}
+	return file_api_api_proto_rawDescGZIP(), []int{193}
 }
 
-func (x *DeleteCategoryOrderRequest) GetClanId() string {
+func (x *DeleteCategoryOrderRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 type StreamHttpCallbackRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// id
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// client_id
-	ClientId string `protobuf:"bytes,2,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+	ClientId int64 `protobuf:"varint,2,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
 	// clan_id
-	ClanId string `protobuf:"bytes,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// channel_id
-	ChannelId string `protobuf:"bytes,4,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,4,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// user_id
-	UserId string `protobuf:"bytes,5,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId int64 `protobuf:"varint,5,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	// action
 	Action int32 `protobuf:"varint,6,opt,name=action,proto3" json:"action,omitempty"`
 	// is_publisher
@@ -15628,7 +15030,7 @@ type StreamHttpCallbackRequest struct {
 
 func (x *StreamHttpCallbackRequest) Reset() {
 	*x = StreamHttpCallbackRequest{}
-	mi := &file_api_api_proto_msgTypes[198]
+	mi := &file_api_api_proto_msgTypes[194]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15640,7 +15042,7 @@ func (x *StreamHttpCallbackRequest) String() string {
 func (*StreamHttpCallbackRequest) ProtoMessage() {}
 
 func (x *StreamHttpCallbackRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[198]
+	mi := &file_api_api_proto_msgTypes[194]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15653,42 +15055,42 @@ func (x *StreamHttpCallbackRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StreamHttpCallbackRequest.ProtoReflect.Descriptor instead.
 func (*StreamHttpCallbackRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{198}
+	return file_api_api_proto_rawDescGZIP(), []int{194}
 }
 
-func (x *StreamHttpCallbackRequest) GetId() string {
+func (x *StreamHttpCallbackRequest) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
-func (x *StreamHttpCallbackRequest) GetClientId() string {
+func (x *StreamHttpCallbackRequest) GetClientId() int64 {
 	if x != nil {
 		return x.ClientId
 	}
-	return ""
+	return 0
 }
 
-func (x *StreamHttpCallbackRequest) GetClanId() string {
+func (x *StreamHttpCallbackRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *StreamHttpCallbackRequest) GetChannelId() string {
+func (x *StreamHttpCallbackRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *StreamHttpCallbackRequest) GetUserId() string {
+func (x *StreamHttpCallbackRequest) GetUserId() int64 {
 	if x != nil {
 		return x.UserId
 	}
-	return ""
+	return 0
 }
 
 func (x *StreamHttpCallbackRequest) GetAction() int32 {
@@ -15714,7 +15116,7 @@ func (x *StreamHttpCallbackRequest) GetToken() string {
 
 type StreamHttpCallbackResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Code          *wrapperspb.Int32Value `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`
+	Code          int32                  `protobuf:"varint,1,opt,name=code,proto3" json:"code,omitempty"`
 	Msg           string                 `protobuf:"bytes,2,opt,name=msg,proto3" json:"msg,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -15722,7 +15124,7 @@ type StreamHttpCallbackResponse struct {
 
 func (x *StreamHttpCallbackResponse) Reset() {
 	*x = StreamHttpCallbackResponse{}
-	mi := &file_api_api_proto_msgTypes[199]
+	mi := &file_api_api_proto_msgTypes[195]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15734,7 +15136,7 @@ func (x *StreamHttpCallbackResponse) String() string {
 func (*StreamHttpCallbackResponse) ProtoMessage() {}
 
 func (x *StreamHttpCallbackResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[199]
+	mi := &file_api_api_proto_msgTypes[195]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15747,14 +15149,14 @@ func (x *StreamHttpCallbackResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StreamHttpCallbackResponse.ProtoReflect.Descriptor instead.
 func (*StreamHttpCallbackResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{199}
+	return file_api_api_proto_rawDescGZIP(), []int{195}
 }
 
-func (x *StreamHttpCallbackResponse) GetCode() *wrapperspb.Int32Value {
+func (x *StreamHttpCallbackResponse) GetCode() int32 {
 	if x != nil {
 		return x.Code
 	}
-	return nil
+	return 0
 }
 
 func (x *StreamHttpCallbackResponse) GetMsg() string {
@@ -15768,11 +15170,11 @@ func (x *StreamHttpCallbackResponse) GetMsg() string {
 type StreamingChannelUser struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// user join id
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// user for a channel.
-	UserId string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId int64 `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	// channel id
-	ChannelId string `protobuf:"bytes,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// participant
 	Participant   string `protobuf:"bytes,4,opt,name=participant,proto3" json:"participant,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -15781,7 +15183,7 @@ type StreamingChannelUser struct {
 
 func (x *StreamingChannelUser) Reset() {
 	*x = StreamingChannelUser{}
-	mi := &file_api_api_proto_msgTypes[200]
+	mi := &file_api_api_proto_msgTypes[196]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15793,7 +15195,7 @@ func (x *StreamingChannelUser) String() string {
 func (*StreamingChannelUser) ProtoMessage() {}
 
 func (x *StreamingChannelUser) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[200]
+	mi := &file_api_api_proto_msgTypes[196]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15806,28 +15208,28 @@ func (x *StreamingChannelUser) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StreamingChannelUser.ProtoReflect.Descriptor instead.
 func (*StreamingChannelUser) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{200}
+	return file_api_api_proto_rawDescGZIP(), []int{196}
 }
 
-func (x *StreamingChannelUser) GetId() string {
+func (x *StreamingChannelUser) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
-func (x *StreamingChannelUser) GetUserId() string {
+func (x *StreamingChannelUser) GetUserId() int64 {
 	if x != nil {
 		return x.UserId
 	}
-	return ""
+	return 0
 }
 
-func (x *StreamingChannelUser) GetChannelId() string {
+func (x *StreamingChannelUser) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *StreamingChannelUser) GetParticipant() string {
@@ -15848,7 +15250,7 @@ type StreamingChannelUserList struct {
 
 func (x *StreamingChannelUserList) Reset() {
 	*x = StreamingChannelUserList{}
-	mi := &file_api_api_proto_msgTypes[201]
+	mi := &file_api_api_proto_msgTypes[197]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15860,7 +15262,7 @@ func (x *StreamingChannelUserList) String() string {
 func (*StreamingChannelUserList) ProtoMessage() {}
 
 func (x *StreamingChannelUserList) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[201]
+	mi := &file_api_api_proto_msgTypes[197]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15873,7 +15275,7 @@ func (x *StreamingChannelUserList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StreamingChannelUserList.ProtoReflect.Descriptor instead.
 func (*StreamingChannelUserList) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{201}
+	return file_api_api_proto_rawDescGZIP(), []int{197}
 }
 
 func (x *StreamingChannelUserList) GetStreamingChannelUsers() []*StreamingChannelUser {
@@ -15886,16 +15288,16 @@ func (x *StreamingChannelUserList) GetStreamingChannelUsers() []*StreamingChanne
 type RegisterStreamingChannelRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// clan id
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// channel id
-	ChannelId     string `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId     int64 `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *RegisterStreamingChannelRequest) Reset() {
 	*x = RegisterStreamingChannelRequest{}
-	mi := &file_api_api_proto_msgTypes[202]
+	mi := &file_api_api_proto_msgTypes[198]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15907,7 +15309,7 @@ func (x *RegisterStreamingChannelRequest) String() string {
 func (*RegisterStreamingChannelRequest) ProtoMessage() {}
 
 func (x *RegisterStreamingChannelRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[202]
+	mi := &file_api_api_proto_msgTypes[198]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15920,29 +15322,29 @@ func (x *RegisterStreamingChannelRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterStreamingChannelRequest.ProtoReflect.Descriptor instead.
 func (*RegisterStreamingChannelRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{202}
+	return file_api_api_proto_rawDescGZIP(), []int{198}
 }
 
-func (x *RegisterStreamingChannelRequest) GetClanId() string {
+func (x *RegisterStreamingChannelRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *RegisterStreamingChannelRequest) GetChannelId() string {
+func (x *RegisterStreamingChannelRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 type RegisterStreamingChannelResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// clan id
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// channel id
-	ChannelId string `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// streaming url
 	StreamingUrl  string `protobuf:"bytes,3,opt,name=streaming_url,json=streamingUrl,proto3" json:"streaming_url,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -15951,7 +15353,7 @@ type RegisterStreamingChannelResponse struct {
 
 func (x *RegisterStreamingChannelResponse) Reset() {
 	*x = RegisterStreamingChannelResponse{}
-	mi := &file_api_api_proto_msgTypes[203]
+	mi := &file_api_api_proto_msgTypes[199]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -15963,7 +15365,7 @@ func (x *RegisterStreamingChannelResponse) String() string {
 func (*RegisterStreamingChannelResponse) ProtoMessage() {}
 
 func (x *RegisterStreamingChannelResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[203]
+	mi := &file_api_api_proto_msgTypes[199]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -15976,21 +15378,21 @@ func (x *RegisterStreamingChannelResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterStreamingChannelResponse.ProtoReflect.Descriptor instead.
 func (*RegisterStreamingChannelResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{203}
+	return file_api_api_proto_rawDescGZIP(), []int{199}
 }
 
-func (x *RegisterStreamingChannelResponse) GetClanId() string {
+func (x *RegisterStreamingChannelResponse) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *RegisterStreamingChannelResponse) GetChannelId() string {
+func (x *RegisterStreamingChannelResponse) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *RegisterStreamingChannelResponse) GetStreamingUrl() string {
@@ -16003,24 +15405,24 @@ func (x *RegisterStreamingChannelResponse) GetStreamingUrl() string {
 type GiveCoffeeEvent struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// sender id
-	SenderId string `protobuf:"bytes,1,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
+	SenderId int64 `protobuf:"varint,1,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
 	// receiver id
-	ReceiverId string `protobuf:"bytes,2,opt,name=receiver_id,json=receiverId,proto3" json:"receiver_id,omitempty"`
+	ReceiverId int64 `protobuf:"varint,2,opt,name=receiver_id,json=receiverId,proto3" json:"receiver_id,omitempty"`
 	// token count
 	TokenCount int32 `protobuf:"varint,3,opt,name=token_count,json=tokenCount,proto3" json:"token_count,omitempty"`
 	// message_ref
-	MessageRefId string `protobuf:"bytes,4,opt,name=message_ref_id,json=messageRefId,proto3" json:"message_ref_id,omitempty"`
+	MessageRefId int64 `protobuf:"varint,4,opt,name=message_ref_id,json=messageRefId,proto3" json:"message_ref_id,omitempty"`
 	// chanel id
-	ChannelId string `protobuf:"bytes,5,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,5,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// clan id
-	ClanId        string `protobuf:"bytes,6,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64 `protobuf:"varint,6,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GiveCoffeeEvent) Reset() {
 	*x = GiveCoffeeEvent{}
-	mi := &file_api_api_proto_msgTypes[204]
+	mi := &file_api_api_proto_msgTypes[200]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16032,7 +15434,7 @@ func (x *GiveCoffeeEvent) String() string {
 func (*GiveCoffeeEvent) ProtoMessage() {}
 
 func (x *GiveCoffeeEvent) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[204]
+	mi := &file_api_api_proto_msgTypes[200]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16045,21 +15447,21 @@ func (x *GiveCoffeeEvent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GiveCoffeeEvent.ProtoReflect.Descriptor instead.
 func (*GiveCoffeeEvent) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{204}
+	return file_api_api_proto_rawDescGZIP(), []int{200}
 }
 
-func (x *GiveCoffeeEvent) GetSenderId() string {
+func (x *GiveCoffeeEvent) GetSenderId() int64 {
 	if x != nil {
 		return x.SenderId
 	}
-	return ""
+	return 0
 }
 
-func (x *GiveCoffeeEvent) GetReceiverId() string {
+func (x *GiveCoffeeEvent) GetReceiverId() int64 {
 	if x != nil {
 		return x.ReceiverId
 	}
-	return ""
+	return 0
 }
 
 func (x *GiveCoffeeEvent) GetTokenCount() int32 {
@@ -16069,38 +15471,38 @@ func (x *GiveCoffeeEvent) GetTokenCount() int32 {
 	return 0
 }
 
-func (x *GiveCoffeeEvent) GetMessageRefId() string {
+func (x *GiveCoffeeEvent) GetMessageRefId() int64 {
 	if x != nil {
 		return x.MessageRefId
 	}
-	return ""
+	return 0
 }
 
-func (x *GiveCoffeeEvent) GetChannelId() string {
+func (x *GiveCoffeeEvent) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *GiveCoffeeEvent) GetClanId() string {
+func (x *GiveCoffeeEvent) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 type ListChannelAppsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// clan id
-	ClanId        string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListChannelAppsRequest) Reset() {
 	*x = ListChannelAppsRequest{}
-	mi := &file_api_api_proto_msgTypes[205]
+	mi := &file_api_api_proto_msgTypes[201]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16112,7 +15514,7 @@ func (x *ListChannelAppsRequest) String() string {
 func (*ListChannelAppsRequest) ProtoMessage() {}
 
 func (x *ListChannelAppsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[205]
+	mi := &file_api_api_proto_msgTypes[201]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16125,14 +15527,14 @@ func (x *ListChannelAppsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListChannelAppsRequest.ProtoReflect.Descriptor instead.
 func (*ListChannelAppsRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{205}
+	return file_api_api_proto_rawDescGZIP(), []int{201}
 }
 
-func (x *ListChannelAppsRequest) GetClanId() string {
+func (x *ListChannelAppsRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 type ListChannelAppsResponse struct {
@@ -16145,7 +15547,7 @@ type ListChannelAppsResponse struct {
 
 func (x *ListChannelAppsResponse) Reset() {
 	*x = ListChannelAppsResponse{}
-	mi := &file_api_api_proto_msgTypes[206]
+	mi := &file_api_api_proto_msgTypes[202]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16157,7 +15559,7 @@ func (x *ListChannelAppsResponse) String() string {
 func (*ListChannelAppsResponse) ProtoMessage() {}
 
 func (x *ListChannelAppsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[206]
+	mi := &file_api_api_proto_msgTypes[202]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16170,7 +15572,7 @@ func (x *ListChannelAppsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListChannelAppsResponse.ProtoReflect.Descriptor instead.
 func (*ListChannelAppsResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{206}
+	return file_api_api_proto_rawDescGZIP(), []int{202}
 }
 
 func (x *ListChannelAppsResponse) GetChannelApps() []*ChannelAppResponse {
@@ -16183,13 +15585,13 @@ func (x *ListChannelAppsResponse) GetChannelApps() []*ChannelAppResponse {
 type ChannelAppResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// id
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// clan id
-	ClanId string `protobuf:"bytes,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// channel id
-	ChannelId string `protobuf:"bytes,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// app id
-	AppId string `protobuf:"bytes,4,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	AppId int64 `protobuf:"varint,4,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
 	// app url
 	AppUrl string `protobuf:"bytes,5,opt,name=app_url,json=appUrl,proto3" json:"app_url,omitempty"`
 	// app name
@@ -16202,7 +15604,7 @@ type ChannelAppResponse struct {
 
 func (x *ChannelAppResponse) Reset() {
 	*x = ChannelAppResponse{}
-	mi := &file_api_api_proto_msgTypes[207]
+	mi := &file_api_api_proto_msgTypes[203]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16214,7 +15616,7 @@ func (x *ChannelAppResponse) String() string {
 func (*ChannelAppResponse) ProtoMessage() {}
 
 func (x *ChannelAppResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[207]
+	mi := &file_api_api_proto_msgTypes[203]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16227,35 +15629,35 @@ func (x *ChannelAppResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChannelAppResponse.ProtoReflect.Descriptor instead.
 func (*ChannelAppResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{207}
+	return file_api_api_proto_rawDescGZIP(), []int{203}
 }
 
-func (x *ChannelAppResponse) GetId() string {
+func (x *ChannelAppResponse) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
-func (x *ChannelAppResponse) GetClanId() string {
+func (x *ChannelAppResponse) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *ChannelAppResponse) GetChannelId() string {
+func (x *ChannelAppResponse) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *ChannelAppResponse) GetAppId() string {
+func (x *ChannelAppResponse) GetAppId() int64 {
 	if x != nil {
 		return x.AppId
 	}
-	return ""
+	return 0
 }
 
 func (x *ChannelAppResponse) GetAppUrl() string {
@@ -16288,7 +15690,7 @@ type AllUserClans struct {
 
 func (x *AllUserClans) Reset() {
 	*x = AllUserClans{}
-	mi := &file_api_api_proto_msgTypes[208]
+	mi := &file_api_api_proto_msgTypes[204]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16300,7 +15702,7 @@ func (x *AllUserClans) String() string {
 func (*AllUserClans) ProtoMessage() {}
 
 func (x *AllUserClans) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[208]
+	mi := &file_api_api_proto_msgTypes[204]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16313,7 +15715,7 @@ func (x *AllUserClans) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AllUserClans.ProtoReflect.Descriptor instead.
 func (*AllUserClans) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{208}
+	return file_api_api_proto_rawDescGZIP(), []int{204}
 }
 
 func (x *AllUserClans) GetUsers() []*User {
@@ -16326,7 +15728,7 @@ func (x *AllUserClans) GetUsers() []*User {
 type RoleListEventRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// clan id
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// limit
 	Limit int32 `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
 	// state
@@ -16339,7 +15741,7 @@ type RoleListEventRequest struct {
 
 func (x *RoleListEventRequest) Reset() {
 	*x = RoleListEventRequest{}
-	mi := &file_api_api_proto_msgTypes[209]
+	mi := &file_api_api_proto_msgTypes[205]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16351,7 +15753,7 @@ func (x *RoleListEventRequest) String() string {
 func (*RoleListEventRequest) ProtoMessage() {}
 
 func (x *RoleListEventRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[209]
+	mi := &file_api_api_proto_msgTypes[205]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16364,14 +15766,14 @@ func (x *RoleListEventRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RoleListEventRequest.ProtoReflect.Descriptor instead.
 func (*RoleListEventRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{209}
+	return file_api_api_proto_rawDescGZIP(), []int{205}
 }
 
-func (x *RoleListEventRequest) GetClanId() string {
+func (x *RoleListEventRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *RoleListEventRequest) GetLimit() int32 {
@@ -16404,7 +15806,7 @@ type RoleListEventResponse struct {
 	// cursor
 	Cursor string `protobuf:"bytes,3,opt,name=cursor,proto3" json:"cursor,omitempty"`
 	// clan_id
-	ClanId string `protobuf:"bytes,4,opt,name=clanId,proto3" json:"clanId,omitempty"`
+	ClanId int64 `protobuf:"varint,4,opt,name=clanId,proto3" json:"clanId,omitempty"`
 	// list of roles
 	Roles         *RoleList `protobuf:"bytes,5,opt,name=roles,proto3" json:"roles,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -16413,7 +15815,7 @@ type RoleListEventResponse struct {
 
 func (x *RoleListEventResponse) Reset() {
 	*x = RoleListEventResponse{}
-	mi := &file_api_api_proto_msgTypes[210]
+	mi := &file_api_api_proto_msgTypes[206]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16425,7 +15827,7 @@ func (x *RoleListEventResponse) String() string {
 func (*RoleListEventResponse) ProtoMessage() {}
 
 func (x *RoleListEventResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[210]
+	mi := &file_api_api_proto_msgTypes[206]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16438,7 +15840,7 @@ func (x *RoleListEventResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RoleListEventResponse.ProtoReflect.Descriptor instead.
 func (*RoleListEventResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{210}
+	return file_api_api_proto_rawDescGZIP(), []int{206}
 }
 
 func (x *RoleListEventResponse) GetLimit() int32 {
@@ -16462,11 +15864,11 @@ func (x *RoleListEventResponse) GetCursor() string {
 	return ""
 }
 
-func (x *RoleListEventResponse) GetClanId() string {
+func (x *RoleListEventResponse) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *RoleListEventResponse) GetRoles() *RoleList {
@@ -16479,16 +15881,16 @@ func (x *RoleListEventResponse) GetRoles() *RoleList {
 type UserPermissionInChannelListRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// clan id
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// channel id
-	ChannelId     string `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId     int64 `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UserPermissionInChannelListRequest) Reset() {
 	*x = UserPermissionInChannelListRequest{}
-	mi := &file_api_api_proto_msgTypes[211]
+	mi := &file_api_api_proto_msgTypes[207]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16500,7 +15902,7 @@ func (x *UserPermissionInChannelListRequest) String() string {
 func (*UserPermissionInChannelListRequest) ProtoMessage() {}
 
 func (x *UserPermissionInChannelListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[211]
+	mi := &file_api_api_proto_msgTypes[207]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16513,29 +15915,29 @@ func (x *UserPermissionInChannelListRequest) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use UserPermissionInChannelListRequest.ProtoReflect.Descriptor instead.
 func (*UserPermissionInChannelListRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{211}
+	return file_api_api_proto_rawDescGZIP(), []int{207}
 }
 
-func (x *UserPermissionInChannelListRequest) GetClanId() string {
+func (x *UserPermissionInChannelListRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *UserPermissionInChannelListRequest) GetChannelId() string {
+func (x *UserPermissionInChannelListRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 type UserPermissionInChannelListResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// clan id
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// channel id
-	ChannelId string `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// A list of permission.
 	Permissions   *PermissionList `protobuf:"bytes,3,opt,name=permissions,proto3" json:"permissions,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -16544,7 +15946,7 @@ type UserPermissionInChannelListResponse struct {
 
 func (x *UserPermissionInChannelListResponse) Reset() {
 	*x = UserPermissionInChannelListResponse{}
-	mi := &file_api_api_proto_msgTypes[212]
+	mi := &file_api_api_proto_msgTypes[208]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16556,7 +15958,7 @@ func (x *UserPermissionInChannelListResponse) String() string {
 func (*UserPermissionInChannelListResponse) ProtoMessage() {}
 
 func (x *UserPermissionInChannelListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[212]
+	mi := &file_api_api_proto_msgTypes[208]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16569,21 +15971,21 @@ func (x *UserPermissionInChannelListResponse) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use UserPermissionInChannelListResponse.ProtoReflect.Descriptor instead.
 func (*UserPermissionInChannelListResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{212}
+	return file_api_api_proto_rawDescGZIP(), []int{208}
 }
 
-func (x *UserPermissionInChannelListResponse) GetClanId() string {
+func (x *UserPermissionInChannelListResponse) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *UserPermissionInChannelListResponse) GetChannelId() string {
+func (x *UserPermissionInChannelListResponse) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *UserPermissionInChannelListResponse) GetPermissions() *PermissionList {
@@ -16597,7 +15999,7 @@ func (x *UserPermissionInChannelListResponse) GetPermissions() *PermissionList {
 type PermissionRoleChannel struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// permission id
-	PermissionId string `protobuf:"bytes,1,opt,name=permission_id,json=permissionId,proto3" json:"permission_id,omitempty"`
+	PermissionId int64 `protobuf:"varint,1,opt,name=permission_id,json=permissionId,proto3" json:"permission_id,omitempty"`
 	// active
 	Active        bool `protobuf:"varint,2,opt,name=active,proto3" json:"active,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -16606,7 +16008,7 @@ type PermissionRoleChannel struct {
 
 func (x *PermissionRoleChannel) Reset() {
 	*x = PermissionRoleChannel{}
-	mi := &file_api_api_proto_msgTypes[213]
+	mi := &file_api_api_proto_msgTypes[209]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16618,7 +16020,7 @@ func (x *PermissionRoleChannel) String() string {
 func (*PermissionRoleChannel) ProtoMessage() {}
 
 func (x *PermissionRoleChannel) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[213]
+	mi := &file_api_api_proto_msgTypes[209]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16631,14 +16033,14 @@ func (x *PermissionRoleChannel) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PermissionRoleChannel.ProtoReflect.Descriptor instead.
 func (*PermissionRoleChannel) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{213}
+	return file_api_api_proto_rawDescGZIP(), []int{209}
 }
 
-func (x *PermissionRoleChannel) GetPermissionId() string {
+func (x *PermissionRoleChannel) GetPermissionId() int64 {
 	if x != nil {
 		return x.PermissionId
 	}
-	return ""
+	return 0
 }
 
 func (x *PermissionRoleChannel) GetActive() bool {
@@ -16651,18 +16053,18 @@ func (x *PermissionRoleChannel) GetActive() bool {
 type PermissionRoleChannelListEventRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// role id
-	RoleId string `protobuf:"bytes,1,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`
+	RoleId int64 `protobuf:"varint,1,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`
 	// channel id
-	ChannelId string `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// user id
-	UserId        string `protobuf:"bytes,4,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId        int64 `protobuf:"varint,4,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *PermissionRoleChannelListEventRequest) Reset() {
 	*x = PermissionRoleChannelListEventRequest{}
-	mi := &file_api_api_proto_msgTypes[214]
+	mi := &file_api_api_proto_msgTypes[210]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16674,7 +16076,7 @@ func (x *PermissionRoleChannelListEventRequest) String() string {
 func (*PermissionRoleChannelListEventRequest) ProtoMessage() {}
 
 func (x *PermissionRoleChannelListEventRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[214]
+	mi := &file_api_api_proto_msgTypes[210]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16687,39 +16089,39 @@ func (x *PermissionRoleChannelListEventRequest) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use PermissionRoleChannelListEventRequest.ProtoReflect.Descriptor instead.
 func (*PermissionRoleChannelListEventRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{214}
+	return file_api_api_proto_rawDescGZIP(), []int{210}
 }
 
-func (x *PermissionRoleChannelListEventRequest) GetRoleId() string {
+func (x *PermissionRoleChannelListEventRequest) GetRoleId() int64 {
 	if x != nil {
 		return x.RoleId
 	}
-	return ""
+	return 0
 }
 
-func (x *PermissionRoleChannelListEventRequest) GetChannelId() string {
+func (x *PermissionRoleChannelListEventRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *PermissionRoleChannelListEventRequest) GetUserId() string {
+func (x *PermissionRoleChannelListEventRequest) GetUserId() int64 {
 	if x != nil {
 		return x.UserId
 	}
-	return ""
+	return 0
 }
 
 // List of permission role channel
 type PermissionRoleChannelListEventResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// role id
-	RoleId string `protobuf:"bytes,1,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`
+	RoleId int64 `protobuf:"varint,1,opt,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`
 	// channel id
-	ChannelId string `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// user id
-	UserId string `protobuf:"bytes,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId int64 `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	// list of permission role channel
 	PermissionRoleChannel []*PermissionRoleChannel `protobuf:"bytes,4,rep,name=permission_role_channel,json=permissionRoleChannel,proto3" json:"permission_role_channel,omitempty"`
 	unknownFields         protoimpl.UnknownFields
@@ -16728,7 +16130,7 @@ type PermissionRoleChannelListEventResponse struct {
 
 func (x *PermissionRoleChannelListEventResponse) Reset() {
 	*x = PermissionRoleChannelListEventResponse{}
-	mi := &file_api_api_proto_msgTypes[215]
+	mi := &file_api_api_proto_msgTypes[211]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16740,7 +16142,7 @@ func (x *PermissionRoleChannelListEventResponse) String() string {
 func (*PermissionRoleChannelListEventResponse) ProtoMessage() {}
 
 func (x *PermissionRoleChannelListEventResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[215]
+	mi := &file_api_api_proto_msgTypes[211]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16753,28 +16155,28 @@ func (x *PermissionRoleChannelListEventResponse) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use PermissionRoleChannelListEventResponse.ProtoReflect.Descriptor instead.
 func (*PermissionRoleChannelListEventResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{215}
+	return file_api_api_proto_rawDescGZIP(), []int{211}
 }
 
-func (x *PermissionRoleChannelListEventResponse) GetRoleId() string {
+func (x *PermissionRoleChannelListEventResponse) GetRoleId() int64 {
 	if x != nil {
 		return x.RoleId
 	}
-	return ""
+	return 0
 }
 
-func (x *PermissionRoleChannelListEventResponse) GetChannelId() string {
+func (x *PermissionRoleChannelListEventResponse) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *PermissionRoleChannelListEventResponse) GetUserId() string {
+func (x *PermissionRoleChannelListEventResponse) GetUserId() int64 {
 	if x != nil {
 		return x.UserId
 	}
-	return ""
+	return 0
 }
 
 func (x *PermissionRoleChannelListEventResponse) GetPermissionRoleChannel() []*PermissionRoleChannel {
@@ -16787,23 +16189,23 @@ func (x *PermissionRoleChannelListEventResponse) GetPermissionRoleChannel() []*P
 type ChannelSettingListRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// clan id
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// parent id of thread
-	ParentId string `protobuf:"bytes,2,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
+	ParentId int64 `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
 	// category id
-	CategoryId string `protobuf:"bytes,3,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
+	CategoryId int64 `protobuf:"varint,3,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
 	// is private channel
-	PrivateChannel *wrapperspb.Int32Value `protobuf:"bytes,4,opt,name=privateChannel,proto3" json:"privateChannel,omitempty"`
+	PrivateChannel int32 `protobuf:"varint,4,opt,name=private_channel,json=privateChannel,proto3" json:"private_channel,omitempty"`
 	// is active
-	Active *wrapperspb.Int32Value `protobuf:"bytes,5,opt,name=active,proto3" json:"active,omitempty"`
+	Active int32 `protobuf:"varint,5,opt,name=active,proto3" json:"active,omitempty"`
 	// status
-	Status *wrapperspb.Int32Value `protobuf:"bytes,6,opt,name=status,proto3" json:"status,omitempty"`
+	Status int32 `protobuf:"varint,6,opt,name=status,proto3" json:"status,omitempty"`
 	// type
-	Type *wrapperspb.Int32Value `protobuf:"bytes,7,opt,name=type,proto3" json:"type,omitempty"`
+	Type int32 `protobuf:"varint,7,opt,name=type,proto3" json:"type,omitempty"`
 	// limit
-	Limit *wrapperspb.Int32Value `protobuf:"bytes,8,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit int32 `protobuf:"varint,8,opt,name=limit,proto3" json:"limit,omitempty"`
 	// page
-	Page *wrapperspb.Int32Value `protobuf:"bytes,9,opt,name=page,proto3" json:"page,omitempty"`
+	Page int32 `protobuf:"varint,9,opt,name=page,proto3" json:"page,omitempty"`
 	// channel label
 	ChannelLabel  string `protobuf:"bytes,10,opt,name=channel_label,json=channelLabel,proto3" json:"channel_label,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -16812,7 +16214,7 @@ type ChannelSettingListRequest struct {
 
 func (x *ChannelSettingListRequest) Reset() {
 	*x = ChannelSettingListRequest{}
-	mi := &file_api_api_proto_msgTypes[216]
+	mi := &file_api_api_proto_msgTypes[212]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16824,7 +16226,7 @@ func (x *ChannelSettingListRequest) String() string {
 func (*ChannelSettingListRequest) ProtoMessage() {}
 
 func (x *ChannelSettingListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[216]
+	mi := &file_api_api_proto_msgTypes[212]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16837,70 +16239,70 @@ func (x *ChannelSettingListRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChannelSettingListRequest.ProtoReflect.Descriptor instead.
 func (*ChannelSettingListRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{216}
+	return file_api_api_proto_rawDescGZIP(), []int{212}
 }
 
-func (x *ChannelSettingListRequest) GetClanId() string {
+func (x *ChannelSettingListRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *ChannelSettingListRequest) GetParentId() string {
+func (x *ChannelSettingListRequest) GetParentId() int64 {
 	if x != nil {
 		return x.ParentId
 	}
-	return ""
+	return 0
 }
 
-func (x *ChannelSettingListRequest) GetCategoryId() string {
+func (x *ChannelSettingListRequest) GetCategoryId() int64 {
 	if x != nil {
 		return x.CategoryId
 	}
-	return ""
+	return 0
 }
 
-func (x *ChannelSettingListRequest) GetPrivateChannel() *wrapperspb.Int32Value {
+func (x *ChannelSettingListRequest) GetPrivateChannel() int32 {
 	if x != nil {
 		return x.PrivateChannel
 	}
-	return nil
+	return 0
 }
 
-func (x *ChannelSettingListRequest) GetActive() *wrapperspb.Int32Value {
+func (x *ChannelSettingListRequest) GetActive() int32 {
 	if x != nil {
 		return x.Active
 	}
-	return nil
+	return 0
 }
 
-func (x *ChannelSettingListRequest) GetStatus() *wrapperspb.Int32Value {
+func (x *ChannelSettingListRequest) GetStatus() int32 {
 	if x != nil {
 		return x.Status
 	}
-	return nil
+	return 0
 }
 
-func (x *ChannelSettingListRequest) GetType() *wrapperspb.Int32Value {
+func (x *ChannelSettingListRequest) GetType() int32 {
 	if x != nil {
 		return x.Type
 	}
-	return nil
+	return 0
 }
 
-func (x *ChannelSettingListRequest) GetLimit() *wrapperspb.Int32Value {
+func (x *ChannelSettingListRequest) GetLimit() int32 {
 	if x != nil {
 		return x.Limit
 	}
-	return nil
+	return 0
 }
 
-func (x *ChannelSettingListRequest) GetPage() *wrapperspb.Int32Value {
+func (x *ChannelSettingListRequest) GetPage() int32 {
 	if x != nil {
 		return x.Page
 	}
-	return nil
+	return 0
 }
 
 func (x *ChannelSettingListRequest) GetChannelLabel() string {
@@ -16913,15 +16315,15 @@ func (x *ChannelSettingListRequest) GetChannelLabel() string {
 type ChannelSettingItem struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// channel id
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// creator id
-	CreatorId string `protobuf:"bytes,2,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
+	CreatorId int64 `protobuf:"varint,2,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
 	// parentId
-	ParentId string `protobuf:"bytes,3,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
+	ParentId int64 `protobuf:"varint,3,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
 	// label of channel
 	ChannelLabel string `protobuf:"bytes,4,opt,name=channel_label,json=channelLabel,proto3" json:"channel_label,omitempty"`
 	// category id
-	CategoryId string `protobuf:"bytes,5,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
+	CategoryId int64 `protobuf:"varint,5,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
 	// meeting code
 	MeetingCode string `protobuf:"bytes,6,opt,name=meeting_code,json=meetingCode,proto3" json:"meeting_code,omitempty"`
 	// channel private
@@ -16931,7 +16333,7 @@ type ChannelSettingItem struct {
 	// is active
 	Active int32 `protobuf:"varint,9,opt,name=active,proto3" json:"active,omitempty"`
 	// list user in channel
-	UserIds []string `protobuf:"bytes,10,rep,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
+	UserIds []int64 `protobuf:"varint,10,rep,packed,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
 	// message count
 	MessageCount int64 `protobuf:"varint,11,opt,name=message_count,json=messageCount,proto3" json:"message_count,omitempty"`
 	// last sent message
@@ -16942,7 +16344,7 @@ type ChannelSettingItem struct {
 
 func (x *ChannelSettingItem) Reset() {
 	*x = ChannelSettingItem{}
-	mi := &file_api_api_proto_msgTypes[217]
+	mi := &file_api_api_proto_msgTypes[213]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -16954,7 +16356,7 @@ func (x *ChannelSettingItem) String() string {
 func (*ChannelSettingItem) ProtoMessage() {}
 
 func (x *ChannelSettingItem) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[217]
+	mi := &file_api_api_proto_msgTypes[213]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -16967,28 +16369,28 @@ func (x *ChannelSettingItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChannelSettingItem.ProtoReflect.Descriptor instead.
 func (*ChannelSettingItem) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{217}
+	return file_api_api_proto_rawDescGZIP(), []int{213}
 }
 
-func (x *ChannelSettingItem) GetId() string {
+func (x *ChannelSettingItem) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
-func (x *ChannelSettingItem) GetCreatorId() string {
+func (x *ChannelSettingItem) GetCreatorId() int64 {
 	if x != nil {
 		return x.CreatorId
 	}
-	return ""
+	return 0
 }
 
-func (x *ChannelSettingItem) GetParentId() string {
+func (x *ChannelSettingItem) GetParentId() int64 {
 	if x != nil {
 		return x.ParentId
 	}
-	return ""
+	return 0
 }
 
 func (x *ChannelSettingItem) GetChannelLabel() string {
@@ -16998,11 +16400,11 @@ func (x *ChannelSettingItem) GetChannelLabel() string {
 	return ""
 }
 
-func (x *ChannelSettingItem) GetCategoryId() string {
+func (x *ChannelSettingItem) GetCategoryId() int64 {
 	if x != nil {
 		return x.CategoryId
 	}
-	return ""
+	return 0
 }
 
 func (x *ChannelSettingItem) GetMeetingCode() string {
@@ -17033,7 +16435,7 @@ func (x *ChannelSettingItem) GetActive() int32 {
 	return 0
 }
 
-func (x *ChannelSettingItem) GetUserIds() []string {
+func (x *ChannelSettingItem) GetUserIds() []int64 {
 	if x != nil {
 		return x.UserIds
 	}
@@ -17057,7 +16459,7 @@ func (x *ChannelSettingItem) GetLastSentMessage() *ChannelMessageHeader {
 type ChannelSettingListResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// clan id
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// channel count
 	ChannelCount int32 `protobuf:"varint,2,opt,name=channel_count,json=channelCount,proto3" json:"channel_count,omitempty"`
 	// thread count
@@ -17070,7 +16472,7 @@ type ChannelSettingListResponse struct {
 
 func (x *ChannelSettingListResponse) Reset() {
 	*x = ChannelSettingListResponse{}
-	mi := &file_api_api_proto_msgTypes[218]
+	mi := &file_api_api_proto_msgTypes[214]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17082,7 +16484,7 @@ func (x *ChannelSettingListResponse) String() string {
 func (*ChannelSettingListResponse) ProtoMessage() {}
 
 func (x *ChannelSettingListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[218]
+	mi := &file_api_api_proto_msgTypes[214]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17095,14 +16497,14 @@ func (x *ChannelSettingListResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChannelSettingListResponse.ProtoReflect.Descriptor instead.
 func (*ChannelSettingListResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{218}
+	return file_api_api_proto_rawDescGZIP(), []int{214}
 }
 
-func (x *ChannelSettingListResponse) GetClanId() string {
+func (x *ChannelSettingListResponse) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *ChannelSettingListResponse) GetChannelCount() int32 {
@@ -17129,18 +16531,18 @@ func (x *ChannelSettingListResponse) GetChannelSettingList() []*ChannelSettingIt
 type MarkAsReadRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// channel id
-	ChannelId string `protobuf:"bytes,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// category_id
-	CategoryId string `protobuf:"bytes,2,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
+	CategoryId int64 `protobuf:"varint,2,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
 	// clan id
-	ClanId        string `protobuf:"bytes,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64 `protobuf:"varint,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *MarkAsReadRequest) Reset() {
 	*x = MarkAsReadRequest{}
-	mi := &file_api_api_proto_msgTypes[219]
+	mi := &file_api_api_proto_msgTypes[215]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17152,7 +16554,7 @@ func (x *MarkAsReadRequest) String() string {
 func (*MarkAsReadRequest) ProtoMessage() {}
 
 func (x *MarkAsReadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[219]
+	mi := &file_api_api_proto_msgTypes[215]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17165,38 +16567,38 @@ func (x *MarkAsReadRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MarkAsReadRequest.ProtoReflect.Descriptor instead.
 func (*MarkAsReadRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{219}
+	return file_api_api_proto_rawDescGZIP(), []int{215}
 }
 
-func (x *MarkAsReadRequest) GetChannelId() string {
+func (x *MarkAsReadRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *MarkAsReadRequest) GetCategoryId() string {
+func (x *MarkAsReadRequest) GetCategoryId() int64 {
 	if x != nil {
 		return x.CategoryId
 	}
-	return ""
+	return 0
 }
 
-func (x *MarkAsReadRequest) GetClanId() string {
+func (x *MarkAsReadRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 type EditChannelCanvasRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// id
-	Id *wrapperspb.StringValue `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// channel id
-	ChannelId string `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// clan id
-	ClanId string `protobuf:"bytes,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// title
 	Title string `protobuf:"bytes,4,opt,name=title,proto3" json:"title,omitempty"`
 	// content
@@ -17211,7 +16613,7 @@ type EditChannelCanvasRequest struct {
 
 func (x *EditChannelCanvasRequest) Reset() {
 	*x = EditChannelCanvasRequest{}
-	mi := &file_api_api_proto_msgTypes[220]
+	mi := &file_api_api_proto_msgTypes[216]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17223,7 +16625,7 @@ func (x *EditChannelCanvasRequest) String() string {
 func (*EditChannelCanvasRequest) ProtoMessage() {}
 
 func (x *EditChannelCanvasRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[220]
+	mi := &file_api_api_proto_msgTypes[216]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17236,28 +16638,28 @@ func (x *EditChannelCanvasRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EditChannelCanvasRequest.ProtoReflect.Descriptor instead.
 func (*EditChannelCanvasRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{220}
+	return file_api_api_proto_rawDescGZIP(), []int{216}
 }
 
-func (x *EditChannelCanvasRequest) GetId() *wrapperspb.StringValue {
+func (x *EditChannelCanvasRequest) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return nil
+	return 0
 }
 
-func (x *EditChannelCanvasRequest) GetChannelId() string {
+func (x *EditChannelCanvasRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *EditChannelCanvasRequest) GetClanId() string {
+func (x *EditChannelCanvasRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *EditChannelCanvasRequest) GetTitle() string {
@@ -17291,14 +16693,14 @@ func (x *EditChannelCanvasRequest) GetStatus() int32 {
 type EditChannelCanvasResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// id
-	Id            string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id            int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *EditChannelCanvasResponse) Reset() {
 	*x = EditChannelCanvasResponse{}
-	mi := &file_api_api_proto_msgTypes[221]
+	mi := &file_api_api_proto_msgTypes[217]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17310,7 +16712,7 @@ func (x *EditChannelCanvasResponse) String() string {
 func (*EditChannelCanvasResponse) ProtoMessage() {}
 
 func (x *EditChannelCanvasResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[221]
+	mi := &file_api_api_proto_msgTypes[217]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17323,31 +16725,31 @@ func (x *EditChannelCanvasResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EditChannelCanvasResponse.ProtoReflect.Descriptor instead.
 func (*EditChannelCanvasResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{221}
+	return file_api_api_proto_rawDescGZIP(), []int{217}
 }
 
-func (x *EditChannelCanvasResponse) GetId() string {
+func (x *EditChannelCanvasResponse) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 type DeleteChannelCanvasRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// clan id
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// channel id
-	ChannelId string `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// canvas id
-	CanvasId      string `protobuf:"bytes,3,opt,name=canvas_id,json=canvasId,proto3" json:"canvas_id,omitempty"`
+	CanvasId      int64 `protobuf:"varint,3,opt,name=canvas_id,json=canvasId,proto3" json:"canvas_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *DeleteChannelCanvasRequest) Reset() {
 	*x = DeleteChannelCanvasRequest{}
-	mi := &file_api_api_proto_msgTypes[222]
+	mi := &file_api_api_proto_msgTypes[218]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17359,7 +16761,7 @@ func (x *DeleteChannelCanvasRequest) String() string {
 func (*DeleteChannelCanvasRequest) ProtoMessage() {}
 
 func (x *DeleteChannelCanvasRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[222]
+	mi := &file_api_api_proto_msgTypes[218]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17372,40 +16774,40 @@ func (x *DeleteChannelCanvasRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteChannelCanvasRequest.ProtoReflect.Descriptor instead.
 func (*DeleteChannelCanvasRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{222}
+	return file_api_api_proto_rawDescGZIP(), []int{218}
 }
 
-func (x *DeleteChannelCanvasRequest) GetClanId() string {
+func (x *DeleteChannelCanvasRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *DeleteChannelCanvasRequest) GetChannelId() string {
+func (x *DeleteChannelCanvasRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *DeleteChannelCanvasRequest) GetCanvasId() string {
+func (x *DeleteChannelCanvasRequest) GetCanvasId() int64 {
 	if x != nil {
 		return x.CanvasId
 	}
-	return ""
+	return 0
 }
 
 type ChannelCanvasListRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// clan id
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// channel id
-	ChannelId string `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// limit
-	Limit *wrapperspb.Int32Value `protobuf:"bytes,3,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit int32 `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
 	// page
-	Page *wrapperspb.Int32Value `protobuf:"bytes,4,opt,name=page,proto3" json:"page,omitempty"`
+	Page int32 `protobuf:"varint,4,opt,name=page,proto3" json:"page,omitempty"`
 	Cursor        string `protobuf:"bytes,5,opt,name=cursor,proto3" json:"cursor,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -17413,7 +16815,7 @@ type ChannelCanvasListRequest struct {
 
 func (x *ChannelCanvasListRequest) Reset() {
 	*x = ChannelCanvasListRequest{}
-	mi := &file_api_api_proto_msgTypes[223]
+	mi := &file_api_api_proto_msgTypes[219]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17425,7 +16827,7 @@ func (x *ChannelCanvasListRequest) String() string {
 func (*ChannelCanvasListRequest) ProtoMessage() {}
 
 func (x *ChannelCanvasListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[223]
+	mi := &file_api_api_proto_msgTypes[219]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17438,35 +16840,35 @@ func (x *ChannelCanvasListRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChannelCanvasListRequest.ProtoReflect.Descriptor instead.
 func (*ChannelCanvasListRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{223}
+	return file_api_api_proto_rawDescGZIP(), []int{219}
 }
 
-func (x *ChannelCanvasListRequest) GetClanId() string {
+func (x *ChannelCanvasListRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *ChannelCanvasListRequest) GetChannelId() string {
+func (x *ChannelCanvasListRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *ChannelCanvasListRequest) GetLimit() *wrapperspb.Int32Value {
+func (x *ChannelCanvasListRequest) GetLimit() int32 {
 	if x != nil {
 		return x.Limit
 	}
-	return nil
+	return 0
 }
 
-func (x *ChannelCanvasListRequest) GetPage() *wrapperspb.Int32Value {
+func (x *ChannelCanvasListRequest) GetPage() int32 {
 	if x != nil {
 		return x.Page
 	}
-	return nil
+	return 0
 }
 
 func (x *ChannelCanvasListRequest) GetCursor() string {
@@ -17479,7 +16881,7 @@ func (x *ChannelCanvasListRequest) GetCursor() string {
 type ChannelCanvasItem struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// id
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// title
 	Title string `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
 	// is default
@@ -17487,16 +16889,16 @@ type ChannelCanvasItem struct {
 	// content
 	Content string `protobuf:"bytes,4,opt,name=content,proto3" json:"content,omitempty"`
 	// creator
-	CreatorId string `protobuf:"bytes,5,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
-	UpdateTime    *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
-	CreateTime    *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	CreatorId int64 `protobuf:"varint,5,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
+	UpdateTimeSeconds uint32 `protobuf:"varint,6,opt,name=update_time_seconds,json=updateTimeSeconds,proto3" json:"update_time_seconds,omitempty"`
+	CreateTimeSeconds uint32 `protobuf:"varint,7,opt,name=create_time_seconds,json=createTimeSeconds,proto3" json:"create_time_seconds,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *ChannelCanvasItem) Reset() {
 	*x = ChannelCanvasItem{}
-	mi := &file_api_api_proto_msgTypes[224]
+	mi := &file_api_api_proto_msgTypes[220]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17508,7 +16910,7 @@ func (x *ChannelCanvasItem) String() string {
 func (*ChannelCanvasItem) ProtoMessage() {}
 
 func (x *ChannelCanvasItem) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[224]
+	mi := &file_api_api_proto_msgTypes[220]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17521,14 +16923,14 @@ func (x *ChannelCanvasItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChannelCanvasItem.ProtoReflect.Descriptor instead.
 func (*ChannelCanvasItem) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{224}
+	return file_api_api_proto_rawDescGZIP(), []int{220}
 }
 
-func (x *ChannelCanvasItem) GetId() string {
+func (x *ChannelCanvasItem) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 func (x *ChannelCanvasItem) GetTitle() string {
@@ -17552,43 +16954,43 @@ func (x *ChannelCanvasItem) GetContent() string {
 	return ""
 }
 
-func (x *ChannelCanvasItem) GetCreatorId() string {
+func (x *ChannelCanvasItem) GetCreatorId() int64 {
 	if x != nil {
 		return x.CreatorId
 	}
-	return ""
+	return 0
 }
 
-func (x *ChannelCanvasItem) GetUpdateTime() *timestamppb.Timestamp {
+func (x *ChannelCanvasItem) GetUpdateTimeSeconds() uint32 {
 	if x != nil {
-		return x.UpdateTime
+		return x.UpdateTimeSeconds
 	}
-	return nil
+	return 0
 }
 
-func (x *ChannelCanvasItem) GetCreateTime() *timestamppb.Timestamp {
+func (x *ChannelCanvasItem) GetCreateTimeSeconds() uint32 {
 	if x != nil {
-		return x.CreateTime
+		return x.CreateTimeSeconds
 	}
-	return nil
+	return 0
 }
 
 type ChannelCanvasListResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// clan id
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// channel id
-	ChannelId string `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// channel doc item
 	ChannelCanvases []*ChannelCanvasItem `protobuf:"bytes,3,rep,name=channel_canvases,json=channelCanvases,proto3" json:"channel_canvases,omitempty"`
-	Count         int64 `protobuf:"varint,4,opt,name=count,proto3" json:"count,omitempty"`
+	Count         int32 `protobuf:"varint,4,opt,name=count,proto3" json:"count,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ChannelCanvasListResponse) Reset() {
 	*x = ChannelCanvasListResponse{}
-	mi := &file_api_api_proto_msgTypes[225]
+	mi := &file_api_api_proto_msgTypes[221]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17600,7 +17002,7 @@ func (x *ChannelCanvasListResponse) String() string {
 func (*ChannelCanvasListResponse) ProtoMessage() {}
 
 func (x *ChannelCanvasListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[225]
+	mi := &file_api_api_proto_msgTypes[221]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17613,21 +17015,21 @@ func (x *ChannelCanvasListResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChannelCanvasListResponse.ProtoReflect.Descriptor instead.
 func (*ChannelCanvasListResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{225}
+	return file_api_api_proto_rawDescGZIP(), []int{221}
 }
 
-func (x *ChannelCanvasListResponse) GetClanId() string {
+func (x *ChannelCanvasListResponse) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *ChannelCanvasListResponse) GetChannelId() string {
+func (x *ChannelCanvasListResponse) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *ChannelCanvasListResponse) GetChannelCanvases() []*ChannelCanvasItem {
@@ -17637,7 +17039,7 @@ func (x *ChannelCanvasListResponse) GetChannelCanvases() []*ChannelCanvasItem {
 	return nil
 }
 
-func (x *ChannelCanvasListResponse) GetCount() int64 {
+func (x *ChannelCanvasListResponse) GetCount() int32 {
 	if x != nil {
 		return x.Count
 	}
@@ -17647,18 +17049,18 @@ func (x *ChannelCanvasListResponse) GetCount() int64 {
 type ChannelCanvasDetailRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// id
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// clan id
-	ClanId string `protobuf:"bytes,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// channel id
-	ChannelId     string `protobuf:"bytes,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId     int64 `protobuf:"varint,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ChannelCanvasDetailRequest) Reset() {
 	*x = ChannelCanvasDetailRequest{}
-	mi := &file_api_api_proto_msgTypes[226]
+	mi := &file_api_api_proto_msgTypes[222]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17670,7 +17072,7 @@ func (x *ChannelCanvasDetailRequest) String() string {
 func (*ChannelCanvasDetailRequest) ProtoMessage() {}
 
 func (x *ChannelCanvasDetailRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[226]
+	mi := &file_api_api_proto_msgTypes[222]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17683,42 +17085,42 @@ func (x *ChannelCanvasDetailRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChannelCanvasDetailRequest.ProtoReflect.Descriptor instead.
 func (*ChannelCanvasDetailRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{226}
+	return file_api_api_proto_rawDescGZIP(), []int{222}
 }
 
-func (x *ChannelCanvasDetailRequest) GetId() string {
+func (x *ChannelCanvasDetailRequest) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
-func (x *ChannelCanvasDetailRequest) GetClanId() string {
+func (x *ChannelCanvasDetailRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *ChannelCanvasDetailRequest) GetChannelId() string {
+func (x *ChannelCanvasDetailRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 type ChannelCanvasDetailResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// id
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// title
 	Title string `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
 	// content
 	Content string `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`
 	// creator
-	CreatorId string `protobuf:"bytes,4,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
+	CreatorId int64 `protobuf:"varint,4,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
 	// editor
-	EditorId string `protobuf:"bytes,5,opt,name=editor_id,json=editorId,proto3" json:"editor_id,omitempty"`
+	EditorId int64 `protobuf:"varint,5,opt,name=editor_id,json=editorId,proto3" json:"editor_id,omitempty"`
 	// is default
 	IsDefault     bool `protobuf:"varint,6,opt,name=is_default,json=isDefault,proto3" json:"is_default,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -17727,7 +17129,7 @@ type ChannelCanvasDetailResponse struct {
 
 func (x *ChannelCanvasDetailResponse) Reset() {
 	*x = ChannelCanvasDetailResponse{}
-	mi := &file_api_api_proto_msgTypes[227]
+	mi := &file_api_api_proto_msgTypes[223]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17739,7 +17141,7 @@ func (x *ChannelCanvasDetailResponse) String() string {
 func (*ChannelCanvasDetailResponse) ProtoMessage() {}
 
 func (x *ChannelCanvasDetailResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[227]
+	mi := &file_api_api_proto_msgTypes[223]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17752,14 +17154,14 @@ func (x *ChannelCanvasDetailResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChannelCanvasDetailResponse.ProtoReflect.Descriptor instead.
 func (*ChannelCanvasDetailResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{227}
+	return file_api_api_proto_rawDescGZIP(), []int{223}
 }
 
-func (x *ChannelCanvasDetailResponse) GetId() string {
+func (x *ChannelCanvasDetailResponse) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 func (x *ChannelCanvasDetailResponse) GetTitle() string {
@@ -17776,18 +17178,18 @@ func (x *ChannelCanvasDetailResponse) GetContent() string {
 	return ""
 }
 
-func (x *ChannelCanvasDetailResponse) GetCreatorId() string {
+func (x *ChannelCanvasDetailResponse) GetCreatorId() int64 {
 	if x != nil {
 		return x.CreatorId
 	}
-	return ""
+	return 0
 }
 
-func (x *ChannelCanvasDetailResponse) GetEditorId() string {
+func (x *ChannelCanvasDetailResponse) GetEditorId() int64 {
 	if x != nil {
 		return x.EditorId
 	}
-	return ""
+	return 0
 }
 
 func (x *ChannelCanvasDetailResponse) GetIsDefault() bool {
@@ -17799,15 +17201,15 @@ func (x *ChannelCanvasDetailResponse) GetIsDefault() bool {
 
 type AddFavoriteChannelRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ChannelId     string                 `protobuf:"bytes,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	ClanId        string                 `protobuf:"bytes,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ChannelId     int64                  `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AddFavoriteChannelRequest) Reset() {
 	*x = AddFavoriteChannelRequest{}
-	mi := &file_api_api_proto_msgTypes[228]
+	mi := &file_api_api_proto_msgTypes[224]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17819,7 +17221,7 @@ func (x *AddFavoriteChannelRequest) String() string {
 func (*AddFavoriteChannelRequest) ProtoMessage() {}
 
 func (x *AddFavoriteChannelRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[228]
+	mi := &file_api_api_proto_msgTypes[224]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17832,34 +17234,34 @@ func (x *AddFavoriteChannelRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddFavoriteChannelRequest.ProtoReflect.Descriptor instead.
 func (*AddFavoriteChannelRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{228}
+	return file_api_api_proto_rawDescGZIP(), []int{224}
 }
 
-func (x *AddFavoriteChannelRequest) GetChannelId() string {
+func (x *AddFavoriteChannelRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *AddFavoriteChannelRequest) GetClanId() string {
+func (x *AddFavoriteChannelRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 type RemoveFavoriteChannelRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ClanId        string                 `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
-	ChannelId     string                 `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ChannelId     int64                  `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *RemoveFavoriteChannelRequest) Reset() {
 	*x = RemoveFavoriteChannelRequest{}
-	mi := &file_api_api_proto_msgTypes[229]
+	mi := &file_api_api_proto_msgTypes[225]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17871,7 +17273,7 @@ func (x *RemoveFavoriteChannelRequest) String() string {
 func (*RemoveFavoriteChannelRequest) ProtoMessage() {}
 
 func (x *RemoveFavoriteChannelRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[229]
+	mi := &file_api_api_proto_msgTypes[225]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17884,33 +17286,33 @@ func (x *RemoveFavoriteChannelRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveFavoriteChannelRequest.ProtoReflect.Descriptor instead.
 func (*RemoveFavoriteChannelRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{229}
+	return file_api_api_proto_rawDescGZIP(), []int{225}
 }
 
-func (x *RemoveFavoriteChannelRequest) GetClanId() string {
+func (x *RemoveFavoriteChannelRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *RemoveFavoriteChannelRequest) GetChannelId() string {
+func (x *RemoveFavoriteChannelRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 type AddFavoriteChannelResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ChannelId     string                 `protobuf:"bytes,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId     int64                  `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AddFavoriteChannelResponse) Reset() {
 	*x = AddFavoriteChannelResponse{}
-	mi := &file_api_api_proto_msgTypes[230]
+	mi := &file_api_api_proto_msgTypes[226]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17922,7 +17324,7 @@ func (x *AddFavoriteChannelResponse) String() string {
 func (*AddFavoriteChannelResponse) ProtoMessage() {}
 
 func (x *AddFavoriteChannelResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[230]
+	mi := &file_api_api_proto_msgTypes[226]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17935,26 +17337,26 @@ func (x *AddFavoriteChannelResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddFavoriteChannelResponse.ProtoReflect.Descriptor instead.
 func (*AddFavoriteChannelResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{230}
+	return file_api_api_proto_rawDescGZIP(), []int{226}
 }
 
-func (x *AddFavoriteChannelResponse) GetChannelId() string {
+func (x *AddFavoriteChannelResponse) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 type ListFavoriteChannelRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ClanId        string                 `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListFavoriteChannelRequest) Reset() {
 	*x = ListFavoriteChannelRequest{}
-	mi := &file_api_api_proto_msgTypes[231]
+	mi := &file_api_api_proto_msgTypes[227]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -17966,7 +17368,7 @@ func (x *ListFavoriteChannelRequest) String() string {
 func (*ListFavoriteChannelRequest) ProtoMessage() {}
 
 func (x *ListFavoriteChannelRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[231]
+	mi := &file_api_api_proto_msgTypes[227]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -17979,26 +17381,26 @@ func (x *ListFavoriteChannelRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListFavoriteChannelRequest.ProtoReflect.Descriptor instead.
 func (*ListFavoriteChannelRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{231}
+	return file_api_api_proto_rawDescGZIP(), []int{227}
 }
 
-func (x *ListFavoriteChannelRequest) GetClanId() string {
+func (x *ListFavoriteChannelRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 type ListFavoriteChannelResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ChannelIds    []string               `protobuf:"bytes,1,rep,name=channel_ids,json=channelIds,proto3" json:"channel_ids,omitempty"`
+	ChannelIds    []int64                `protobuf:"varint,1,rep,packed,name=channel_ids,json=channelIds,proto3" json:"channel_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListFavoriteChannelResponse) Reset() {
 	*x = ListFavoriteChannelResponse{}
-	mi := &file_api_api_proto_msgTypes[232]
+	mi := &file_api_api_proto_msgTypes[228]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18010,7 +17412,7 @@ func (x *ListFavoriteChannelResponse) String() string {
 func (*ListFavoriteChannelResponse) ProtoMessage() {}
 
 func (x *ListFavoriteChannelResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[232]
+	mi := &file_api_api_proto_msgTypes[228]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18023,10 +17425,10 @@ func (x *ListFavoriteChannelResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListFavoriteChannelResponse.ProtoReflect.Descriptor instead.
 func (*ListFavoriteChannelResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{232}
+	return file_api_api_proto_rawDescGZIP(), []int{228}
 }
 
-func (x *ListFavoriteChannelResponse) GetChannelIds() []string {
+func (x *ListFavoriteChannelResponse) GetChannelIds() []int64 {
 	if x != nil {
 		return x.ChannelIds
 	}
@@ -18035,13 +17437,13 @@ func (x *ListFavoriteChannelResponse) GetChannelIds() []string {
 
 type UserActivity struct {
 	state               protoimpl.MessageState `protogen:"open.v1"`
-	UserId              string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId              int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	ActivityName        string                 `protobuf:"bytes,2,opt,name=activity_name,json=activityName,proto3" json:"activity_name,omitempty"`
 	ActivityType        int32                  `protobuf:"varint,3,opt,name=activity_type,json=activityType,proto3" json:"activity_type,omitempty"`
 	ActivityDescription string                 `protobuf:"bytes,4,opt,name=activity_description,json=activityDescription,proto3" json:"activity_description,omitempty"`
-	StartTime           *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
-	EndTime             *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
-	ApplicationId       string                 `protobuf:"bytes,7,opt,name=application_id,json=applicationId,proto3" json:"application_id,omitempty"`
+	StartTimeSeconds    uint32                 `protobuf:"varint,5,opt,name=start_time_seconds,json=startTimeSeconds,proto3" json:"start_time_seconds,omitempty"`
+	EndTimeSeconds      uint32                 `protobuf:"varint,6,opt,name=end_time_seconds,json=endTimeSeconds,proto3" json:"end_time_seconds,omitempty"`
+	ApplicationId       int64                  `protobuf:"varint,7,opt,name=application_id,json=applicationId,proto3" json:"application_id,omitempty"`
 	Status              int32                  `protobuf:"varint,8,opt,name=status,proto3" json:"status,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
@@ -18049,7 +17451,7 @@ type UserActivity struct {
 
 func (x *UserActivity) Reset() {
 	*x = UserActivity{}
-	mi := &file_api_api_proto_msgTypes[233]
+	mi := &file_api_api_proto_msgTypes[229]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18061,7 +17463,7 @@ func (x *UserActivity) String() string {
 func (*UserActivity) ProtoMessage() {}
 
 func (x *UserActivity) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[233]
+	mi := &file_api_api_proto_msgTypes[229]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18074,14 +17476,14 @@ func (x *UserActivity) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserActivity.ProtoReflect.Descriptor instead.
 func (*UserActivity) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{233}
+	return file_api_api_proto_rawDescGZIP(), []int{229}
 }
 
-func (x *UserActivity) GetUserId() string {
+func (x *UserActivity) GetUserId() int64 {
 	if x != nil {
 		return x.UserId
 	}
-	return ""
+	return 0
 }
 
 func (x *UserActivity) GetActivityName() string {
@@ -18105,25 +17507,25 @@ func (x *UserActivity) GetActivityDescription() string {
 	return ""
 }
 
-func (x *UserActivity) GetStartTime() *timestamppb.Timestamp {
+func (x *UserActivity) GetStartTimeSeconds() uint32 {
 	if x != nil {
-		return x.StartTime
+		return x.StartTimeSeconds
 	}
-	return nil
+	return 0
 }
 
-func (x *UserActivity) GetEndTime() *timestamppb.Timestamp {
+func (x *UserActivity) GetEndTimeSeconds() uint32 {
 	if x != nil {
-		return x.EndTime
+		return x.EndTimeSeconds
 	}
-	return nil
+	return 0
 }
 
-func (x *UserActivity) GetApplicationId() string {
+func (x *UserActivity) GetApplicationId() int64 {
 	if x != nil {
 		return x.ApplicationId
 	}
-	return ""
+	return 0
 }
 
 func (x *UserActivity) GetStatus() int32 {
@@ -18142,7 +17544,7 @@ type ListUserActivity struct {
 
 func (x *ListUserActivity) Reset() {
 	*x = ListUserActivity{}
-	mi := &file_api_api_proto_msgTypes[234]
+	mi := &file_api_api_proto_msgTypes[230]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18154,7 +17556,7 @@ func (x *ListUserActivity) String() string {
 func (*ListUserActivity) ProtoMessage() {}
 
 func (x *ListUserActivity) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[234]
+	mi := &file_api_api_proto_msgTypes[230]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18167,7 +17569,7 @@ func (x *ListUserActivity) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListUserActivity.ProtoReflect.Descriptor instead.
 func (*ListUserActivity) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{234}
+	return file_api_api_proto_rawDescGZIP(), []int{230}
 }
 
 func (x *ListUserActivity) GetActivities() []*UserActivity {
@@ -18182,8 +17584,8 @@ type CreateActivityRequest struct {
 	ActivityName        string                 `protobuf:"bytes,1,opt,name=activity_name,json=activityName,proto3" json:"activity_name,omitempty"`
 	ActivityType        int32                  `protobuf:"varint,2,opt,name=activity_type,json=activityType,proto3" json:"activity_type,omitempty"`
 	ActivityDescription string                 `protobuf:"bytes,3,opt,name=activity_description,json=activityDescription,proto3" json:"activity_description,omitempty"`
-	StartTime           *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
-	ApplicationId       string                 `protobuf:"bytes,5,opt,name=application_id,json=applicationId,proto3" json:"application_id,omitempty"`
+	StartTimeSeconds    uint32                 `protobuf:"varint,4,opt,name=start_time_seconds,json=startTimeSeconds,proto3" json:"start_time_seconds,omitempty"`
+	ApplicationId       int64                  `protobuf:"varint,5,opt,name=application_id,json=applicationId,proto3" json:"application_id,omitempty"`
 	Status              int32                  `protobuf:"varint,6,opt,name=status,proto3" json:"status,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
@@ -18191,7 +17593,7 @@ type CreateActivityRequest struct {
 
 func (x *CreateActivityRequest) Reset() {
 	*x = CreateActivityRequest{}
-	mi := &file_api_api_proto_msgTypes[235]
+	mi := &file_api_api_proto_msgTypes[231]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18203,7 +17605,7 @@ func (x *CreateActivityRequest) String() string {
 func (*CreateActivityRequest) ProtoMessage() {}
 
 func (x *CreateActivityRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[235]
+	mi := &file_api_api_proto_msgTypes[231]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18216,7 +17618,7 @@ func (x *CreateActivityRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateActivityRequest.ProtoReflect.Descriptor instead.
 func (*CreateActivityRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{235}
+	return file_api_api_proto_rawDescGZIP(), []int{231}
 }
 
 func (x *CreateActivityRequest) GetActivityName() string {
@@ -18240,18 +17642,18 @@ func (x *CreateActivityRequest) GetActivityDescription() string {
 	return ""
 }
 
-func (x *CreateActivityRequest) GetStartTime() *timestamppb.Timestamp {
+func (x *CreateActivityRequest) GetStartTimeSeconds() uint32 {
 	if x != nil {
-		return x.StartTime
+		return x.StartTimeSeconds
 	}
-	return nil
+	return 0
 }
 
-func (x *CreateActivityRequest) GetApplicationId() string {
+func (x *CreateActivityRequest) GetApplicationId() int64 {
 	if x != nil {
 		return x.ApplicationId
 	}
-	return ""
+	return 0
 }
 
 func (x *CreateActivityRequest) GetStatus() int32 {
@@ -18264,11 +17666,11 @@ func (x *CreateActivityRequest) GetStatus() int32 {
 type LoginIDResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// loginId
-	LoginId string `protobuf:"bytes,1,opt,name=login_id,json=loginId,proto3" json:"login_id,omitempty"`
+	LoginId int64 `protobuf:"varint,1,opt,name=login_id,json=loginId,proto3" json:"login_id,omitempty"`
 	// status login
 	Status int32 `protobuf:"varint,2,opt,name=status,proto3" json:"status,omitempty"`
 	// create time
-	CreateTimeSecond int64 `protobuf:"varint,3,opt,name=create_time_second,json=createTimeSecond,proto3" json:"create_time_second,omitempty"`
+	CreateTimeSeconds int64 `protobuf:"varint,3,opt,name=create_time_seconds,json=createTimeSeconds,proto3" json:"create_time_seconds,omitempty"`
 	// platform
 	Platform string `protobuf:"bytes,4,opt,name=platform,proto3" json:"platform,omitempty"`
 	// user_id
@@ -18283,7 +17685,7 @@ type LoginIDResponse struct {
 
 func (x *LoginIDResponse) Reset() {
 	*x = LoginIDResponse{}
-	mi := &file_api_api_proto_msgTypes[236]
+	mi := &file_api_api_proto_msgTypes[232]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18295,7 +17697,7 @@ func (x *LoginIDResponse) String() string {
 func (*LoginIDResponse) ProtoMessage() {}
 
 func (x *LoginIDResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[236]
+	mi := &file_api_api_proto_msgTypes[232]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18308,14 +17710,14 @@ func (x *LoginIDResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoginIDResponse.ProtoReflect.Descriptor instead.
 func (*LoginIDResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{236}
+	return file_api_api_proto_rawDescGZIP(), []int{232}
 }
 
-func (x *LoginIDResponse) GetLoginId() string {
+func (x *LoginIDResponse) GetLoginId() int64 {
 	if x != nil {
 		return x.LoginId
 	}
-	return ""
+	return 0
 }
 
 func (x *LoginIDResponse) GetStatus() int32 {
@@ -18325,9 +17727,9 @@ func (x *LoginIDResponse) GetStatus() int32 {
 	return 0
 }
 
-func (x *LoginIDResponse) GetCreateTimeSecond() int64 {
+func (x *LoginIDResponse) GetCreateTimeSeconds() int64 {
 	if x != nil {
-		return x.CreateTimeSecond
+		return x.CreateTimeSeconds
 	}
 	return 0
 }
@@ -18372,7 +17774,7 @@ type LoginRequest struct {
 
 func (x *LoginRequest) Reset() {
 	*x = LoginRequest{}
-	mi := &file_api_api_proto_msgTypes[237]
+	mi := &file_api_api_proto_msgTypes[233]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18384,7 +17786,7 @@ func (x *LoginRequest) String() string {
 func (*LoginRequest) ProtoMessage() {}
 
 func (x *LoginRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[237]
+	mi := &file_api_api_proto_msgTypes[233]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18397,7 +17799,7 @@ func (x *LoginRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LoginRequest.ProtoReflect.Descriptor instead.
 func (*LoginRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{237}
+	return file_api_api_proto_rawDescGZIP(), []int{233}
 }
 
 func (x *LoginRequest) GetPlatform() string {
@@ -18417,16 +17819,16 @@ func (x *LoginRequest) GetAddress() string {
 type ConfirmLoginRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// loginId
-	LoginId string `protobuf:"bytes,1,opt,name=login_id,json=loginId,proto3" json:"login_id,omitempty"`
+	LoginId int64 `protobuf:"varint,1,opt,name=login_id,json=loginId,proto3" json:"login_id,omitempty"`
 	// Whether to enable "Remember Me" for extended session duration.
-	IsRemember    *wrapperspb.BoolValue `protobuf:"bytes,2,opt,name=is_remember,json=isRemember,proto3" json:"is_remember,omitempty"`
+	IsRemember    bool `protobuf:"varint,2,opt,name=is_remember,json=isRemember,proto3" json:"is_remember,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ConfirmLoginRequest) Reset() {
 	*x = ConfirmLoginRequest{}
-	mi := &file_api_api_proto_msgTypes[238]
+	mi := &file_api_api_proto_msgTypes[234]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18438,7 +17840,7 @@ func (x *ConfirmLoginRequest) String() string {
 func (*ConfirmLoginRequest) ProtoMessage() {}
 
 func (x *ConfirmLoginRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[238]
+	mi := &file_api_api_proto_msgTypes[234]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18451,21 +17853,21 @@ func (x *ConfirmLoginRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfirmLoginRequest.ProtoReflect.Descriptor instead.
 func (*ConfirmLoginRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{238}
+	return file_api_api_proto_rawDescGZIP(), []int{234}
 }
 
-func (x *ConfirmLoginRequest) GetLoginId() string {
+func (x *ConfirmLoginRequest) GetLoginId() int64 {
 	if x != nil {
 		return x.LoginId
 	}
-	return ""
+	return 0
 }
 
-func (x *ConfirmLoginRequest) GetIsRemember() *wrapperspb.BoolValue {
+func (x *ConfirmLoginRequest) GetIsRemember() bool {
 	if x != nil {
 		return x.IsRemember
 	}
-	return nil
+	return false
 }
 
 type PubKey struct {
@@ -18478,7 +17880,7 @@ type PubKey struct {
 
 func (x *PubKey) Reset() {
 	*x = PubKey{}
-	mi := &file_api_api_proto_msgTypes[239]
+	mi := &file_api_api_proto_msgTypes[235]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18490,7 +17892,7 @@ func (x *PubKey) String() string {
 func (*PubKey) ProtoMessage() {}
 
 func (x *PubKey) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[239]
+	mi := &file_api_api_proto_msgTypes[235]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18503,7 +17905,7 @@ func (x *PubKey) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PubKey.ProtoReflect.Descriptor instead.
 func (*PubKey) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{239}
+	return file_api_api_proto_rawDescGZIP(), []int{235}
 }
 
 func (x *PubKey) GetEncr() []byte {
@@ -18529,7 +17931,7 @@ type PushPubKeyRequest struct {
 
 func (x *PushPubKeyRequest) Reset() {
 	*x = PushPubKeyRequest{}
-	mi := &file_api_api_proto_msgTypes[240]
+	mi := &file_api_api_proto_msgTypes[236]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18541,7 +17943,7 @@ func (x *PushPubKeyRequest) String() string {
 func (*PushPubKeyRequest) ProtoMessage() {}
 
 func (x *PushPubKeyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[240]
+	mi := &file_api_api_proto_msgTypes[236]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18554,7 +17956,7 @@ func (x *PushPubKeyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PushPubKeyRequest.ProtoReflect.Descriptor instead.
 func (*PushPubKeyRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{240}
+	return file_api_api_proto_rawDescGZIP(), []int{236}
 }
 
 func (x *PushPubKeyRequest) GetPK() *PubKey {
@@ -18566,14 +17968,14 @@ func (x *PushPubKeyRequest) GetPK() *PubKey {
 
 type GetPubKeysRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserIds       []string               `protobuf:"bytes,1,rep,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
+	UserIds       []int64                `protobuf:"varint,1,rep,packed,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetPubKeysRequest) Reset() {
 	*x = GetPubKeysRequest{}
-	mi := &file_api_api_proto_msgTypes[241]
+	mi := &file_api_api_proto_msgTypes[237]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18585,7 +17987,7 @@ func (x *GetPubKeysRequest) String() string {
 func (*GetPubKeysRequest) ProtoMessage() {}
 
 func (x *GetPubKeysRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[241]
+	mi := &file_api_api_proto_msgTypes[237]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18598,10 +18000,10 @@ func (x *GetPubKeysRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPubKeysRequest.ProtoReflect.Descriptor instead.
 func (*GetPubKeysRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{241}
+	return file_api_api_proto_rawDescGZIP(), []int{237}
 }
 
-func (x *GetPubKeysRequest) GetUserIds() []string {
+func (x *GetPubKeysRequest) GetUserIds() []int64 {
 	if x != nil {
 		return x.UserIds
 	}
@@ -18617,7 +18019,7 @@ type GetPubKeysResponse struct {
 
 func (x *GetPubKeysResponse) Reset() {
 	*x = GetPubKeysResponse{}
-	mi := &file_api_api_proto_msgTypes[242]
+	mi := &file_api_api_proto_msgTypes[238]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18629,7 +18031,7 @@ func (x *GetPubKeysResponse) String() string {
 func (*GetPubKeysResponse) ProtoMessage() {}
 
 func (x *GetPubKeysResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[242]
+	mi := &file_api_api_proto_msgTypes[238]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18642,7 +18044,7 @@ func (x *GetPubKeysResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPubKeysResponse.ProtoReflect.Descriptor instead.
 func (*GetPubKeysResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{242}
+	return file_api_api_proto_rawDescGZIP(), []int{238}
 }
 
 func (x *GetPubKeysResponse) GetPubKeys() []*GetPubKeysResponse_UserPubKey {
@@ -18655,14 +18057,14 @@ func (x *GetPubKeysResponse) GetPubKeys() []*GetPubKeysResponse_UserPubKey {
 type ChanEncryptionMethod struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Method        string                 `protobuf:"bytes,1,opt,name=method,proto3" json:"method,omitempty"`
-	ChannelId     string                 `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId     int64                  `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ChanEncryptionMethod) Reset() {
 	*x = ChanEncryptionMethod{}
-	mi := &file_api_api_proto_msgTypes[243]
+	mi := &file_api_api_proto_msgTypes[239]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18674,7 +18076,7 @@ func (x *ChanEncryptionMethod) String() string {
 func (*ChanEncryptionMethod) ProtoMessage() {}
 
 func (x *ChanEncryptionMethod) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[243]
+	mi := &file_api_api_proto_msgTypes[239]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18687,7 +18089,7 @@ func (x *ChanEncryptionMethod) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChanEncryptionMethod.ProtoReflect.Descriptor instead.
 func (*ChanEncryptionMethod) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{243}
+	return file_api_api_proto_rawDescGZIP(), []int{239}
 }
 
 func (x *ChanEncryptionMethod) GetMethod() string {
@@ -18697,11 +18099,11 @@ func (x *ChanEncryptionMethod) GetMethod() string {
 	return ""
 }
 
-func (x *ChanEncryptionMethod) GetChannelId() string {
+func (x *ChanEncryptionMethod) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 type GetKeyServerResp struct {
@@ -18713,7 +18115,7 @@ type GetKeyServerResp struct {
 
 func (x *GetKeyServerResp) Reset() {
 	*x = GetKeyServerResp{}
-	mi := &file_api_api_proto_msgTypes[244]
+	mi := &file_api_api_proto_msgTypes[240]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18725,7 +18127,7 @@ func (x *GetKeyServerResp) String() string {
 func (*GetKeyServerResp) ProtoMessage() {}
 
 func (x *GetKeyServerResp) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[244]
+	mi := &file_api_api_proto_msgTypes[240]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18738,7 +18140,7 @@ func (x *GetKeyServerResp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetKeyServerResp.ProtoReflect.Descriptor instead.
 func (*GetKeyServerResp) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{244}
+	return file_api_api_proto_rawDescGZIP(), []int{240}
 }
 
 func (x *GetKeyServerResp) GetUrl() string {
@@ -18749,24 +18151,24 @@ func (x *GetKeyServerResp) GetUrl() string {
 }
 
 type AuditLog struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	ClanId        string                 `protobuf:"bytes,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
-	ActionLog     string                 `protobuf:"bytes,4,opt,name=action_log,json=actionLog,proto3" json:"action_log,omitempty"`
-	EntityName    string                 `protobuf:"bytes,5,opt,name=entity_name,json=entityName,proto3" json:"entity_name,omitempty"`
-	EntityId      string                 `protobuf:"bytes,6,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
-	Details       string                 `protobuf:"bytes,7,opt,name=details,proto3" json:"details,omitempty"`
-	TimeLog       *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=time_log,json=timeLog,proto3" json:"time_log,omitempty"`
-	ChannelId     string                 `protobuf:"bytes,9,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	ChannelLabel  string                 `protobuf:"bytes,10,opt,name=channel_label,json=channelLabel,proto3" json:"channel_label,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	UserId         int64                  `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ClanId         int64                  `protobuf:"varint,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ActionLog      string                 `protobuf:"bytes,4,opt,name=action_log,json=actionLog,proto3" json:"action_log,omitempty"`
+	EntityName     string                 `protobuf:"bytes,5,opt,name=entity_name,json=entityName,proto3" json:"entity_name,omitempty"`
+	EntityId       int64                  `protobuf:"varint,6,opt,name=entity_id,json=entityId,proto3" json:"entity_id,omitempty"`
+	Details        string                 `protobuf:"bytes,7,opt,name=details,proto3" json:"details,omitempty"`
+	TimeLogSeconds uint32                 `protobuf:"varint,8,opt,name=time_log_seconds,json=timeLogSeconds,proto3" json:"time_log_seconds,omitempty"`
+	ChannelId      int64                  `protobuf:"varint,9,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelLabel   string                 `protobuf:"bytes,10,opt,name=channel_label,json=channelLabel,proto3" json:"channel_label,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *AuditLog) Reset() {
 	*x = AuditLog{}
-	mi := &file_api_api_proto_msgTypes[245]
+	mi := &file_api_api_proto_msgTypes[241]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18778,7 +18180,7 @@ func (x *AuditLog) String() string {
 func (*AuditLog) ProtoMessage() {}
 
 func (x *AuditLog) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[245]
+	mi := &file_api_api_proto_msgTypes[241]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18791,28 +18193,28 @@ func (x *AuditLog) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuditLog.ProtoReflect.Descriptor instead.
 func (*AuditLog) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{245}
+	return file_api_api_proto_rawDescGZIP(), []int{241}
 }
 
-func (x *AuditLog) GetId() string {
+func (x *AuditLog) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
-func (x *AuditLog) GetUserId() string {
+func (x *AuditLog) GetUserId() int64 {
 	if x != nil {
 		return x.UserId
 	}
-	return ""
+	return 0
 }
 
-func (x *AuditLog) GetClanId() string {
+func (x *AuditLog) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *AuditLog) GetActionLog() string {
@@ -18829,11 +18231,11 @@ func (x *AuditLog) GetEntityName() string {
 	return ""
 }
 
-func (x *AuditLog) GetEntityId() string {
+func (x *AuditLog) GetEntityId() int64 {
 	if x != nil {
 		return x.EntityId
 	}
-	return ""
+	return 0
 }
 
 func (x *AuditLog) GetDetails() string {
@@ -18843,18 +18245,18 @@ func (x *AuditLog) GetDetails() string {
 	return ""
 }
 
-func (x *AuditLog) GetTimeLog() *timestamppb.Timestamp {
+func (x *AuditLog) GetTimeLogSeconds() uint32 {
 	if x != nil {
-		return x.TimeLog
+		return x.TimeLogSeconds
 	}
-	return nil
+	return 0
 }
 
-func (x *AuditLog) GetChannelId() string {
+func (x *AuditLog) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *AuditLog) GetChannelLabel() string {
@@ -18875,7 +18277,7 @@ type ListAuditLog struct {
 
 func (x *ListAuditLog) Reset() {
 	*x = ListAuditLog{}
-	mi := &file_api_api_proto_msgTypes[246]
+	mi := &file_api_api_proto_msgTypes[242]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18887,7 +18289,7 @@ func (x *ListAuditLog) String() string {
 func (*ListAuditLog) ProtoMessage() {}
 
 func (x *ListAuditLog) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[246]
+	mi := &file_api_api_proto_msgTypes[242]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18900,7 +18302,7 @@ func (x *ListAuditLog) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAuditLog.ProtoReflect.Descriptor instead.
 func (*ListAuditLog) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{246}
+	return file_api_api_proto_rawDescGZIP(), []int{242}
 }
 
 func (x *ListAuditLog) GetTotalCount() int32 {
@@ -18927,8 +18329,8 @@ func (x *ListAuditLog) GetLogs() []*AuditLog {
 type ListAuditLogRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ActionLog     string                 `protobuf:"bytes,1,opt,name=action_log,json=actionLog,proto3" json:"action_log,omitempty"`
-	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	ClanId        string                 `protobuf:"bytes,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	UserId        int64                  `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	DateLog       string                 `protobuf:"bytes,4,opt,name=date_log,json=dateLog,proto3" json:"date_log,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -18936,7 +18338,7 @@ type ListAuditLogRequest struct {
 
 func (x *ListAuditLogRequest) Reset() {
 	*x = ListAuditLogRequest{}
-	mi := &file_api_api_proto_msgTypes[247]
+	mi := &file_api_api_proto_msgTypes[243]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -18948,7 +18350,7 @@ func (x *ListAuditLogRequest) String() string {
 func (*ListAuditLogRequest) ProtoMessage() {}
 
 func (x *ListAuditLogRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[247]
+	mi := &file_api_api_proto_msgTypes[243]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -18961,7 +18363,7 @@ func (x *ListAuditLogRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAuditLogRequest.ProtoReflect.Descriptor instead.
 func (*ListAuditLogRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{247}
+	return file_api_api_proto_rawDescGZIP(), []int{243}
 }
 
 func (x *ListAuditLogRequest) GetActionLog() string {
@@ -18971,18 +18373,18 @@ func (x *ListAuditLogRequest) GetActionLog() string {
 	return ""
 }
 
-func (x *ListAuditLogRequest) GetUserId() string {
+func (x *ListAuditLogRequest) GetUserId() int64 {
 	if x != nil {
 		return x.UserId
 	}
-	return ""
+	return 0
 }
 
-func (x *ListAuditLogRequest) GetClanId() string {
+func (x *ListAuditLogRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *ListAuditLogRequest) GetDateLog() string {
@@ -18995,11 +18397,11 @@ func (x *ListAuditLogRequest) GetDateLog() string {
 type TokenSentEvent struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// sender id
-	SenderId string `protobuf:"bytes,1,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
+	SenderId int64 `protobuf:"varint,1,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
 	// sender name
 	SenderName string `protobuf:"bytes,2,opt,name=sender_name,json=senderName,proto3" json:"sender_name,omitempty"`
 	// receiver
-	ReceiverId string `protobuf:"bytes,3,opt,name=receiver_id,json=receiverId,proto3" json:"receiver_id,omitempty"`
+	ReceiverId int64 `protobuf:"varint,3,opt,name=receiver_id,json=receiverId,proto3" json:"receiver_id,omitempty"`
 	// amount of token
 	Amount int32 `protobuf:"varint,4,opt,name=amount,proto3" json:"amount,omitempty"`
 	// note
@@ -19014,7 +18416,7 @@ type TokenSentEvent struct {
 
 func (x *TokenSentEvent) Reset() {
 	*x = TokenSentEvent{}
-	mi := &file_api_api_proto_msgTypes[248]
+	mi := &file_api_api_proto_msgTypes[244]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -19026,7 +18428,7 @@ func (x *TokenSentEvent) String() string {
 func (*TokenSentEvent) ProtoMessage() {}
 
 func (x *TokenSentEvent) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[248]
+	mi := &file_api_api_proto_msgTypes[244]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -19039,14 +18441,14 @@ func (x *TokenSentEvent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TokenSentEvent.ProtoReflect.Descriptor instead.
 func (*TokenSentEvent) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{248}
+	return file_api_api_proto_rawDescGZIP(), []int{244}
 }
 
-func (x *TokenSentEvent) GetSenderId() string {
+func (x *TokenSentEvent) GetSenderId() int64 {
 	if x != nil {
 		return x.SenderId
 	}
-	return ""
+	return 0
 }
 
 func (x *TokenSentEvent) GetSenderName() string {
@@ -19056,11 +18458,11 @@ func (x *TokenSentEvent) GetSenderName() string {
 	return ""
 }
 
-func (x *TokenSentEvent) GetReceiverId() string {
+func (x *TokenSentEvent) GetReceiverId() int64 {
 	if x != nil {
 		return x.ReceiverId
 	}
-	return ""
+	return 0
 }
 
 func (x *TokenSentEvent) GetAmount() int32 {
@@ -19094,7 +18496,7 @@ func (x *TokenSentEvent) GetTransactionId() string {
 type UnlockItemRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// item id
-	ItemId string `protobuf:"bytes,1,opt,name=item_id,json=itemId,proto3" json:"item_id,omitempty"`
+	ItemId int64 `protobuf:"varint,1,opt,name=item_id,json=itemId,proto3" json:"item_id,omitempty"`
 	// item type
 	ItemType      int32 `protobuf:"varint,2,opt,name=item_type,json=itemType,proto3" json:"item_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -19103,7 +18505,7 @@ type UnlockItemRequest struct {
 
 func (x *UnlockItemRequest) Reset() {
 	*x = UnlockItemRequest{}
-	mi := &file_api_api_proto_msgTypes[249]
+	mi := &file_api_api_proto_msgTypes[245]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -19115,7 +18517,7 @@ func (x *UnlockItemRequest) String() string {
 func (*UnlockItemRequest) ProtoMessage() {}
 
 func (x *UnlockItemRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[249]
+	mi := &file_api_api_proto_msgTypes[245]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -19128,14 +18530,14 @@ func (x *UnlockItemRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnlockItemRequest.ProtoReflect.Descriptor instead.
 func (*UnlockItemRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{249}
+	return file_api_api_proto_rawDescGZIP(), []int{245}
 }
 
-func (x *UnlockItemRequest) GetItemId() string {
+func (x *UnlockItemRequest) GetItemId() int64 {
 	if x != nil {
 		return x.ItemId
 	}
-	return ""
+	return 0
 }
 
 func (x *UnlockItemRequest) GetItemType() int32 {
@@ -19154,7 +18556,7 @@ type UnlockedItemResponse struct {
 
 func (x *UnlockedItemResponse) Reset() {
 	*x = UnlockedItemResponse{}
-	mi := &file_api_api_proto_msgTypes[250]
+	mi := &file_api_api_proto_msgTypes[246]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -19166,7 +18568,7 @@ func (x *UnlockedItemResponse) String() string {
 func (*UnlockedItemResponse) ProtoMessage() {}
 
 func (x *UnlockedItemResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[250]
+	mi := &file_api_api_proto_msgTypes[246]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -19179,7 +18581,7 @@ func (x *UnlockedItemResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UnlockedItemResponse.ProtoReflect.Descriptor instead.
 func (*UnlockedItemResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{250}
+	return file_api_api_proto_rawDescGZIP(), []int{246}
 }
 
 func (x *UnlockedItemResponse) GetSource() string {
@@ -19192,20 +18594,20 @@ func (x *UnlockedItemResponse) GetSource() string {
 type ListOnboardingRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// clan id
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// guide_type: 0 = greeting, 1 = rule, 2 = task, 3 = question
-	GuideType *wrapperspb.Int32Value `protobuf:"bytes,2,opt,name=guide_type,json=guideType,proto3" json:"guide_type,omitempty"`
+	GuideType int32 `protobuf:"varint,2,opt,name=guide_type,json=guideType,proto3" json:"guide_type,omitempty"`
 	// limit
-	Limit *wrapperspb.Int32Value `protobuf:"bytes,3,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit int32 `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
 	// page
-	Page          *wrapperspb.Int32Value `protobuf:"bytes,4,opt,name=page,proto3" json:"page,omitempty"`
+	Page          int32 `protobuf:"varint,4,opt,name=page,proto3" json:"page,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListOnboardingRequest) Reset() {
 	*x = ListOnboardingRequest{}
-	mi := &file_api_api_proto_msgTypes[251]
+	mi := &file_api_api_proto_msgTypes[247]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -19217,7 +18619,7 @@ func (x *ListOnboardingRequest) String() string {
 func (*ListOnboardingRequest) ProtoMessage() {}
 
 func (x *ListOnboardingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[251]
+	mi := &file_api_api_proto_msgTypes[247]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -19230,35 +18632,35 @@ func (x *ListOnboardingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListOnboardingRequest.ProtoReflect.Descriptor instead.
 func (*ListOnboardingRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{251}
+	return file_api_api_proto_rawDescGZIP(), []int{247}
 }
 
-func (x *ListOnboardingRequest) GetClanId() string {
+func (x *ListOnboardingRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *ListOnboardingRequest) GetGuideType() *wrapperspb.Int32Value {
+func (x *ListOnboardingRequest) GetGuideType() int32 {
 	if x != nil {
 		return x.GuideType
 	}
-	return nil
+	return 0
 }
 
-func (x *ListOnboardingRequest) GetLimit() *wrapperspb.Int32Value {
+func (x *ListOnboardingRequest) GetLimit() int32 {
 	if x != nil {
 		return x.Limit
 	}
-	return nil
+	return 0
 }
 
-func (x *ListOnboardingRequest) GetPage() *wrapperspb.Int32Value {
+func (x *ListOnboardingRequest) GetPage() int32 {
 	if x != nil {
 		return x.Page
 	}
-	return nil
+	return 0
 }
 
 type ListOnboardingResponse struct {
@@ -19270,7 +18672,7 @@ type ListOnboardingResponse struct {
 
 func (x *ListOnboardingResponse) Reset() {
 	*x = ListOnboardingResponse{}
-	mi := &file_api_api_proto_msgTypes[252]
+	mi := &file_api_api_proto_msgTypes[248]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -19282,7 +18684,7 @@ func (x *ListOnboardingResponse) String() string {
 func (*ListOnboardingResponse) ProtoMessage() {}
 
 func (x *ListOnboardingResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[252]
+	mi := &file_api_api_proto_msgTypes[248]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -19295,7 +18697,7 @@ func (x *ListOnboardingResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListOnboardingResponse.ProtoReflect.Descriptor instead.
 func (*ListOnboardingResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{252}
+	return file_api_api_proto_rawDescGZIP(), []int{248}
 }
 
 func (x *ListOnboardingResponse) GetListOnboarding() []*OnboardingItem {
@@ -19308,15 +18710,15 @@ func (x *ListOnboardingResponse) GetListOnboarding() []*OnboardingItem {
 type OnboardingItem struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// id
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// clan id
-	ClanId string `protobuf:"bytes,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// guide_type: 0 = greeting, 1 = rule, 2 = task, 3 = question
 	GuideType int32 `protobuf:"varint,3,opt,name=guide_type,json=guideType,proto3" json:"guide_type,omitempty"`
 	// task type
 	TaskType int32 `protobuf:"varint,4,opt,name=task_type,json=taskType,proto3" json:"task_type,omitempty"`
 	// channel id
-	ChannelId string `protobuf:"bytes,5,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,5,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// title
 	Title string `protobuf:"bytes,6,opt,name=title,proto3" json:"title,omitempty"`
 	// content
@@ -19326,16 +18728,16 @@ type OnboardingItem struct {
 	// answers
 	Answers []*OnboardingAnswer `protobuf:"bytes,9,rep,name=answers,proto3" json:"answers,omitempty"`
 	// The UNIX time (for gRPC clients) or ISO string (for REST clients) when the message was created.
-	CreateTime *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
+	CreateTimeSeconds uint32 `protobuf:"varint,10,opt,name=create_time_seconds,json=createTimeSeconds,proto3" json:"create_time_seconds,omitempty"`
 	// The UNIX time (for gRPC clients) or ISO string (for REST clients) when the message was last updated.
-	UpdateTime    *timestamppb.Timestamp `protobuf:"bytes,11,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	UpdateTimeSeconds uint32 `protobuf:"varint,11,opt,name=update_time_seconds,json=updateTimeSeconds,proto3" json:"update_time_seconds,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *OnboardingItem) Reset() {
 	*x = OnboardingItem{}
-	mi := &file_api_api_proto_msgTypes[253]
+	mi := &file_api_api_proto_msgTypes[249]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -19347,7 +18749,7 @@ func (x *OnboardingItem) String() string {
 func (*OnboardingItem) ProtoMessage() {}
 
 func (x *OnboardingItem) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[253]
+	mi := &file_api_api_proto_msgTypes[249]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -19360,21 +18762,21 @@ func (x *OnboardingItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OnboardingItem.ProtoReflect.Descriptor instead.
 func (*OnboardingItem) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{253}
+	return file_api_api_proto_rawDescGZIP(), []int{249}
 }
 
-func (x *OnboardingItem) GetId() string {
+func (x *OnboardingItem) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
-func (x *OnboardingItem) GetClanId() string {
+func (x *OnboardingItem) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *OnboardingItem) GetGuideType() int32 {
@@ -19391,11 +18793,11 @@ func (x *OnboardingItem) GetTaskType() int32 {
 	return 0
 }
 
-func (x *OnboardingItem) GetChannelId() string {
+func (x *OnboardingItem) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *OnboardingItem) GetTitle() string {
@@ -19426,18 +18828,18 @@ func (x *OnboardingItem) GetAnswers() []*OnboardingAnswer {
 	return nil
 }
 
-func (x *OnboardingItem) GetCreateTime() *timestamppb.Timestamp {
+func (x *OnboardingItem) GetCreateTimeSeconds() uint32 {
 	if x != nil {
-		return x.CreateTime
+		return x.CreateTimeSeconds
 	}
-	return nil
+	return 0
 }
 
-func (x *OnboardingItem) GetUpdateTime() *timestamppb.Timestamp {
+func (x *OnboardingItem) GetUpdateTimeSeconds() uint32 {
 	if x != nil {
-		return x.UpdateTime
+		return x.UpdateTimeSeconds
 	}
-	return nil
+	return 0
 }
 
 type OnboardingAnswer struct {
@@ -19456,7 +18858,7 @@ type OnboardingAnswer struct {
 
 func (x *OnboardingAnswer) Reset() {
 	*x = OnboardingAnswer{}
-	mi := &file_api_api_proto_msgTypes[254]
+	mi := &file_api_api_proto_msgTypes[250]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -19468,7 +18870,7 @@ func (x *OnboardingAnswer) String() string {
 func (*OnboardingAnswer) ProtoMessage() {}
 
 func (x *OnboardingAnswer) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[254]
+	mi := &file_api_api_proto_msgTypes[250]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -19481,7 +18883,7 @@ func (x *OnboardingAnswer) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OnboardingAnswer.ProtoReflect.Descriptor instead.
 func (*OnboardingAnswer) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{254}
+	return file_api_api_proto_rawDescGZIP(), []int{250}
 }
 
 func (x *OnboardingAnswer) GetTitle() string {
@@ -19519,7 +18921,7 @@ type OnboardingContent struct {
 	// task type
 	TaskType int32 `protobuf:"varint,2,opt,name=task_type,json=taskType,proto3" json:"task_type,omitempty"`
 	// channel id
-	ChannelId string `protobuf:"bytes,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// title
 	Title string `protobuf:"bytes,4,opt,name=title,proto3" json:"title,omitempty"`
 	// content
@@ -19534,7 +18936,7 @@ type OnboardingContent struct {
 
 func (x *OnboardingContent) Reset() {
 	*x = OnboardingContent{}
-	mi := &file_api_api_proto_msgTypes[255]
+	mi := &file_api_api_proto_msgTypes[251]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -19546,7 +18948,7 @@ func (x *OnboardingContent) String() string {
 func (*OnboardingContent) ProtoMessage() {}
 
 func (x *OnboardingContent) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[255]
+	mi := &file_api_api_proto_msgTypes[251]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -19559,7 +18961,7 @@ func (x *OnboardingContent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OnboardingContent.ProtoReflect.Descriptor instead.
 func (*OnboardingContent) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{255}
+	return file_api_api_proto_rawDescGZIP(), []int{251}
 }
 
 func (x *OnboardingContent) GetGuideType() int32 {
@@ -19576,11 +18978,11 @@ func (x *OnboardingContent) GetTaskType() int32 {
 	return 0
 }
 
-func (x *OnboardingContent) GetChannelId() string {
+func (x *OnboardingContent) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *OnboardingContent) GetTitle() string {
@@ -19614,7 +19016,7 @@ func (x *OnboardingContent) GetAnswers() []*OnboardingAnswer {
 type CreateOnboardingRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// clan id
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// contents
 	Contents      []*OnboardingContent `protobuf:"bytes,2,rep,name=contents,proto3" json:"contents,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -19623,7 +19025,7 @@ type CreateOnboardingRequest struct {
 
 func (x *CreateOnboardingRequest) Reset() {
 	*x = CreateOnboardingRequest{}
-	mi := &file_api_api_proto_msgTypes[256]
+	mi := &file_api_api_proto_msgTypes[252]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -19635,7 +19037,7 @@ func (x *CreateOnboardingRequest) String() string {
 func (*CreateOnboardingRequest) ProtoMessage() {}
 
 func (x *CreateOnboardingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[256]
+	mi := &file_api_api_proto_msgTypes[252]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -19648,14 +19050,14 @@ func (x *CreateOnboardingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateOnboardingRequest.ProtoReflect.Descriptor instead.
 func (*CreateOnboardingRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{256}
+	return file_api_api_proto_rawDescGZIP(), []int{252}
 }
 
-func (x *CreateOnboardingRequest) GetClanId() string {
+func (x *CreateOnboardingRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *CreateOnboardingRequest) GetContents() []*OnboardingContent {
@@ -19668,13 +19070,13 @@ func (x *CreateOnboardingRequest) GetContents() []*OnboardingContent {
 type UpdateOnboardingRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// id
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// clan id
-	ClanId string `protobuf:"bytes,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// task type
-	TaskType *wrapperspb.Int32Value `protobuf:"bytes,3,opt,name=task_type,json=taskType,proto3" json:"task_type,omitempty"`
+	TaskType int32 `protobuf:"varint,3,opt,name=task_type,json=taskType,proto3" json:"task_type,omitempty"`
 	// channel id
-	ChannelId string `protobuf:"bytes,4,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId int64 `protobuf:"varint,4,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	// title
 	Title string `protobuf:"bytes,5,opt,name=title,proto3" json:"title,omitempty"`
 	// content
@@ -19689,7 +19091,7 @@ type UpdateOnboardingRequest struct {
 
 func (x *UpdateOnboardingRequest) Reset() {
 	*x = UpdateOnboardingRequest{}
-	mi := &file_api_api_proto_msgTypes[257]
+	mi := &file_api_api_proto_msgTypes[253]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -19701,7 +19103,7 @@ func (x *UpdateOnboardingRequest) String() string {
 func (*UpdateOnboardingRequest) ProtoMessage() {}
 
 func (x *UpdateOnboardingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[257]
+	mi := &file_api_api_proto_msgTypes[253]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -19714,35 +19116,35 @@ func (x *UpdateOnboardingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateOnboardingRequest.ProtoReflect.Descriptor instead.
 func (*UpdateOnboardingRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{257}
+	return file_api_api_proto_rawDescGZIP(), []int{253}
 }
 
-func (x *UpdateOnboardingRequest) GetId() string {
+func (x *UpdateOnboardingRequest) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
-func (x *UpdateOnboardingRequest) GetClanId() string {
+func (x *UpdateOnboardingRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *UpdateOnboardingRequest) GetTaskType() *wrapperspb.Int32Value {
+func (x *UpdateOnboardingRequest) GetTaskType() int32 {
 	if x != nil {
 		return x.TaskType
 	}
-	return nil
+	return 0
 }
 
-func (x *UpdateOnboardingRequest) GetChannelId() string {
+func (x *UpdateOnboardingRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *UpdateOnboardingRequest) GetTitle() string {
@@ -19776,16 +19178,16 @@ func (x *UpdateOnboardingRequest) GetAnswers() []*OnboardingAnswer {
 type OnboardingRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// id
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// clan id
-	ClanId        string `protobuf:"bytes,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64 `protobuf:"varint,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *OnboardingRequest) Reset() {
 	*x = OnboardingRequest{}
-	mi := &file_api_api_proto_msgTypes[258]
+	mi := &file_api_api_proto_msgTypes[254]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -19797,7 +19199,7 @@ func (x *OnboardingRequest) String() string {
 func (*OnboardingRequest) ProtoMessage() {}
 
 func (x *OnboardingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[258]
+	mi := &file_api_api_proto_msgTypes[254]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -19810,37 +19212,37 @@ func (x *OnboardingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OnboardingRequest.ProtoReflect.Descriptor instead.
 func (*OnboardingRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{258}
+	return file_api_api_proto_rawDescGZIP(), []int{254}
 }
 
-func (x *OnboardingRequest) GetId() string {
+func (x *OnboardingRequest) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
-func (x *OnboardingRequest) GetClanId() string {
+func (x *OnboardingRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 type ClanWebhook struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// id.
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// webhook name.
 	WebhookName string `protobuf:"bytes,2,opt,name=webhook_name,json=webhookName,proto3" json:"webhook_name,omitempty"`
 	// clan id.
-	ClanId string `protobuf:"bytes,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// active.
 	Active int32 `protobuf:"varint,4,opt,name=active,proto3" json:"active,omitempty"`
 	// URL of the webhook, which is automatically generated and different from the avatar.
 	Url string `protobuf:"bytes,5,opt,name=url,proto3" json:"url,omitempty"`
 	// creator id.
-	CreatorId string `protobuf:"bytes,6,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
+	CreatorId int64 `protobuf:"varint,6,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
 	// avatar
 	Avatar string `protobuf:"bytes,7,opt,name=avatar,proto3" json:"avatar,omitempty"`
 	// create time.
@@ -19853,7 +19255,7 @@ type ClanWebhook struct {
 
 func (x *ClanWebhook) Reset() {
 	*x = ClanWebhook{}
-	mi := &file_api_api_proto_msgTypes[259]
+	mi := &file_api_api_proto_msgTypes[255]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -19865,7 +19267,7 @@ func (x *ClanWebhook) String() string {
 func (*ClanWebhook) ProtoMessage() {}
 
 func (x *ClanWebhook) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[259]
+	mi := &file_api_api_proto_msgTypes[255]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -19878,14 +19280,14 @@ func (x *ClanWebhook) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClanWebhook.ProtoReflect.Descriptor instead.
 func (*ClanWebhook) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{259}
+	return file_api_api_proto_rawDescGZIP(), []int{255}
 }
 
-func (x *ClanWebhook) GetId() string {
+func (x *ClanWebhook) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 func (x *ClanWebhook) GetWebhookName() string {
@@ -19895,11 +19297,11 @@ func (x *ClanWebhook) GetWebhookName() string {
 	return ""
 }
 
-func (x *ClanWebhook) GetClanId() string {
+func (x *ClanWebhook) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *ClanWebhook) GetActive() int32 {
@@ -19916,11 +19318,11 @@ func (x *ClanWebhook) GetUrl() string {
 	return ""
 }
 
-func (x *ClanWebhook) GetCreatorId() string {
+func (x *ClanWebhook) GetCreatorId() int64 {
 	if x != nil {
 		return x.CreatorId
 	}
-	return ""
+	return 0
 }
 
 func (x *ClanWebhook) GetAvatar() string {
@@ -19947,7 +19349,7 @@ func (x *ClanWebhook) GetUpdateTime() string {
 type GenerateClanWebhookRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// clan id.
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// webhook name.
 	WebhookName string `protobuf:"bytes,2,opt,name=webhook_name,json=webhookName,proto3" json:"webhook_name,omitempty"`
 	// avatar.
@@ -19958,7 +19360,7 @@ type GenerateClanWebhookRequest struct {
 
 func (x *GenerateClanWebhookRequest) Reset() {
 	*x = GenerateClanWebhookRequest{}
-	mi := &file_api_api_proto_msgTypes[260]
+	mi := &file_api_api_proto_msgTypes[256]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -19970,7 +19372,7 @@ func (x *GenerateClanWebhookRequest) String() string {
 func (*GenerateClanWebhookRequest) ProtoMessage() {}
 
 func (x *GenerateClanWebhookRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[260]
+	mi := &file_api_api_proto_msgTypes[256]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -19983,14 +19385,14 @@ func (x *GenerateClanWebhookRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateClanWebhookRequest.ProtoReflect.Descriptor instead.
 func (*GenerateClanWebhookRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{260}
+	return file_api_api_proto_rawDescGZIP(), []int{256}
 }
 
-func (x *GenerateClanWebhookRequest) GetClanId() string {
+func (x *GenerateClanWebhookRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *GenerateClanWebhookRequest) GetWebhookName() string {
@@ -20010,7 +19412,7 @@ func (x *GenerateClanWebhookRequest) GetAvatar() string {
 type GenerateClanWebhookResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// clan id.
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// url.
 	Url string `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
 	// webhook name.
@@ -20023,7 +19425,7 @@ type GenerateClanWebhookResponse struct {
 
 func (x *GenerateClanWebhookResponse) Reset() {
 	*x = GenerateClanWebhookResponse{}
-	mi := &file_api_api_proto_msgTypes[261]
+	mi := &file_api_api_proto_msgTypes[257]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -20035,7 +19437,7 @@ func (x *GenerateClanWebhookResponse) String() string {
 func (*GenerateClanWebhookResponse) ProtoMessage() {}
 
 func (x *GenerateClanWebhookResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[261]
+	mi := &file_api_api_proto_msgTypes[257]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -20048,14 +19450,14 @@ func (x *GenerateClanWebhookResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateClanWebhookResponse.ProtoReflect.Descriptor instead.
 func (*GenerateClanWebhookResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{261}
+	return file_api_api_proto_rawDescGZIP(), []int{257}
 }
 
-func (x *GenerateClanWebhookResponse) GetClanId() string {
+func (x *GenerateClanWebhookResponse) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *GenerateClanWebhookResponse) GetUrl() string {
@@ -20082,16 +19484,16 @@ func (x *GenerateClanWebhookResponse) GetAvatar() string {
 type ClanWebhookRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// id.
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// clan id.
-	ClanId        string `protobuf:"bytes,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64 `protobuf:"varint,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ClanWebhookRequest) Reset() {
 	*x = ClanWebhookRequest{}
-	mi := &file_api_api_proto_msgTypes[262]
+	mi := &file_api_api_proto_msgTypes[258]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -20103,7 +19505,7 @@ func (x *ClanWebhookRequest) String() string {
 func (*ClanWebhookRequest) ProtoMessage() {}
 
 func (x *ClanWebhookRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[262]
+	mi := &file_api_api_proto_msgTypes[258]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -20116,29 +19518,29 @@ func (x *ClanWebhookRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClanWebhookRequest.ProtoReflect.Descriptor instead.
 func (*ClanWebhookRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{262}
+	return file_api_api_proto_rawDescGZIP(), []int{258}
 }
 
-func (x *ClanWebhookRequest) GetId() string {
+func (x *ClanWebhookRequest) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
-func (x *ClanWebhookRequest) GetClanId() string {
+func (x *ClanWebhookRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 type UpdateClanWebhookRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// webhook id.
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// clan id.
-	ClanId string `protobuf:"bytes,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// webhook name.
 	WebhookName string `protobuf:"bytes,3,opt,name=webhook_name,json=webhookName,proto3" json:"webhook_name,omitempty"`
 	// avatar.
@@ -20151,7 +19553,7 @@ type UpdateClanWebhookRequest struct {
 
 func (x *UpdateClanWebhookRequest) Reset() {
 	*x = UpdateClanWebhookRequest{}
-	mi := &file_api_api_proto_msgTypes[263]
+	mi := &file_api_api_proto_msgTypes[259]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -20163,7 +19565,7 @@ func (x *UpdateClanWebhookRequest) String() string {
 func (*UpdateClanWebhookRequest) ProtoMessage() {}
 
 func (x *UpdateClanWebhookRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[263]
+	mi := &file_api_api_proto_msgTypes[259]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -20176,21 +19578,21 @@ func (x *UpdateClanWebhookRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateClanWebhookRequest.ProtoReflect.Descriptor instead.
 func (*UpdateClanWebhookRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{263}
+	return file_api_api_proto_rawDescGZIP(), []int{259}
 }
 
-func (x *UpdateClanWebhookRequest) GetId() string {
+func (x *UpdateClanWebhookRequest) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
-func (x *UpdateClanWebhookRequest) GetClanId() string {
+func (x *UpdateClanWebhookRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *UpdateClanWebhookRequest) GetWebhookName() string {
@@ -20217,14 +19619,14 @@ func (x *UpdateClanWebhookRequest) GetResetToken() bool {
 type ListClanWebhookRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// clan_id.
-	ClanId        string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListClanWebhookRequest) Reset() {
 	*x = ListClanWebhookRequest{}
-	mi := &file_api_api_proto_msgTypes[264]
+	mi := &file_api_api_proto_msgTypes[260]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -20236,7 +19638,7 @@ func (x *ListClanWebhookRequest) String() string {
 func (*ListClanWebhookRequest) ProtoMessage() {}
 
 func (x *ListClanWebhookRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[264]
+	mi := &file_api_api_proto_msgTypes[260]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -20249,14 +19651,14 @@ func (x *ListClanWebhookRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListClanWebhookRequest.ProtoReflect.Descriptor instead.
 func (*ListClanWebhookRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{264}
+	return file_api_api_proto_rawDescGZIP(), []int{260}
 }
 
-func (x *ListClanWebhookRequest) GetClanId() string {
+func (x *ListClanWebhookRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 type ListClanWebhookResponse struct {
@@ -20269,7 +19671,7 @@ type ListClanWebhookResponse struct {
 
 func (x *ListClanWebhookResponse) Reset() {
 	*x = ListClanWebhookResponse{}
-	mi := &file_api_api_proto_msgTypes[265]
+	mi := &file_api_api_proto_msgTypes[261]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -20281,7 +19683,7 @@ func (x *ListClanWebhookResponse) String() string {
 func (*ListClanWebhookResponse) ProtoMessage() {}
 
 func (x *ListClanWebhookResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[265]
+	mi := &file_api_api_proto_msgTypes[261]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -20294,7 +19696,7 @@ func (x *ListClanWebhookResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListClanWebhookResponse.ProtoReflect.Descriptor instead.
 func (*ListClanWebhookResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{265}
+	return file_api_api_proto_rawDescGZIP(), []int{261}
 }
 
 func (x *ListClanWebhookResponse) GetListClanWebhooks() []*ClanWebhook {
@@ -20316,7 +19718,7 @@ type ClanWebhookHandlerBody struct {
 
 func (x *ClanWebhookHandlerBody) Reset() {
 	*x = ClanWebhookHandlerBody{}
-	mi := &file_api_api_proto_msgTypes[266]
+	mi := &file_api_api_proto_msgTypes[262]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -20328,7 +19730,7 @@ func (x *ClanWebhookHandlerBody) String() string {
 func (*ClanWebhookHandlerBody) ProtoMessage() {}
 
 func (x *ClanWebhookHandlerBody) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[266]
+	mi := &file_api_api_proto_msgTypes[262]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -20341,7 +19743,7 @@ func (x *ClanWebhookHandlerBody) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClanWebhookHandlerBody.ProtoReflect.Descriptor instead.
 func (*ClanWebhookHandlerBody) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{266}
+	return file_api_api_proto_rawDescGZIP(), []int{262}
 }
 
 func (x *ClanWebhookHandlerBody) GetContent() string {
@@ -20372,7 +19774,7 @@ type ClanWebhookHandlerRequest struct {
 
 func (x *ClanWebhookHandlerRequest) Reset() {
 	*x = ClanWebhookHandlerRequest{}
-	mi := &file_api_api_proto_msgTypes[267]
+	mi := &file_api_api_proto_msgTypes[263]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -20384,7 +19786,7 @@ func (x *ClanWebhookHandlerRequest) String() string {
 func (*ClanWebhookHandlerRequest) ProtoMessage() {}
 
 func (x *ClanWebhookHandlerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[267]
+	mi := &file_api_api_proto_msgTypes[263]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -20397,7 +19799,7 @@ func (x *ClanWebhookHandlerRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClanWebhookHandlerRequest.ProtoReflect.Descriptor instead.
 func (*ClanWebhookHandlerRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{267}
+	return file_api_api_proto_rawDescGZIP(), []int{263}
 }
 
 func (x *ClanWebhookHandlerRequest) GetBody() *ClanWebhookHandlerBody {
@@ -20423,7 +19825,7 @@ func (x *ClanWebhookHandlerRequest) GetUsername() string {
 
 type UserStatus struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	Status        string                 `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -20431,7 +19833,7 @@ type UserStatus struct {
 
 func (x *UserStatus) Reset() {
 	*x = UserStatus{}
-	mi := &file_api_api_proto_msgTypes[268]
+	mi := &file_api_api_proto_msgTypes[264]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -20443,7 +19845,7 @@ func (x *UserStatus) String() string {
 func (*UserStatus) ProtoMessage() {}
 
 func (x *UserStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[268]
+	mi := &file_api_api_proto_msgTypes[264]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -20456,14 +19858,14 @@ func (x *UserStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserStatus.ProtoReflect.Descriptor instead.
 func (*UserStatus) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{268}
+	return file_api_api_proto_rawDescGZIP(), []int{264}
 }
 
-func (x *UserStatus) GetUserId() string {
+func (x *UserStatus) GetUserId() int64 {
 	if x != nil {
 		return x.UserId
 	}
-	return ""
+	return 0
 }
 
 func (x *UserStatus) GetStatus() string {
@@ -20484,7 +19886,7 @@ type UserStatusUpdate struct {
 
 func (x *UserStatusUpdate) Reset() {
 	*x = UserStatusUpdate{}
-	mi := &file_api_api_proto_msgTypes[269]
+	mi := &file_api_api_proto_msgTypes[265]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -20496,7 +19898,7 @@ func (x *UserStatusUpdate) String() string {
 func (*UserStatusUpdate) ProtoMessage() {}
 
 func (x *UserStatusUpdate) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[269]
+	mi := &file_api_api_proto_msgTypes[265]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -20509,7 +19911,7 @@ func (x *UserStatusUpdate) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserStatusUpdate.ProtoReflect.Descriptor instead.
 func (*UserStatusUpdate) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{269}
+	return file_api_api_proto_rawDescGZIP(), []int{265}
 }
 
 func (x *UserStatusUpdate) GetStatus() string {
@@ -20536,11 +19938,11 @@ func (x *UserStatusUpdate) GetUntilTurnOn() bool {
 type OnboardingSteps struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// id.
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// user id.
-	UserId string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId int64 `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	// clan id.
-	ClanId string `protobuf:"bytes,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// onboarding step.
 	OnboardingStep int32 `protobuf:"varint,4,opt,name=onboarding_step,json=onboardingStep,proto3" json:"onboarding_step,omitempty"`
 	unknownFields  protoimpl.UnknownFields
@@ -20549,7 +19951,7 @@ type OnboardingSteps struct {
 
 func (x *OnboardingSteps) Reset() {
 	*x = OnboardingSteps{}
-	mi := &file_api_api_proto_msgTypes[270]
+	mi := &file_api_api_proto_msgTypes[266]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -20561,7 +19963,7 @@ func (x *OnboardingSteps) String() string {
 func (*OnboardingSteps) ProtoMessage() {}
 
 func (x *OnboardingSteps) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[270]
+	mi := &file_api_api_proto_msgTypes[266]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -20574,28 +19976,28 @@ func (x *OnboardingSteps) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OnboardingSteps.ProtoReflect.Descriptor instead.
 func (*OnboardingSteps) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{270}
+	return file_api_api_proto_rawDescGZIP(), []int{266}
 }
 
-func (x *OnboardingSteps) GetId() string {
+func (x *OnboardingSteps) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
-func (x *OnboardingSteps) GetUserId() string {
+func (x *OnboardingSteps) GetUserId() int64 {
 	if x != nil {
 		return x.UserId
 	}
-	return ""
+	return 0
 }
 
-func (x *OnboardingSteps) GetClanId() string {
+func (x *OnboardingSteps) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *OnboardingSteps) GetOnboardingStep() int32 {
@@ -20615,7 +20017,7 @@ type ListOnboardingStepResponse struct {
 
 func (x *ListOnboardingStepResponse) Reset() {
 	*x = ListOnboardingStepResponse{}
-	mi := &file_api_api_proto_msgTypes[271]
+	mi := &file_api_api_proto_msgTypes[267]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -20627,7 +20029,7 @@ func (x *ListOnboardingStepResponse) String() string {
 func (*ListOnboardingStepResponse) ProtoMessage() {}
 
 func (x *ListOnboardingStepResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[271]
+	mi := &file_api_api_proto_msgTypes[267]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -20640,7 +20042,7 @@ func (x *ListOnboardingStepResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListOnboardingStepResponse.ProtoReflect.Descriptor instead.
 func (*ListOnboardingStepResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{271}
+	return file_api_api_proto_rawDescGZIP(), []int{267}
 }
 
 func (x *ListOnboardingStepResponse) GetListOnboardingStep() []*OnboardingSteps {
@@ -20653,18 +20055,18 @@ func (x *ListOnboardingStepResponse) GetListOnboardingStep() []*OnboardingSteps 
 type ListOnboardingStepRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// clan id.
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// limit
-	Limit *wrapperspb.Int32Value `protobuf:"bytes,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	Limit int32 `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
 	// page
-	Page          *wrapperspb.Int32Value `protobuf:"bytes,3,opt,name=page,proto3" json:"page,omitempty"`
+	Page          int32 `protobuf:"varint,3,opt,name=page,proto3" json:"page,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListOnboardingStepRequest) Reset() {
 	*x = ListOnboardingStepRequest{}
-	mi := &file_api_api_proto_msgTypes[272]
+	mi := &file_api_api_proto_msgTypes[268]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -20676,7 +20078,7 @@ func (x *ListOnboardingStepRequest) String() string {
 func (*ListOnboardingStepRequest) ProtoMessage() {}
 
 func (x *ListOnboardingStepRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[272]
+	mi := &file_api_api_proto_msgTypes[268]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -20689,43 +20091,43 @@ func (x *ListOnboardingStepRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListOnboardingStepRequest.ProtoReflect.Descriptor instead.
 func (*ListOnboardingStepRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{272}
+	return file_api_api_proto_rawDescGZIP(), []int{268}
 }
 
-func (x *ListOnboardingStepRequest) GetClanId() string {
+func (x *ListOnboardingStepRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *ListOnboardingStepRequest) GetLimit() *wrapperspb.Int32Value {
+func (x *ListOnboardingStepRequest) GetLimit() int32 {
 	if x != nil {
 		return x.Limit
 	}
-	return nil
+	return 0
 }
 
-func (x *ListOnboardingStepRequest) GetPage() *wrapperspb.Int32Value {
+func (x *ListOnboardingStepRequest) GetPage() int32 {
 	if x != nil {
 		return x.Page
 	}
-	return nil
+	return 0
 }
 
 type UpdateOnboardingStepRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// clan id.
-	ClanId string `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// onboarding step.
-	OnboardingStep *wrapperspb.Int32Value `protobuf:"bytes,2,opt,name=onboarding_step,json=onboardingStep,proto3" json:"onboarding_step,omitempty"`
+	OnboardingStep int32 `protobuf:"varint,2,opt,name=onboarding_step,json=onboardingStep,proto3" json:"onboarding_step,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
 
 func (x *UpdateOnboardingStepRequest) Reset() {
 	*x = UpdateOnboardingStepRequest{}
-	mi := &file_api_api_proto_msgTypes[273]
+	mi := &file_api_api_proto_msgTypes[269]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -20737,7 +20139,7 @@ func (x *UpdateOnboardingStepRequest) String() string {
 func (*UpdateOnboardingStepRequest) ProtoMessage() {}
 
 func (x *UpdateOnboardingStepRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[273]
+	mi := &file_api_api_proto_msgTypes[269]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -20750,42 +20152,42 @@ func (x *UpdateOnboardingStepRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateOnboardingStepRequest.ProtoReflect.Descriptor instead.
 func (*UpdateOnboardingStepRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{273}
+	return file_api_api_proto_rawDescGZIP(), []int{269}
 }
 
-func (x *UpdateOnboardingStepRequest) GetClanId() string {
+func (x *UpdateOnboardingStepRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *UpdateOnboardingStepRequest) GetOnboardingStep() *wrapperspb.Int32Value {
+func (x *UpdateOnboardingStepRequest) GetOnboardingStep() int32 {
 	if x != nil {
 		return x.OnboardingStep
 	}
-	return nil
+	return 0
 }
 
 type SdTopic struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	Id              string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	CreatorId       string                 `protobuf:"bytes,2,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
-	MessageId       string                 `protobuf:"bytes,3,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
-	ClanId          string                 `protobuf:"bytes,4,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
-	ChannelId       string                 `protobuf:"bytes,5,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	Status          int32                  `protobuf:"varint,6,opt,name=status,proto3" json:"status,omitempty"`
-	CreateTime      *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=create_time,json=createTime,proto3" json:"create_time,omitempty"`
-	UpdateTime      *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=update_time,json=updateTime,proto3" json:"update_time,omitempty"`
-	Message         *ChannelMessage        `protobuf:"bytes,9,opt,name=message,proto3" json:"message,omitempty"`
-	LastSentMessage *ChannelMessageHeader  `protobuf:"bytes,10,opt,name=last_sent_message,json=lastSentMessage,proto3" json:"last_sent_message,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	Id                int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	CreatorId         int64                  `protobuf:"varint,2,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
+	MessageId         int64                  `protobuf:"varint,3,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
+	ClanId            int64                  `protobuf:"varint,4,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ChannelId         int64                  `protobuf:"varint,5,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	Status            int32                  `protobuf:"varint,6,opt,name=status,proto3" json:"status,omitempty"`
+	CreateTimeSeconds uint32                 `protobuf:"varint,7,opt,name=create_time_seconds,json=createTimeSeconds,proto3" json:"create_time_seconds,omitempty"`
+	UpdateTimeSeconds uint32                 `protobuf:"varint,8,opt,name=update_time_seconds,json=updateTimeSeconds,proto3" json:"update_time_seconds,omitempty"`
+	Content           string                 `protobuf:"bytes,9,opt,name=content,proto3" json:"content,omitempty"`
+	LastSentMessage   *ChannelMessageHeader  `protobuf:"bytes,10,opt,name=last_sent_message,json=lastSentMessage,proto3" json:"last_sent_message,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *SdTopic) Reset() {
 	*x = SdTopic{}
-	mi := &file_api_api_proto_msgTypes[274]
+	mi := &file_api_api_proto_msgTypes[270]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -20797,7 +20199,7 @@ func (x *SdTopic) String() string {
 func (*SdTopic) ProtoMessage() {}
 
 func (x *SdTopic) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[274]
+	mi := &file_api_api_proto_msgTypes[270]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -20810,42 +20212,42 @@ func (x *SdTopic) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SdTopic.ProtoReflect.Descriptor instead.
 func (*SdTopic) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{274}
+	return file_api_api_proto_rawDescGZIP(), []int{270}
 }
 
-func (x *SdTopic) GetId() string {
+func (x *SdTopic) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
-func (x *SdTopic) GetCreatorId() string {
+func (x *SdTopic) GetCreatorId() int64 {
 	if x != nil {
 		return x.CreatorId
 	}
-	return ""
+	return 0
 }
 
-func (x *SdTopic) GetMessageId() string {
+func (x *SdTopic) GetMessageId() int64 {
 	if x != nil {
 		return x.MessageId
 	}
-	return ""
+	return 0
 }
 
-func (x *SdTopic) GetClanId() string {
+func (x *SdTopic) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *SdTopic) GetChannelId() string {
+func (x *SdTopic) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *SdTopic) GetStatus() int32 {
@@ -20855,25 +20257,25 @@ func (x *SdTopic) GetStatus() int32 {
 	return 0
 }
 
-func (x *SdTopic) GetCreateTime() *timestamppb.Timestamp {
+func (x *SdTopic) GetCreateTimeSeconds() uint32 {
 	if x != nil {
-		return x.CreateTime
+		return x.CreateTimeSeconds
 	}
-	return nil
+	return 0
 }
 
-func (x *SdTopic) GetUpdateTime() *timestamppb.Timestamp {
+func (x *SdTopic) GetUpdateTimeSeconds() uint32 {
 	if x != nil {
-		return x.UpdateTime
+		return x.UpdateTimeSeconds
 	}
-	return nil
+	return 0
 }
 
-func (x *SdTopic) GetMessage() *ChannelMessage {
+func (x *SdTopic) GetContent() string {
 	if x != nil {
-		return x.Message
+		return x.Content
 	}
-	return nil
+	return ""
 }
 
 func (x *SdTopic) GetLastSentMessage() *ChannelMessageHeader {
@@ -20885,16 +20287,16 @@ func (x *SdTopic) GetLastSentMessage() *ChannelMessageHeader {
 
 type SdTopicRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	MessageId     string                 `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
-	ClanId        string                 `protobuf:"bytes,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
-	ChannelId     string                 `protobuf:"bytes,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	MessageId     int64                  `protobuf:"varint,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ChannelId     int64                  `protobuf:"varint,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *SdTopicRequest) Reset() {
 	*x = SdTopicRequest{}
-	mi := &file_api_api_proto_msgTypes[275]
+	mi := &file_api_api_proto_msgTypes[271]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -20906,7 +20308,7 @@ func (x *SdTopicRequest) String() string {
 func (*SdTopicRequest) ProtoMessage() {}
 
 func (x *SdTopicRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[275]
+	mi := &file_api_api_proto_msgTypes[271]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -20919,28 +20321,28 @@ func (x *SdTopicRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SdTopicRequest.ProtoReflect.Descriptor instead.
 func (*SdTopicRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{275}
+	return file_api_api_proto_rawDescGZIP(), []int{271}
 }
 
-func (x *SdTopicRequest) GetMessageId() string {
+func (x *SdTopicRequest) GetMessageId() int64 {
 	if x != nil {
 		return x.MessageId
 	}
-	return ""
+	return 0
 }
 
-func (x *SdTopicRequest) GetClanId() string {
+func (x *SdTopicRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *SdTopicRequest) GetChannelId() string {
+func (x *SdTopicRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 type SdTopicList struct {
@@ -20953,7 +20355,7 @@ type SdTopicList struct {
 
 func (x *SdTopicList) Reset() {
 	*x = SdTopicList{}
-	mi := &file_api_api_proto_msgTypes[276]
+	mi := &file_api_api_proto_msgTypes[272]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -20965,7 +20367,7 @@ func (x *SdTopicList) String() string {
 func (*SdTopicList) ProtoMessage() {}
 
 func (x *SdTopicList) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[276]
+	mi := &file_api_api_proto_msgTypes[272]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -20978,7 +20380,7 @@ func (x *SdTopicList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SdTopicList.ProtoReflect.Descriptor instead.
 func (*SdTopicList) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{276}
+	return file_api_api_proto_rawDescGZIP(), []int{272}
 }
 
 func (x *SdTopicList) GetCount() int32 {
@@ -20997,7 +20399,7 @@ func (x *SdTopicList) GetTopics() []*SdTopic {
 
 type ListSdTopicRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ClanId        string                 `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	Limit         int32                  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -21005,7 +20407,7 @@ type ListSdTopicRequest struct {
 
 func (x *ListSdTopicRequest) Reset() {
 	*x = ListSdTopicRequest{}
-	mi := &file_api_api_proto_msgTypes[277]
+	mi := &file_api_api_proto_msgTypes[273]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -21017,7 +20419,7 @@ func (x *ListSdTopicRequest) String() string {
 func (*ListSdTopicRequest) ProtoMessage() {}
 
 func (x *ListSdTopicRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[277]
+	mi := &file_api_api_proto_msgTypes[273]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -21030,14 +20432,14 @@ func (x *ListSdTopicRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListSdTopicRequest.ProtoReflect.Descriptor instead.
 func (*ListSdTopicRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{277}
+	return file_api_api_proto_rawDescGZIP(), []int{273}
 }
 
-func (x *ListSdTopicRequest) GetClanId() string {
+func (x *ListSdTopicRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *ListSdTopicRequest) GetLimit() int32 {
@@ -21049,14 +20451,14 @@ func (x *ListSdTopicRequest) GetLimit() int32 {
 
 type SdTopicDetailRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	TopicId       string                 `protobuf:"bytes,1,opt,name=topic_id,json=topicId,proto3" json:"topic_id,omitempty"`
+	TopicId       int64                  `protobuf:"varint,1,opt,name=topic_id,json=topicId,proto3" json:"topic_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *SdTopicDetailRequest) Reset() {
 	*x = SdTopicDetailRequest{}
-	mi := &file_api_api_proto_msgTypes[278]
+	mi := &file_api_api_proto_msgTypes[274]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -21068,7 +20470,7 @@ func (x *SdTopicDetailRequest) String() string {
 func (*SdTopicDetailRequest) ProtoMessage() {}
 
 func (x *SdTopicDetailRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[278]
+	mi := &file_api_api_proto_msgTypes[274]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -21081,28 +20483,28 @@ func (x *SdTopicDetailRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SdTopicDetailRequest.ProtoReflect.Descriptor instead.
 func (*SdTopicDetailRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{278}
+	return file_api_api_proto_rawDescGZIP(), []int{274}
 }
 
-func (x *SdTopicDetailRequest) GetTopicId() string {
+func (x *SdTopicDetailRequest) GetTopicId() int64 {
 	if x != nil {
 		return x.TopicId
 	}
-	return ""
+	return 0
 }
 
 type DeleteSdTopicRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ChannelId     string                 `protobuf:"bytes,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
-	ClanId        string                 `protobuf:"bytes,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ChannelId     int64                  `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	Id            int64                  `protobuf:"varint,2,opt,name=id,proto3" json:"id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *DeleteSdTopicRequest) Reset() {
 	*x = DeleteSdTopicRequest{}
-	mi := &file_api_api_proto_msgTypes[279]
+	mi := &file_api_api_proto_msgTypes[275]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -21114,7 +20516,7 @@ func (x *DeleteSdTopicRequest) String() string {
 func (*DeleteSdTopicRequest) ProtoMessage() {}
 
 func (x *DeleteSdTopicRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[279]
+	mi := &file_api_api_proto_msgTypes[275]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -21127,33 +20529,33 @@ func (x *DeleteSdTopicRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteSdTopicRequest.ProtoReflect.Descriptor instead.
 func (*DeleteSdTopicRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{279}
+	return file_api_api_proto_rawDescGZIP(), []int{275}
 }
 
-func (x *DeleteSdTopicRequest) GetChannelId() string {
+func (x *DeleteSdTopicRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *DeleteSdTopicRequest) GetId() string {
+func (x *DeleteSdTopicRequest) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
-func (x *DeleteSdTopicRequest) GetClanId() string {
+func (x *DeleteSdTopicRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 type GenerateMeetTokenRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ChannelId     string                 `protobuf:"bytes,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId     int64                  `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	RoomName      string                 `protobuf:"bytes,2,opt,name=room_name,json=roomName,proto3" json:"room_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -21161,7 +20563,7 @@ type GenerateMeetTokenRequest struct {
 
 func (x *GenerateMeetTokenRequest) Reset() {
 	*x = GenerateMeetTokenRequest{}
-	mi := &file_api_api_proto_msgTypes[280]
+	mi := &file_api_api_proto_msgTypes[276]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -21173,7 +20575,7 @@ func (x *GenerateMeetTokenRequest) String() string {
 func (*GenerateMeetTokenRequest) ProtoMessage() {}
 
 func (x *GenerateMeetTokenRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[280]
+	mi := &file_api_api_proto_msgTypes[276]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -21186,14 +20588,14 @@ func (x *GenerateMeetTokenRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateMeetTokenRequest.ProtoReflect.Descriptor instead.
 func (*GenerateMeetTokenRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{280}
+	return file_api_api_proto_rawDescGZIP(), []int{276}
 }
 
-func (x *GenerateMeetTokenRequest) GetChannelId() string {
+func (x *GenerateMeetTokenRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *GenerateMeetTokenRequest) GetRoomName() string {
@@ -21207,15 +20609,15 @@ type MeetParticipantRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Username      string                 `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
 	RoomName      string                 `protobuf:"bytes,2,opt,name=room_name,json=roomName,proto3" json:"room_name,omitempty"`
-	ChannelId     string                 `protobuf:"bytes,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	ClanId        string                 `protobuf:"bytes,4,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ChannelId     int64                  `protobuf:"varint,3,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,4,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *MeetParticipantRequest) Reset() {
 	*x = MeetParticipantRequest{}
-	mi := &file_api_api_proto_msgTypes[281]
+	mi := &file_api_api_proto_msgTypes[277]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -21227,7 +20629,7 @@ func (x *MeetParticipantRequest) String() string {
 func (*MeetParticipantRequest) ProtoMessage() {}
 
 func (x *MeetParticipantRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[281]
+	mi := &file_api_api_proto_msgTypes[277]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -21240,7 +20642,7 @@ func (x *MeetParticipantRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MeetParticipantRequest.ProtoReflect.Descriptor instead.
 func (*MeetParticipantRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{281}
+	return file_api_api_proto_rawDescGZIP(), []int{277}
 }
 
 func (x *MeetParticipantRequest) GetUsername() string {
@@ -21257,18 +20659,18 @@ func (x *MeetParticipantRequest) GetRoomName() string {
 	return ""
 }
 
-func (x *MeetParticipantRequest) GetChannelId() string {
+func (x *MeetParticipantRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *MeetParticipantRequest) GetClanId() string {
+func (x *MeetParticipantRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 type GenerateMeetTokenResponse struct {
@@ -21280,7 +20682,7 @@ type GenerateMeetTokenResponse struct {
 
 func (x *GenerateMeetTokenResponse) Reset() {
 	*x = GenerateMeetTokenResponse{}
-	mi := &file_api_api_proto_msgTypes[282]
+	mi := &file_api_api_proto_msgTypes[278]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -21292,7 +20694,7 @@ func (x *GenerateMeetTokenResponse) String() string {
 func (*GenerateMeetTokenResponse) ProtoMessage() {}
 
 func (x *GenerateMeetTokenResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[282]
+	mi := &file_api_api_proto_msgTypes[278]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -21305,7 +20707,7 @@ func (x *GenerateMeetTokenResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateMeetTokenResponse.ProtoReflect.Descriptor instead.
 func (*GenerateMeetTokenResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{282}
+	return file_api_api_proto_rawDescGZIP(), []int{278}
 }
 
 func (x *GenerateMeetTokenResponse) GetToken() string {
@@ -21317,18 +20719,18 @@ func (x *GenerateMeetTokenResponse) GetToken() string {
 
 type GenerateMezonMeetResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	MeetId        string                 `protobuf:"bytes,1,opt,name=meet_id,json=meetId,proto3" json:"meet_id,omitempty"`
+	MeetId        int64                  `protobuf:"varint,1,opt,name=meet_id,json=meetId,proto3" json:"meet_id,omitempty"`
 	RoomName      string                 `protobuf:"bytes,2,opt,name=room_name,json=roomName,proto3" json:"room_name,omitempty"`
 	ExternalLink  string                 `protobuf:"bytes,3,opt,name=external_link,json=externalLink,proto3" json:"external_link,omitempty"`
-	CreatorId     string                 `protobuf:"bytes,4,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
-	EventId       string                 `protobuf:"bytes,5,opt,name=event_id,json=eventId,proto3" json:"event_id,omitempty"`
+	CreatorId     int64                  `protobuf:"varint,4,opt,name=creator_id,json=creatorId,proto3" json:"creator_id,omitempty"`
+	EventId       int64                  `protobuf:"varint,5,opt,name=event_id,json=eventId,proto3" json:"event_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GenerateMezonMeetResponse) Reset() {
 	*x = GenerateMezonMeetResponse{}
-	mi := &file_api_api_proto_msgTypes[283]
+	mi := &file_api_api_proto_msgTypes[279]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -21340,7 +20742,7 @@ func (x *GenerateMezonMeetResponse) String() string {
 func (*GenerateMezonMeetResponse) ProtoMessage() {}
 
 func (x *GenerateMezonMeetResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[283]
+	mi := &file_api_api_proto_msgTypes[279]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -21353,14 +20755,14 @@ func (x *GenerateMezonMeetResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateMezonMeetResponse.ProtoReflect.Descriptor instead.
 func (*GenerateMezonMeetResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{283}
+	return file_api_api_proto_rawDescGZIP(), []int{279}
 }
 
-func (x *GenerateMezonMeetResponse) GetMeetId() string {
+func (x *GenerateMezonMeetResponse) GetMeetId() int64 {
 	if x != nil {
 		return x.MeetId
 	}
-	return ""
+	return 0
 }
 
 func (x *GenerateMezonMeetResponse) GetRoomName() string {
@@ -21377,23 +20779,23 @@ func (x *GenerateMezonMeetResponse) GetExternalLink() string {
 	return ""
 }
 
-func (x *GenerateMezonMeetResponse) GetCreatorId() string {
+func (x *GenerateMezonMeetResponse) GetCreatorId() int64 {
 	if x != nil {
 		return x.CreatorId
 	}
-	return ""
+	return 0
 }
 
-func (x *GenerateMezonMeetResponse) GetEventId() string {
+func (x *GenerateMezonMeetResponse) GetEventId() int64 {
 	if x != nil {
 		return x.EventId
 	}
-	return ""
+	return 0
 }
 
 type CreateRoomChannelApps struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ChannelId     string                 `protobuf:"bytes,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ChannelId     int64                  `protobuf:"varint,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	RoomName      string                 `protobuf:"bytes,2,opt,name=room_name,json=roomName,proto3" json:"room_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -21401,7 +20803,7 @@ type CreateRoomChannelApps struct {
 
 func (x *CreateRoomChannelApps) Reset() {
 	*x = CreateRoomChannelApps{}
-	mi := &file_api_api_proto_msgTypes[284]
+	mi := &file_api_api_proto_msgTypes[280]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -21413,7 +20815,7 @@ func (x *CreateRoomChannelApps) String() string {
 func (*CreateRoomChannelApps) ProtoMessage() {}
 
 func (x *CreateRoomChannelApps) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[284]
+	mi := &file_api_api_proto_msgTypes[280]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -21426,14 +20828,14 @@ func (x *CreateRoomChannelApps) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateRoomChannelApps.ProtoReflect.Descriptor instead.
 func (*CreateRoomChannelApps) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{284}
+	return file_api_api_proto_rawDescGZIP(), []int{280}
 }
 
-func (x *CreateRoomChannelApps) GetChannelId() string {
+func (x *CreateRoomChannelApps) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *CreateRoomChannelApps) GetRoomName() string {
@@ -21460,7 +20862,7 @@ type MezonOauthClient struct {
 	ClientSecretExpiresAt                      int32                  `protobuf:"varint,13,opt,name=client_secret_expires_at,json=clientSecretExpiresAt,proto3" json:"client_secret_expires_at,omitempty"`
 	ClientUri                                  string                 `protobuf:"bytes,14,opt,name=client_uri,json=clientUri,proto3" json:"client_uri,omitempty"`
 	Contacts                                   []string               `protobuf:"bytes,15,rep,name=contacts,proto3" json:"contacts,omitempty"`
-	CreatedAt                                  *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	CreatedAtSeconds                           uint32                 `protobuf:"varint,16,opt,name=created_at_seconds,json=createdAtSeconds,proto3" json:"created_at_seconds,omitempty"`
 	FrontchannelLogoutSessionRequired          bool                   `protobuf:"varint,17,opt,name=frontchannel_logout_session_required,json=frontchannelLogoutSessionRequired,proto3" json:"frontchannel_logout_session_required,omitempty"`
 	FrontchannelLogoutUri                      string                 `protobuf:"bytes,18,opt,name=frontchannel_logout_uri,json=frontchannelLogoutUri,proto3" json:"frontchannel_logout_uri,omitempty"`
 	GrantTypes                                 []string               `protobuf:"bytes,19,rep,name=grant_types,json=grantTypes,proto3" json:"grant_types,omitempty"`
@@ -21490,7 +20892,7 @@ type MezonOauthClient struct {
 	TokenEndpointAuthMethod                    string                 `protobuf:"bytes,43,opt,name=token_endpoint_auth_method,json=tokenEndpointAuthMethod,proto3" json:"token_endpoint_auth_method,omitempty"`
 	TokenEndpointAuthSigningAlg                string                 `protobuf:"bytes,44,opt,name=token_endpoint_auth_signing_alg,json=tokenEndpointAuthSigningAlg,proto3" json:"token_endpoint_auth_signing_alg,omitempty"`
 	TosUri                                     string                 `protobuf:"bytes,45,opt,name=tos_uri,json=tosUri,proto3" json:"tos_uri,omitempty"`
-	UpdatedAt                                  *timestamppb.Timestamp `protobuf:"bytes,46,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	UpdatedAtSeconds                           uint32                 `protobuf:"varint,46,opt,name=updated_at_seconds,json=updatedAtSeconds,proto3" json:"updated_at_seconds,omitempty"`
 	UserinfoSignedResponseAlg                  string                 `protobuf:"bytes,47,opt,name=userinfo_signed_response_alg,json=userinfoSignedResponseAlg,proto3" json:"userinfo_signed_response_alg,omitempty"`
 	unknownFields                              protoimpl.UnknownFields
 	sizeCache                                  protoimpl.SizeCache
@@ -21498,7 +20900,7 @@ type MezonOauthClient struct {
 
 func (x *MezonOauthClient) Reset() {
 	*x = MezonOauthClient{}
-	mi := &file_api_api_proto_msgTypes[285]
+	mi := &file_api_api_proto_msgTypes[281]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -21510,7 +20912,7 @@ func (x *MezonOauthClient) String() string {
 func (*MezonOauthClient) ProtoMessage() {}
 
 func (x *MezonOauthClient) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[285]
+	mi := &file_api_api_proto_msgTypes[281]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -21523,7 +20925,7 @@ func (x *MezonOauthClient) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MezonOauthClient.ProtoReflect.Descriptor instead.
 func (*MezonOauthClient) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{285}
+	return file_api_api_proto_rawDescGZIP(), []int{281}
 }
 
 func (x *MezonOauthClient) GetAccessTokenStrategy() string {
@@ -21631,11 +21033,11 @@ func (x *MezonOauthClient) GetContacts() []string {
 	return nil
 }
 
-func (x *MezonOauthClient) GetCreatedAt() *timestamppb.Timestamp {
+func (x *MezonOauthClient) GetCreatedAtSeconds() uint32 {
 	if x != nil {
-		return x.CreatedAt
+		return x.CreatedAtSeconds
 	}
-	return nil
+	return 0
 }
 
 func (x *MezonOauthClient) GetFrontchannelLogoutSessionRequired() bool {
@@ -21841,11 +21243,11 @@ func (x *MezonOauthClient) GetTosUri() string {
 	return ""
 }
 
-func (x *MezonOauthClient) GetUpdatedAt() *timestamppb.Timestamp {
+func (x *MezonOauthClient) GetUpdatedAtSeconds() uint32 {
 	if x != nil {
-		return x.UpdatedAt
+		return x.UpdatedAtSeconds
 	}
-	return nil
+	return 0
 }
 
 func (x *MezonOauthClient) GetUserinfoSignedResponseAlg() string {
@@ -21864,7 +21266,7 @@ type MezonOauthClientList struct {
 
 func (x *MezonOauthClientList) Reset() {
 	*x = MezonOauthClientList{}
-	mi := &file_api_api_proto_msgTypes[286]
+	mi := &file_api_api_proto_msgTypes[282]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -21876,7 +21278,7 @@ func (x *MezonOauthClientList) String() string {
 func (*MezonOauthClientList) ProtoMessage() {}
 
 func (x *MezonOauthClientList) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[286]
+	mi := &file_api_api_proto_msgTypes[282]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -21889,7 +21291,7 @@ func (x *MezonOauthClientList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MezonOauthClientList.ProtoReflect.Descriptor instead.
 func (*MezonOauthClientList) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{286}
+	return file_api_api_proto_rawDescGZIP(), []int{282}
 }
 
 func (x *MezonOauthClientList) GetListMezonOauthClient() []*MezonOauthClient {
@@ -21909,7 +21311,7 @@ type GetMezonOauthClientRequest struct {
 
 func (x *GetMezonOauthClientRequest) Reset() {
 	*x = GetMezonOauthClientRequest{}
-	mi := &file_api_api_proto_msgTypes[287]
+	mi := &file_api_api_proto_msgTypes[283]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -21921,7 +21323,7 @@ func (x *GetMezonOauthClientRequest) String() string {
 func (*GetMezonOauthClientRequest) ProtoMessage() {}
 
 func (x *GetMezonOauthClientRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[287]
+	mi := &file_api_api_proto_msgTypes[283]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -21934,7 +21336,7 @@ func (x *GetMezonOauthClientRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMezonOauthClientRequest.ProtoReflect.Descriptor instead.
 func (*GetMezonOauthClientRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{287}
+	return file_api_api_proto_rawDescGZIP(), []int{283}
 }
 
 func (x *GetMezonOauthClientRequest) GetClientId() string {
@@ -21953,8 +21355,8 @@ func (x *GetMezonOauthClientRequest) GetClientName() string {
 
 type SearchThreadRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ClanId        string                 `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
-	ChannelId     string                 `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ChannelId     int64                  `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	Label         string                 `protobuf:"bytes,3,opt,name=label,proto3" json:"label,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -21962,7 +21364,7 @@ type SearchThreadRequest struct {
 
 func (x *SearchThreadRequest) Reset() {
 	*x = SearchThreadRequest{}
-	mi := &file_api_api_proto_msgTypes[288]
+	mi := &file_api_api_proto_msgTypes[284]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -21974,7 +21376,7 @@ func (x *SearchThreadRequest) String() string {
 func (*SearchThreadRequest) ProtoMessage() {}
 
 func (x *SearchThreadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[288]
+	mi := &file_api_api_proto_msgTypes[284]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -21987,21 +21389,21 @@ func (x *SearchThreadRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchThreadRequest.ProtoReflect.Descriptor instead.
 func (*SearchThreadRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{288}
+	return file_api_api_proto_rawDescGZIP(), []int{284}
 }
 
-func (x *SearchThreadRequest) GetClanId() string {
+func (x *SearchThreadRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *SearchThreadRequest) GetChannelId() string {
+func (x *SearchThreadRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *SearchThreadRequest) GetLabel() string {
@@ -22013,14 +21415,14 @@ func (x *SearchThreadRequest) GetLabel() string {
 
 type GenerateHashChannelAppsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	AppId         string                 `protobuf:"bytes,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
+	AppId         int64                  `protobuf:"varint,1,opt,name=app_id,json=appId,proto3" json:"app_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GenerateHashChannelAppsRequest) Reset() {
 	*x = GenerateHashChannelAppsRequest{}
-	mi := &file_api_api_proto_msgTypes[289]
+	mi := &file_api_api_proto_msgTypes[285]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -22032,7 +21434,7 @@ func (x *GenerateHashChannelAppsRequest) String() string {
 func (*GenerateHashChannelAppsRequest) ProtoMessage() {}
 
 func (x *GenerateHashChannelAppsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[289]
+	mi := &file_api_api_proto_msgTypes[285]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -22045,14 +21447,14 @@ func (x *GenerateHashChannelAppsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateHashChannelAppsRequest.ProtoReflect.Descriptor instead.
 func (*GenerateHashChannelAppsRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{289}
+	return file_api_api_proto_rawDescGZIP(), []int{285}
 }
 
-func (x *GenerateHashChannelAppsRequest) GetAppId() string {
+func (x *GenerateHashChannelAppsRequest) GetAppId() int64 {
 	if x != nil {
 		return x.AppId
 	}
-	return ""
+	return 0
 }
 
 type GenerateHashChannelAppsResponse struct {
@@ -22064,7 +21466,7 @@ type GenerateHashChannelAppsResponse struct {
 
 func (x *GenerateHashChannelAppsResponse) Reset() {
 	*x = GenerateHashChannelAppsResponse{}
-	mi := &file_api_api_proto_msgTypes[290]
+	mi := &file_api_api_proto_msgTypes[286]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -22076,7 +21478,7 @@ func (x *GenerateHashChannelAppsResponse) String() string {
 func (*GenerateHashChannelAppsResponse) ProtoMessage() {}
 
 func (x *GenerateHashChannelAppsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[290]
+	mi := &file_api_api_proto_msgTypes[286]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -22089,7 +21491,7 @@ func (x *GenerateHashChannelAppsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateHashChannelAppsResponse.ProtoReflect.Descriptor instead.
 func (*GenerateHashChannelAppsResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{290}
+	return file_api_api_proto_rawDescGZIP(), []int{286}
 }
 
 func (x *GenerateHashChannelAppsResponse) GetWebAppData() string {
@@ -22101,22 +21503,22 @@ func (x *GenerateHashChannelAppsResponse) GetWebAppData() string {
 
 type Message2InboxRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	MessageId     string                 `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
-	ChannelId     string                 `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	ClanId        string                 `protobuf:"bytes,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	MessageId     int64                  `protobuf:"varint,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
+	ChannelId     int64                  `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	Avatar        string                 `protobuf:"bytes,4,opt,name=avatar,proto3" json:"avatar,omitempty"`
 	Content       string                 `protobuf:"bytes,5,opt,name=content,proto3" json:"content,omitempty"`
-	Mentions      string                 `protobuf:"bytes,6,opt,name=mentions,proto3" json:"mentions,omitempty"`
-	Attachments   string                 `protobuf:"bytes,7,opt,name=attachments,proto3" json:"attachments,omitempty"`
-	Reactions     string                 `protobuf:"bytes,8,opt,name=reactions,proto3" json:"reactions,omitempty"`
-	References    string                 `protobuf:"bytes,9,opt,name=references,proto3" json:"references,omitempty"`
+	Mentions      []*MessageMention      `protobuf:"bytes,6,rep,name=mentions,proto3" json:"mentions,omitempty"`
+	Attachments   []*MessageAttachment   `protobuf:"bytes,7,rep,name=attachments,proto3" json:"attachments,omitempty"`
+	Reactions     []*MessageReaction     `protobuf:"bytes,8,rep,name=reactions,proto3" json:"reactions,omitempty"`
+	References    []*MessageRef          `protobuf:"bytes,9,rep,name=references,proto3" json:"references,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Message2InboxRequest) Reset() {
 	*x = Message2InboxRequest{}
-	mi := &file_api_api_proto_msgTypes[291]
+	mi := &file_api_api_proto_msgTypes[287]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -22128,7 +21530,7 @@ func (x *Message2InboxRequest) String() string {
 func (*Message2InboxRequest) ProtoMessage() {}
 
 func (x *Message2InboxRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[291]
+	mi := &file_api_api_proto_msgTypes[287]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -22141,28 +21543,28 @@ func (x *Message2InboxRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Message2InboxRequest.ProtoReflect.Descriptor instead.
 func (*Message2InboxRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{291}
+	return file_api_api_proto_rawDescGZIP(), []int{287}
 }
 
-func (x *Message2InboxRequest) GetMessageId() string {
+func (x *Message2InboxRequest) GetMessageId() int64 {
 	if x != nil {
 		return x.MessageId
 	}
-	return ""
+	return 0
 }
 
-func (x *Message2InboxRequest) GetChannelId() string {
+func (x *Message2InboxRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
-func (x *Message2InboxRequest) GetClanId() string {
+func (x *Message2InboxRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 func (x *Message2InboxRequest) GetAvatar() string {
@@ -22179,32 +21581,32 @@ func (x *Message2InboxRequest) GetContent() string {
 	return ""
 }
 
-func (x *Message2InboxRequest) GetMentions() string {
+func (x *Message2InboxRequest) GetMentions() []*MessageMention {
 	if x != nil {
 		return x.Mentions
 	}
-	return ""
+	return nil
 }
 
-func (x *Message2InboxRequest) GetAttachments() string {
+func (x *Message2InboxRequest) GetAttachments() []*MessageAttachment {
 	if x != nil {
 		return x.Attachments
 	}
-	return ""
+	return nil
 }
 
-func (x *Message2InboxRequest) GetReactions() string {
+func (x *Message2InboxRequest) GetReactions() []*MessageReaction {
 	if x != nil {
 		return x.Reactions
 	}
-	return ""
+	return nil
 }
 
-func (x *Message2InboxRequest) GetReferences() string {
+func (x *Message2InboxRequest) GetReferences() []*MessageRef {
 	if x != nil {
 		return x.References
 	}
-	return ""
+	return nil
 }
 
 // Send an email with password to the server. Used with authenticate/link/unlink.
@@ -22224,7 +21626,7 @@ type AccountEmail struct {
 
 func (x *AccountEmail) Reset() {
 	*x = AccountEmail{}
-	mi := &file_api_api_proto_msgTypes[292]
+	mi := &file_api_api_proto_msgTypes[288]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -22236,7 +21638,7 @@ func (x *AccountEmail) String() string {
 func (*AccountEmail) ProtoMessage() {}
 
 func (x *AccountEmail) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[292]
+	mi := &file_api_api_proto_msgTypes[288]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -22249,7 +21651,7 @@ func (x *AccountEmail) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AccountEmail.ProtoReflect.Descriptor instead.
 func (*AccountEmail) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{292}
+	return file_api_api_proto_rawDescGZIP(), []int{288}
 }
 
 func (x *AccountEmail) GetEmail() string {
@@ -22293,7 +21695,7 @@ type AccountMezon struct {
 
 func (x *AccountMezon) Reset() {
 	*x = AccountMezon{}
-	mi := &file_api_api_proto_msgTypes[293]
+	mi := &file_api_api_proto_msgTypes[289]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -22305,7 +21707,7 @@ func (x *AccountMezon) String() string {
 func (*AccountMezon) ProtoMessage() {}
 
 func (x *AccountMezon) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[293]
+	mi := &file_api_api_proto_msgTypes[289]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -22318,7 +21720,7 @@ func (x *AccountMezon) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AccountMezon.ProtoReflect.Descriptor instead.
 func (*AccountMezon) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{293}
+	return file_api_api_proto_rawDescGZIP(), []int{289}
 }
 
 func (x *AccountMezon) GetPhoneNumber() string {
@@ -22349,7 +21751,7 @@ type LinkAccountConfirmRequest struct {
 
 func (x *LinkAccountConfirmRequest) Reset() {
 	*x = LinkAccountConfirmRequest{}
-	mi := &file_api_api_proto_msgTypes[294]
+	mi := &file_api_api_proto_msgTypes[290]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -22361,7 +21763,7 @@ func (x *LinkAccountConfirmRequest) String() string {
 func (*LinkAccountConfirmRequest) ProtoMessage() {}
 
 func (x *LinkAccountConfirmRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[294]
+	mi := &file_api_api_proto_msgTypes[290]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -22374,7 +21776,7 @@ func (x *LinkAccountConfirmRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LinkAccountConfirmRequest.ProtoReflect.Descriptor instead.
 func (*LinkAccountConfirmRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{294}
+	return file_api_api_proto_rawDescGZIP(), []int{290}
 }
 
 func (x *LinkAccountConfirmRequest) GetReqId() string {
@@ -22400,10 +21802,10 @@ func (x *LinkAccountConfirmRequest) GetOtpCode() string {
 
 type QuickMenuAccess struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	BotId         string                 `protobuf:"bytes,2,opt,name=bot_id,json=botId,proto3" json:"bot_id,omitempty"`
-	ClanId        string                 `protobuf:"bytes,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
-	ChannelId     string                 `protobuf:"bytes,4,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	BotId         int64                  `protobuf:"varint,2,opt,name=bot_id,json=botId,proto3" json:"bot_id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,3,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ChannelId     int64                  `protobuf:"varint,4,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	MenuName      string                 `protobuf:"bytes,5,opt,name=menu_name,json=menuName,proto3" json:"menu_name,omitempty"`
 	Background    string                 `protobuf:"bytes,6,opt,name=background,proto3" json:"background,omitempty"`
 	ActionMsg     string                 `protobuf:"bytes,7,opt,name=action_msg,json=actionMsg,proto3" json:"action_msg,omitempty"`
@@ -22414,7 +21816,7 @@ type QuickMenuAccess struct {
 
 func (x *QuickMenuAccess) Reset() {
 	*x = QuickMenuAccess{}
-	mi := &file_api_api_proto_msgTypes[295]
+	mi := &file_api_api_proto_msgTypes[291]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -22426,7 +21828,7 @@ func (x *QuickMenuAccess) String() string {
 func (*QuickMenuAccess) ProtoMessage() {}
 
 func (x *QuickMenuAccess) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[295]
+	mi := &file_api_api_proto_msgTypes[291]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -22439,35 +21841,35 @@ func (x *QuickMenuAccess) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QuickMenuAccess.ProtoReflect.Descriptor instead.
 func (*QuickMenuAccess) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{295}
+	return file_api_api_proto_rawDescGZIP(), []int{291}
 }
 
-func (x *QuickMenuAccess) GetId() string {
+func (x *QuickMenuAccess) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
-func (x *QuickMenuAccess) GetBotId() string {
+func (x *QuickMenuAccess) GetBotId() int64 {
 	if x != nil {
 		return x.BotId
 	}
-	return ""
+	return 0
 }
 
-func (x *QuickMenuAccess) GetClanId() string {
+func (x *QuickMenuAccess) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *QuickMenuAccess) GetChannelId() string {
+func (x *QuickMenuAccess) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *QuickMenuAccess) GetMenuName() string {
@@ -22500,8 +21902,8 @@ func (x *QuickMenuAccess) GetMenuType() int32 {
 
 type ListQuickMenuAccessRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	BotId         string                 `protobuf:"bytes,1,opt,name=bot_id,json=botId,proto3" json:"bot_id,omitempty"`
-	ChannelId     string                 `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	BotId         int64                  `protobuf:"varint,1,opt,name=bot_id,json=botId,proto3" json:"bot_id,omitempty"`
+	ChannelId     int64                  `protobuf:"varint,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 	MenuType      int32                  `protobuf:"varint,3,opt,name=menu_type,json=menuType,proto3" json:"menu_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -22509,7 +21911,7 @@ type ListQuickMenuAccessRequest struct {
 
 func (x *ListQuickMenuAccessRequest) Reset() {
 	*x = ListQuickMenuAccessRequest{}
-	mi := &file_api_api_proto_msgTypes[296]
+	mi := &file_api_api_proto_msgTypes[292]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -22521,7 +21923,7 @@ func (x *ListQuickMenuAccessRequest) String() string {
 func (*ListQuickMenuAccessRequest) ProtoMessage() {}
 
 func (x *ListQuickMenuAccessRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[296]
+	mi := &file_api_api_proto_msgTypes[292]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -22534,21 +21936,21 @@ func (x *ListQuickMenuAccessRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListQuickMenuAccessRequest.ProtoReflect.Descriptor instead.
 func (*ListQuickMenuAccessRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{296}
+	return file_api_api_proto_rawDescGZIP(), []int{292}
 }
 
-func (x *ListQuickMenuAccessRequest) GetBotId() string {
+func (x *ListQuickMenuAccessRequest) GetBotId() int64 {
 	if x != nil {
 		return x.BotId
 	}
-	return ""
+	return 0
 }
 
-func (x *ListQuickMenuAccessRequest) GetChannelId() string {
+func (x *ListQuickMenuAccessRequest) GetChannelId() int64 {
 	if x != nil {
 		return x.ChannelId
 	}
-	return ""
+	return 0
 }
 
 func (x *ListQuickMenuAccessRequest) GetMenuType() int32 {
@@ -22567,7 +21969,7 @@ type QuickMenuAccessList struct {
 
 func (x *QuickMenuAccessList) Reset() {
 	*x = QuickMenuAccessList{}
-	mi := &file_api_api_proto_msgTypes[297]
+	mi := &file_api_api_proto_msgTypes[293]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -22579,7 +21981,7 @@ func (x *QuickMenuAccessList) String() string {
 func (*QuickMenuAccessList) ProtoMessage() {}
 
 func (x *QuickMenuAccessList) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[297]
+	mi := &file_api_api_proto_msgTypes[293]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -22592,7 +21994,7 @@ func (x *QuickMenuAccessList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QuickMenuAccessList.ProtoReflect.Descriptor instead.
 func (*QuickMenuAccessList) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{297}
+	return file_api_api_proto_rawDescGZIP(), []int{293}
 }
 
 func (x *QuickMenuAccessList) GetListMenus() []*QuickMenuAccess {
@@ -22611,7 +22013,7 @@ type ListForSaleItemsRequest struct {
 
 func (x *ListForSaleItemsRequest) Reset() {
 	*x = ListForSaleItemsRequest{}
-	mi := &file_api_api_proto_msgTypes[298]
+	mi := &file_api_api_proto_msgTypes[294]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -22623,7 +22025,7 @@ func (x *ListForSaleItemsRequest) String() string {
 func (*ListForSaleItemsRequest) ProtoMessage() {}
 
 func (x *ListForSaleItemsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[298]
+	mi := &file_api_api_proto_msgTypes[294]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -22636,7 +22038,7 @@ func (x *ListForSaleItemsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListForSaleItemsRequest.ProtoReflect.Descriptor instead.
 func (*ListForSaleItemsRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{298}
+	return file_api_api_proto_rawDescGZIP(), []int{294}
 }
 
 func (x *ListForSaleItemsRequest) GetPage() int32 {
@@ -22656,7 +22058,7 @@ type ForSaleItem struct {
 
 func (x *ForSaleItem) Reset() {
 	*x = ForSaleItem{}
-	mi := &file_api_api_proto_msgTypes[299]
+	mi := &file_api_api_proto_msgTypes[295]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -22668,7 +22070,7 @@ func (x *ForSaleItem) String() string {
 func (*ForSaleItem) ProtoMessage() {}
 
 func (x *ForSaleItem) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[299]
+	mi := &file_api_api_proto_msgTypes[295]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -22681,7 +22083,7 @@ func (x *ForSaleItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ForSaleItem.ProtoReflect.Descriptor instead.
 func (*ForSaleItem) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{299}
+	return file_api_api_proto_rawDescGZIP(), []int{295}
 }
 
 func (x *ForSaleItem) GetType() int32 {
@@ -22707,7 +22109,7 @@ type ForSaleItemList struct {
 
 func (x *ForSaleItemList) Reset() {
 	*x = ForSaleItemList{}
-	mi := &file_api_api_proto_msgTypes[300]
+	mi := &file_api_api_proto_msgTypes[296]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -22719,7 +22121,7 @@ func (x *ForSaleItemList) String() string {
 func (*ForSaleItemList) ProtoMessage() {}
 
 func (x *ForSaleItemList) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[300]
+	mi := &file_api_api_proto_msgTypes[296]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -22732,7 +22134,7 @@ func (x *ForSaleItemList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ForSaleItemList.ProtoReflect.Descriptor instead.
 func (*ForSaleItemList) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{300}
+	return file_api_api_proto_rawDescGZIP(), []int{296}
 }
 
 func (x *ForSaleItemList) GetForSaleItems() []*ForSaleItem {
@@ -22744,14 +22146,14 @@ func (x *ForSaleItemList) GetForSaleItems() []*ForSaleItem {
 
 type IsFollowerRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	FollowId      string                 `protobuf:"bytes,1,opt,name=follow_id,json=followId,proto3" json:"follow_id,omitempty"`
+	FollowId      int64                  `protobuf:"varint,1,opt,name=follow_id,json=followId,proto3" json:"follow_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *IsFollowerRequest) Reset() {
 	*x = IsFollowerRequest{}
-	mi := &file_api_api_proto_msgTypes[301]
+	mi := &file_api_api_proto_msgTypes[297]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -22763,7 +22165,7 @@ func (x *IsFollowerRequest) String() string {
 func (*IsFollowerRequest) ProtoMessage() {}
 
 func (x *IsFollowerRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[301]
+	mi := &file_api_api_proto_msgTypes[297]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -22776,19 +22178,19 @@ func (x *IsFollowerRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IsFollowerRequest.ProtoReflect.Descriptor instead.
 func (*IsFollowerRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{301}
+	return file_api_api_proto_rawDescGZIP(), []int{297}
 }
 
-func (x *IsFollowerRequest) GetFollowId() string {
+func (x *IsFollowerRequest) GetFollowId() int64 {
 	if x != nil {
 		return x.FollowId
 	}
-	return ""
+	return 0
 }
 
 type IsFollowerResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	FollowId      string                 `protobuf:"bytes,1,opt,name=follow_id,json=followId,proto3" json:"follow_id,omitempty"`
+	FollowId      int64                  `protobuf:"varint,1,opt,name=follow_id,json=followId,proto3" json:"follow_id,omitempty"`
 	IsFollower    bool                   `protobuf:"varint,2,opt,name=is_follower,json=isFollower,proto3" json:"is_follower,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -22796,7 +22198,7 @@ type IsFollowerResponse struct {
 
 func (x *IsFollowerResponse) Reset() {
 	*x = IsFollowerResponse{}
-	mi := &file_api_api_proto_msgTypes[302]
+	mi := &file_api_api_proto_msgTypes[298]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -22808,7 +22210,7 @@ func (x *IsFollowerResponse) String() string {
 func (*IsFollowerResponse) ProtoMessage() {}
 
 func (x *IsFollowerResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[302]
+	mi := &file_api_api_proto_msgTypes[298]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -22821,14 +22223,14 @@ func (x *IsFollowerResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use IsFollowerResponse.ProtoReflect.Descriptor instead.
 func (*IsFollowerResponse) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{302}
+	return file_api_api_proto_rawDescGZIP(), []int{298}
 }
 
-func (x *IsFollowerResponse) GetFollowId() string {
+func (x *IsFollowerResponse) GetFollowId() int64 {
 	if x != nil {
 		return x.FollowId
 	}
-	return ""
+	return 0
 }
 
 func (x *IsFollowerResponse) GetIsFollower() bool {
@@ -22840,15 +22242,15 @@ func (x *IsFollowerResponse) GetIsFollower() bool {
 
 type TransferOwnershipRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ClanId        string                 `protobuf:"bytes,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
-	NewOwnerId    string                 `protobuf:"bytes,2,opt,name=new_owner_id,json=newOwnerId,proto3" json:"new_owner_id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	NewOwnerId    int64                  `protobuf:"varint,2,opt,name=new_owner_id,json=newOwnerId,proto3" json:"new_owner_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *TransferOwnershipRequest) Reset() {
 	*x = TransferOwnershipRequest{}
-	mi := &file_api_api_proto_msgTypes[303]
+	mi := &file_api_api_proto_msgTypes[299]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -22860,7 +22262,7 @@ func (x *TransferOwnershipRequest) String() string {
 func (*TransferOwnershipRequest) ProtoMessage() {}
 
 func (x *TransferOwnershipRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[303]
+	mi := &file_api_api_proto_msgTypes[299]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -22873,33 +22275,33 @@ func (x *TransferOwnershipRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TransferOwnershipRequest.ProtoReflect.Descriptor instead.
 func (*TransferOwnershipRequest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{303}
+	return file_api_api_proto_rawDescGZIP(), []int{299}
 }
 
-func (x *TransferOwnershipRequest) GetClanId() string {
+func (x *TransferOwnershipRequest) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *TransferOwnershipRequest) GetNewOwnerId() string {
+func (x *TransferOwnershipRequest) GetNewOwnerId() int64 {
 	if x != nil {
 		return x.NewOwnerId
 	}
-	return ""
+	return 0
 }
 
 type UserIds struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserIds       []string               `protobuf:"bytes,1,rep,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
+	UserIds       []int64                `protobuf:"varint,1,rep,packed,name=user_ids,json=userIds,proto3" json:"user_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UserIds) Reset() {
 	*x = UserIds{}
-	mi := &file_api_api_proto_msgTypes[304]
+	mi := &file_api_api_proto_msgTypes[300]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -22911,7 +22313,7 @@ func (x *UserIds) String() string {
 func (*UserIds) ProtoMessage() {}
 
 func (x *UserIds) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[304]
+	mi := &file_api_api_proto_msgTypes[300]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -22924,10 +22326,10 @@ func (x *UserIds) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserIds.ProtoReflect.Descriptor instead.
 func (*UserIds) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{304}
+	return file_api_api_proto_rawDescGZIP(), []int{300}
 }
 
-func (x *UserIds) GetUserIds() []string {
+func (x *UserIds) GetUserIds() []int64 {
 	if x != nil {
 		return x.UserIds
 	}
@@ -22936,7 +22338,7 @@ func (x *UserIds) GetUserIds() []string {
 
 type ReportMessageAbuseReqest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	MessageId     string                 `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
+	MessageId     int64                  `protobuf:"varint,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
 	AbuseType     string                 `protobuf:"bytes,2,opt,name=abuse_type,json=abuseType,proto3" json:"abuse_type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -22944,7 +22346,7 @@ type ReportMessageAbuseReqest struct {
 
 func (x *ReportMessageAbuseReqest) Reset() {
 	*x = ReportMessageAbuseReqest{}
-	mi := &file_api_api_proto_msgTypes[305]
+	mi := &file_api_api_proto_msgTypes[301]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -22956,7 +22358,7 @@ func (x *ReportMessageAbuseReqest) String() string {
 func (*ReportMessageAbuseReqest) ProtoMessage() {}
 
 func (x *ReportMessageAbuseReqest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[305]
+	mi := &file_api_api_proto_msgTypes[301]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -22969,14 +22371,14 @@ func (x *ReportMessageAbuseReqest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReportMessageAbuseReqest.ProtoReflect.Descriptor instead.
 func (*ReportMessageAbuseReqest) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{305}
+	return file_api_api_proto_rawDescGZIP(), []int{301}
 }
 
-func (x *ReportMessageAbuseReqest) GetMessageId() string {
+func (x *ReportMessageAbuseReqest) GetMessageId() int64 {
 	if x != nil {
 		return x.MessageId
 	}
-	return ""
+	return 0
 }
 
 func (x *ReportMessageAbuseReqest) GetAbuseType() string {
@@ -22995,7 +22397,7 @@ type LogedDeviceList struct {
 
 func (x *LogedDeviceList) Reset() {
 	*x = LogedDeviceList{}
-	mi := &file_api_api_proto_msgTypes[306]
+	mi := &file_api_api_proto_msgTypes[302]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -23007,7 +22409,7 @@ func (x *LogedDeviceList) String() string {
 func (*LogedDeviceList) ProtoMessage() {}
 
 func (x *LogedDeviceList) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[306]
+	mi := &file_api_api_proto_msgTypes[302]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -23020,7 +22422,7 @@ func (x *LogedDeviceList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LogedDeviceList.ProtoReflect.Descriptor instead.
 func (*LogedDeviceList) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{306}
+	return file_api_api_proto_rawDescGZIP(), []int{302}
 }
 
 func (x *LogedDeviceList) GetDevices() []*LogedDevice {
@@ -23031,23 +22433,23 @@ func (x *LogedDeviceList) GetDevices() []*LogedDevice {
 }
 
 type LogedDevice struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	DeviceId      string                 `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
-	DeviceName    string                 `protobuf:"bytes,2,opt,name=device_name,json=deviceName,proto3" json:"device_name,omitempty"`
-	LoginAt       *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=login_at,json=loginAt,proto3" json:"login_at,omitempty"`
-	Status        int32                  `protobuf:"varint,4,opt,name=status,proto3" json:"status,omitempty"`
-	Platform      string                 `protobuf:"bytes,5,opt,name=platform,proto3" json:"platform,omitempty"`
-	Ip            string                 `protobuf:"bytes,6,opt,name=ip,proto3" json:"ip,omitempty"`
-	LastActive    *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=last_active,json=lastActive,proto3" json:"last_active,omitempty"`
-	Location      string                 `protobuf:"bytes,8,opt,name=location,proto3" json:"location,omitempty"`
-	IsCurrent     bool                   `protobuf:"varint,9,opt,name=is_current,json=isCurrent,proto3" json:"is_current,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	DeviceId          string                 `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	DeviceName        string                 `protobuf:"bytes,2,opt,name=device_name,json=deviceName,proto3" json:"device_name,omitempty"`
+	LoginAtSeconds    uint32                 `protobuf:"varint,3,opt,name=login_at_seconds,json=loginAtSeconds,proto3" json:"login_at_seconds,omitempty"`
+	Status            int32                  `protobuf:"varint,4,opt,name=status,proto3" json:"status,omitempty"`
+	Platform          string                 `protobuf:"bytes,5,opt,name=platform,proto3" json:"platform,omitempty"`
+	Ip                string                 `protobuf:"bytes,6,opt,name=ip,proto3" json:"ip,omitempty"`
+	LastActiveSeconds uint32                 `protobuf:"varint,7,opt,name=last_active_seconds,json=lastActiveSeconds,proto3" json:"last_active_seconds,omitempty"`
+	Location          string                 `protobuf:"bytes,8,opt,name=location,proto3" json:"location,omitempty"`
+	IsCurrent         bool                   `protobuf:"varint,9,opt,name=is_current,json=isCurrent,proto3" json:"is_current,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *LogedDevice) Reset() {
 	*x = LogedDevice{}
-	mi := &file_api_api_proto_msgTypes[307]
+	mi := &file_api_api_proto_msgTypes[303]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -23059,7 +22461,7 @@ func (x *LogedDevice) String() string {
 func (*LogedDevice) ProtoMessage() {}
 
 func (x *LogedDevice) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[307]
+	mi := &file_api_api_proto_msgTypes[303]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -23072,7 +22474,7 @@ func (x *LogedDevice) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LogedDevice.ProtoReflect.Descriptor instead.
 func (*LogedDevice) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{307}
+	return file_api_api_proto_rawDescGZIP(), []int{303}
 }
 
 func (x *LogedDevice) GetDeviceId() string {
@@ -23089,11 +22491,11 @@ func (x *LogedDevice) GetDeviceName() string {
 	return ""
 }
 
-func (x *LogedDevice) GetLoginAt() *timestamppb.Timestamp {
+func (x *LogedDevice) GetLoginAtSeconds() uint32 {
 	if x != nil {
-		return x.LoginAt
+		return x.LoginAtSeconds
 	}
-	return nil
+	return 0
 }
 
 func (x *LogedDevice) GetStatus() int32 {
@@ -23117,11 +22519,11 @@ func (x *LogedDevice) GetIp() string {
 	return ""
 }
 
-func (x *LogedDevice) GetLastActive() *timestamppb.Timestamp {
+func (x *LogedDevice) GetLastActiveSeconds() uint32 {
 	if x != nil {
-		return x.LastActive
+		return x.LastActiveSeconds
 	}
-	return nil
+	return 0
 }
 
 func (x *LogedDevice) GetLocation() string {
@@ -23138,25 +22540,729 @@ func (x *LogedDevice) GetIsCurrent() bool {
 	return false
 }
 
+type DirectFcmProto struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	Title             string                 `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
+	Link              string                 `protobuf:"bytes,2,opt,name=link,proto3" json:"link,omitempty"`
+	Content           string                 `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`
+	ChannelId         int64                  `protobuf:"varint,4,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	SenderId          int64                  `protobuf:"varint,5,opt,name=sender_id,json=senderId,proto3" json:"sender_id,omitempty"`
+	Avatar            string                 `protobuf:"bytes,6,opt,name=avatar,proto3" json:"avatar,omitempty"`
+	ClanId            int64                  `protobuf:"varint,7,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	AttachmentLink    string                 `protobuf:"bytes,8,opt,name=attachment_link,json=attachmentLink,proto3" json:"attachment_link,omitempty"`
+	DisplayName       string                 `protobuf:"bytes,9,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
+	CreateTimeSeconds int32                  `protobuf:"varint,10,opt,name=create_time_seconds,json=createTimeSeconds,proto3" json:"create_time_seconds,omitempty"`
+	UpdateTimeSeconds int32                  `protobuf:"varint,11,opt,name=update_time_seconds,json=updateTimeSeconds,proto3" json:"update_time_seconds,omitempty"`
+	Username          string                 `protobuf:"bytes,12,opt,name=username,proto3" json:"username,omitempty"`
+	MentionIds        []int64                `protobuf:"varint,13,rep,packed,name=mention_ids,json=mentionIds,proto3" json:"mention_ids,omitempty"`
+	PositionS         []int32                `protobuf:"varint,14,rep,packed,name=position_s,json=positionS,proto3" json:"position_s,omitempty"`
+	PositionE         []int32                `protobuf:"varint,15,rep,packed,name=position_e,json=positionE,proto3" json:"position_e,omitempty"`
+	AttachmentType    string                 `protobuf:"bytes,16,opt,name=attachment_type,json=attachmentType,proto3" json:"attachment_type,omitempty"`
+	HasMoreAttachment bool                   `protobuf:"varint,17,opt,name=has_more_attachment,json=hasMoreAttachment,proto3" json:"has_more_attachment,omitempty"`
+	IsMentionRole     []bool                 `protobuf:"varint,18,rep,packed,name=is_mention_role,json=isMentionRole,proto3" json:"is_mention_role,omitempty"`
+	MessageId         int64                  `protobuf:"varint,19,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *DirectFcmProto) Reset() {
+	*x = DirectFcmProto{}
+	mi := &file_api_api_proto_msgTypes[304]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DirectFcmProto) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DirectFcmProto) ProtoMessage() {}
+
+func (x *DirectFcmProto) ProtoReflect() protoreflect.Message {
+	mi := &file_api_api_proto_msgTypes[304]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DirectFcmProto.ProtoReflect.Descriptor instead.
+func (*DirectFcmProto) Descriptor() ([]byte, []int) {
+	return file_api_api_proto_rawDescGZIP(), []int{304}
+}
+
+func (x *DirectFcmProto) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *DirectFcmProto) GetLink() string {
+	if x != nil {
+		return x.Link
+	}
+	return ""
+}
+
+func (x *DirectFcmProto) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
+}
+
+func (x *DirectFcmProto) GetChannelId() int64 {
+	if x != nil {
+		return x.ChannelId
+	}
+	return 0
+}
+
+func (x *DirectFcmProto) GetSenderId() int64 {
+	if x != nil {
+		return x.SenderId
+	}
+	return 0
+}
+
+func (x *DirectFcmProto) GetAvatar() string {
+	if x != nil {
+		return x.Avatar
+	}
+	return ""
+}
+
+func (x *DirectFcmProto) GetClanId() int64 {
+	if x != nil {
+		return x.ClanId
+	}
+	return 0
+}
+
+func (x *DirectFcmProto) GetAttachmentLink() string {
+	if x != nil {
+		return x.AttachmentLink
+	}
+	return ""
+}
+
+func (x *DirectFcmProto) GetDisplayName() string {
+	if x != nil {
+		return x.DisplayName
+	}
+	return ""
+}
+
+func (x *DirectFcmProto) GetCreateTimeSeconds() int32 {
+	if x != nil {
+		return x.CreateTimeSeconds
+	}
+	return 0
+}
+
+func (x *DirectFcmProto) GetUpdateTimeSeconds() int32 {
+	if x != nil {
+		return x.UpdateTimeSeconds
+	}
+	return 0
+}
+
+func (x *DirectFcmProto) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *DirectFcmProto) GetMentionIds() []int64 {
+	if x != nil {
+		return x.MentionIds
+	}
+	return nil
+}
+
+func (x *DirectFcmProto) GetPositionS() []int32 {
+	if x != nil {
+		return x.PositionS
+	}
+	return nil
+}
+
+func (x *DirectFcmProto) GetPositionE() []int32 {
+	if x != nil {
+		return x.PositionE
+	}
+	return nil
+}
+
+func (x *DirectFcmProto) GetAttachmentType() string {
+	if x != nil {
+		return x.AttachmentType
+	}
+	return ""
+}
+
+func (x *DirectFcmProto) GetHasMoreAttachment() bool {
+	if x != nil {
+		return x.HasMoreAttachment
+	}
+	return false
+}
+
+func (x *DirectFcmProto) GetIsMentionRole() []bool {
+	if x != nil {
+		return x.IsMentionRole
+	}
+	return nil
+}
+
+func (x *DirectFcmProto) GetMessageId() int64 {
+	if x != nil {
+		return x.MessageId
+	}
+	return 0
+}
+
+type MessageMentionList struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Mentions      []*MessageMention      `protobuf:"bytes,1,rep,name=mentions,proto3" json:"mentions,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MessageMentionList) Reset() {
+	*x = MessageMentionList{}
+	mi := &file_api_api_proto_msgTypes[305]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MessageMentionList) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MessageMentionList) ProtoMessage() {}
+
+func (x *MessageMentionList) ProtoReflect() protoreflect.Message {
+	mi := &file_api_api_proto_msgTypes[305]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MessageMentionList.ProtoReflect.Descriptor instead.
+func (*MessageMentionList) Descriptor() ([]byte, []int) {
+	return file_api_api_proto_rawDescGZIP(), []int{305}
+}
+
+func (x *MessageMentionList) GetMentions() []*MessageMention {
+	if x != nil {
+		return x.Mentions
+	}
+	return nil
+}
+
+type MessageAttachmentList struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Attachments   []*MessageAttachment   `protobuf:"bytes,1,rep,name=attachments,proto3" json:"attachments,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MessageAttachmentList) Reset() {
+	*x = MessageAttachmentList{}
+	mi := &file_api_api_proto_msgTypes[306]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MessageAttachmentList) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MessageAttachmentList) ProtoMessage() {}
+
+func (x *MessageAttachmentList) ProtoReflect() protoreflect.Message {
+	mi := &file_api_api_proto_msgTypes[306]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MessageAttachmentList.ProtoReflect.Descriptor instead.
+func (*MessageAttachmentList) Descriptor() ([]byte, []int) {
+	return file_api_api_proto_rawDescGZIP(), []int{306}
+}
+
+func (x *MessageAttachmentList) GetAttachments() []*MessageAttachment {
+	if x != nil {
+		return x.Attachments
+	}
+	return nil
+}
+
+type MessageRefList struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Refs          []*MessageRef          `protobuf:"bytes,1,rep,name=refs,proto3" json:"refs,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MessageRefList) Reset() {
+	*x = MessageRefList{}
+	mi := &file_api_api_proto_msgTypes[307]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MessageRefList) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MessageRefList) ProtoMessage() {}
+
+func (x *MessageRefList) ProtoReflect() protoreflect.Message {
+	mi := &file_api_api_proto_msgTypes[307]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MessageRefList.ProtoReflect.Descriptor instead.
+func (*MessageRefList) Descriptor() ([]byte, []int) {
+	return file_api_api_proto_rawDescGZIP(), []int{307}
+}
+
+func (x *MessageRefList) GetRefs() []*MessageRef {
+	if x != nil {
+		return x.Refs
+	}
+	return nil
+}
+
+type MessageReactionList struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Reactions     []*MessageReaction     `protobuf:"bytes,1,rep,name=reactions,proto3" json:"reactions,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MessageReactionList) Reset() {
+	*x = MessageReactionList{}
+	mi := &file_api_api_proto_msgTypes[308]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MessageReactionList) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MessageReactionList) ProtoMessage() {}
+
+func (x *MessageReactionList) ProtoReflect() protoreflect.Message {
+	mi := &file_api_api_proto_msgTypes[308]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MessageReactionList.ProtoReflect.Descriptor instead.
+func (*MessageReactionList) Descriptor() ([]byte, []int) {
+	return file_api_api_proto_rawDescGZIP(), []int{308}
+}
+
+func (x *MessageReactionList) GetReactions() []*MessageReaction {
+	if x != nil {
+		return x.Reactions
+	}
+	return nil
+}
+
+type ListClanBadgeCountRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClanId        int64                  `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListClanBadgeCountRequest) Reset() {
+	*x = ListClanBadgeCountRequest{}
+	mi := &file_api_api_proto_msgTypes[309]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListClanBadgeCountRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListClanBadgeCountRequest) ProtoMessage() {}
+
+func (x *ListClanBadgeCountRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_api_proto_msgTypes[309]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListClanBadgeCountRequest.ProtoReflect.Descriptor instead.
+func (*ListClanBadgeCountRequest) Descriptor() ([]byte, []int) {
+	return file_api_api_proto_rawDescGZIP(), []int{309}
+}
+
+func (x *ListClanBadgeCountRequest) GetClanId() int64 {
+	if x != nil {
+		return x.ClanId
+	}
+	return 0
+}
+
+type ListClanBadgeCountResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BadgeCount    int32                  `protobuf:"varint,1,opt,name=badge_count,json=badgeCount,proto3" json:"badge_count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListClanBadgeCountResponse) Reset() {
+	*x = ListClanBadgeCountResponse{}
+	mi := &file_api_api_proto_msgTypes[310]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListClanBadgeCountResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListClanBadgeCountResponse) ProtoMessage() {}
+
+func (x *ListClanBadgeCountResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_api_proto_msgTypes[310]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListClanBadgeCountResponse.ProtoReflect.Descriptor instead.
+func (*ListClanBadgeCountResponse) Descriptor() ([]byte, []int) {
+	return file_api_api_proto_rawDescGZIP(), []int{310}
+}
+
+func (x *ListClanBadgeCountResponse) GetBadgeCount() int32 {
+	if x != nil {
+		return x.BadgeCount
+	}
+	return 0
+}
+
+type ClanDiscover struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	ClanId            int64                  `protobuf:"varint,1,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanName          string                 `protobuf:"bytes,2,opt,name=clan_name,json=clanName,proto3" json:"clan_name,omitempty"`
+	InviteId          int64                  `protobuf:"varint,3,opt,name=invite_id,json=inviteId,proto3" json:"invite_id,omitempty"`
+	ClanLogo          string                 `protobuf:"bytes,4,opt,name=clan_logo,json=clanLogo,proto3" json:"clan_logo,omitempty"`
+	OnlineMembers     int32                  `protobuf:"varint,5,opt,name=online_members,json=onlineMembers,proto3" json:"online_members,omitempty"`
+	TotalMembers      int32                  `protobuf:"varint,6,opt,name=total_members,json=totalMembers,proto3" json:"total_members,omitempty"`
+	Verified          bool                   `protobuf:"varint,7,opt,name=verified,proto3" json:"verified,omitempty"`
+	Description       string                 `protobuf:"bytes,8,opt,name=description,proto3" json:"description,omitempty"`
+	Banner            string                 `protobuf:"bytes,9,opt,name=banner,proto3" json:"banner,omitempty"`
+	About             string                 `protobuf:"bytes,10,opt,name=about,proto3" json:"about,omitempty"`
+	ShortUrl          string                 `protobuf:"bytes,11,opt,name=short_url,json=shortUrl,proto3" json:"short_url,omitempty"`
+	CreateTimeSeconds uint32                 `protobuf:"varint,12,opt,name=create_time_seconds,json=createTimeSeconds,proto3" json:"create_time_seconds,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *ClanDiscover) Reset() {
+	*x = ClanDiscover{}
+	mi := &file_api_api_proto_msgTypes[311]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ClanDiscover) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ClanDiscover) ProtoMessage() {}
+
+func (x *ClanDiscover) ProtoReflect() protoreflect.Message {
+	mi := &file_api_api_proto_msgTypes[311]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ClanDiscover.ProtoReflect.Descriptor instead.
+func (*ClanDiscover) Descriptor() ([]byte, []int) {
+	return file_api_api_proto_rawDescGZIP(), []int{311}
+}
+
+func (x *ClanDiscover) GetClanId() int64 {
+	if x != nil {
+		return x.ClanId
+	}
+	return 0
+}
+
+func (x *ClanDiscover) GetClanName() string {
+	if x != nil {
+		return x.ClanName
+	}
+	return ""
+}
+
+func (x *ClanDiscover) GetInviteId() int64 {
+	if x != nil {
+		return x.InviteId
+	}
+	return 0
+}
+
+func (x *ClanDiscover) GetClanLogo() string {
+	if x != nil {
+		return x.ClanLogo
+	}
+	return ""
+}
+
+func (x *ClanDiscover) GetOnlineMembers() int32 {
+	if x != nil {
+		return x.OnlineMembers
+	}
+	return 0
+}
+
+func (x *ClanDiscover) GetTotalMembers() int32 {
+	if x != nil {
+		return x.TotalMembers
+	}
+	return 0
+}
+
+func (x *ClanDiscover) GetVerified() bool {
+	if x != nil {
+		return x.Verified
+	}
+	return false
+}
+
+func (x *ClanDiscover) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *ClanDiscover) GetBanner() string {
+	if x != nil {
+		return x.Banner
+	}
+	return ""
+}
+
+func (x *ClanDiscover) GetAbout() string {
+	if x != nil {
+		return x.About
+	}
+	return ""
+}
+
+func (x *ClanDiscover) GetShortUrl() string {
+	if x != nil {
+		return x.ShortUrl
+	}
+	return ""
+}
+
+func (x *ClanDiscover) GetCreateTimeSeconds() uint32 {
+	if x != nil {
+		return x.CreateTimeSeconds
+	}
+	return 0
+}
+
+type ListClanDiscover struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ClanDiscover  []*ClanDiscover        `protobuf:"bytes,1,rep,name=clan_discover,json=clanDiscover,proto3" json:"clan_discover,omitempty"`
+	PageNumber    int32                  `protobuf:"varint,2,opt,name=page_number,json=pageNumber,proto3" json:"page_number,omitempty"`
+	PageCount     int32                  `protobuf:"varint,3,opt,name=page_count,json=pageCount,proto3" json:"page_count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListClanDiscover) Reset() {
+	*x = ListClanDiscover{}
+	mi := &file_api_api_proto_msgTypes[312]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListClanDiscover) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListClanDiscover) ProtoMessage() {}
+
+func (x *ListClanDiscover) ProtoReflect() protoreflect.Message {
+	mi := &file_api_api_proto_msgTypes[312]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListClanDiscover.ProtoReflect.Descriptor instead.
+func (*ListClanDiscover) Descriptor() ([]byte, []int) {
+	return file_api_api_proto_rawDescGZIP(), []int{312}
+}
+
+func (x *ListClanDiscover) GetClanDiscover() []*ClanDiscover {
+	if x != nil {
+		return x.ClanDiscover
+	}
+	return nil
+}
+
+func (x *ListClanDiscover) GetPageNumber() int32 {
+	if x != nil {
+		return x.PageNumber
+	}
+	return 0
+}
+
+func (x *ListClanDiscover) GetPageCount() int32 {
+	if x != nil {
+		return x.PageCount
+	}
+	return 0
+}
+
+type GenerateMeetTokenExternalResponse struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Token            string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	GuestUserId      int64                  `protobuf:"varint,2,opt,name=guest_user_id,json=guestUserId,proto3" json:"guest_user_id,omitempty"`
+	GuestAccessToken string                 `protobuf:"bytes,3,opt,name=guest_access_token,json=guestAccessToken,proto3" json:"guest_access_token,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *GenerateMeetTokenExternalResponse) Reset() {
+	*x = GenerateMeetTokenExternalResponse{}
+	mi := &file_api_api_proto_msgTypes[313]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GenerateMeetTokenExternalResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GenerateMeetTokenExternalResponse) ProtoMessage() {}
+
+func (x *GenerateMeetTokenExternalResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_api_proto_msgTypes[313]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GenerateMeetTokenExternalResponse.ProtoReflect.Descriptor instead.
+func (*GenerateMeetTokenExternalResponse) Descriptor() ([]byte, []int) {
+	return file_api_api_proto_rawDescGZIP(), []int{313}
+}
+
+func (x *GenerateMeetTokenExternalResponse) GetToken() string {
+	if x != nil {
+		return x.Token
+	}
+	return ""
+}
+
+func (x *GenerateMeetTokenExternalResponse) GetGuestUserId() int64 {
+	if x != nil {
+		return x.GuestUserId
+	}
+	return 0
+}
+
+func (x *GenerateMeetTokenExternalResponse) GetGuestAccessToken() string {
+	if x != nil {
+		return x.GuestAccessToken
+	}
+	return ""
+}
+
 // A single user-role pair.
 type ChannelUserList_ChannelUser struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// User.
-	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId int64 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	// Their relationship to the role.
-	RoleId []string `protobuf:"bytes,2,rep,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`
+	RoleId []int64 `protobuf:"varint,2,rep,packed,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`
 	// Id
-	Id string `protobuf:"bytes,3,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,3,opt,name=id,proto3" json:"id,omitempty"`
 	// thread id
-	ThreadId string `protobuf:"bytes,4,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
+	ThreadId int64 `protobuf:"varint,4,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
 	// clan nick name
 	ClanNick string `protobuf:"bytes,5,opt,name=clan_nick,json=clanNick,proto3" json:"clan_nick,omitempty"`
 	// clan avatar
 	ClanAvatar string `protobuf:"bytes,6,opt,name=clan_avatar,json=clanAvatar,proto3" json:"clan_avatar,omitempty"`
 	// clan Id
-	ClanId string `protobuf:"bytes,7,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId int64 `protobuf:"varint,7,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	// added by
-	AddedBy string `protobuf:"bytes,8,opt,name=added_by,json=addedBy,proto3" json:"added_by,omitempty"`
+	AddedBy int64 `protobuf:"varint,8,opt,name=added_by,json=addedBy,proto3" json:"added_by,omitempty"`
 	// is banned
 	IsBanned bool `protobuf:"varint,9,opt,name=is_banned,json=isBanned,proto3" json:"is_banned,omitempty"`
 	// expired time
@@ -23167,7 +23273,7 @@ type ChannelUserList_ChannelUser struct {
 
 func (x *ChannelUserList_ChannelUser) Reset() {
 	*x = ChannelUserList_ChannelUser{}
-	mi := &file_api_api_proto_msgTypes[311]
+	mi := &file_api_api_proto_msgTypes[317]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -23179,7 +23285,7 @@ func (x *ChannelUserList_ChannelUser) String() string {
 func (*ChannelUserList_ChannelUser) ProtoMessage() {}
 
 func (x *ChannelUserList_ChannelUser) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[311]
+	mi := &file_api_api_proto_msgTypes[317]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -23195,32 +23301,32 @@ func (*ChannelUserList_ChannelUser) Descriptor() ([]byte, []int) {
 	return file_api_api_proto_rawDescGZIP(), []int{27, 0}
 }
 
-func (x *ChannelUserList_ChannelUser) GetUserId() string {
+func (x *ChannelUserList_ChannelUser) GetUserId() int64 {
 	if x != nil {
 		return x.UserId
 	}
-	return ""
+	return 0
 }
 
-func (x *ChannelUserList_ChannelUser) GetRoleId() []string {
+func (x *ChannelUserList_ChannelUser) GetRoleId() []int64 {
 	if x != nil {
 		return x.RoleId
 	}
 	return nil
 }
 
-func (x *ChannelUserList_ChannelUser) GetId() string {
+func (x *ChannelUserList_ChannelUser) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
-func (x *ChannelUserList_ChannelUser) GetThreadId() string {
+func (x *ChannelUserList_ChannelUser) GetThreadId() int64 {
 	if x != nil {
 		return x.ThreadId
 	}
-	return ""
+	return 0
 }
 
 func (x *ChannelUserList_ChannelUser) GetClanNick() string {
@@ -23237,18 +23343,18 @@ func (x *ChannelUserList_ChannelUser) GetClanAvatar() string {
 	return ""
 }
 
-func (x *ChannelUserList_ChannelUser) GetClanId() string {
+func (x *ChannelUserList_ChannelUser) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
-func (x *ChannelUserList_ChannelUser) GetAddedBy() string {
+func (x *ChannelUserList_ChannelUser) GetAddedBy() int64 {
 	if x != nil {
 		return x.AddedBy
 	}
-	return ""
+	return 0
 }
 
 func (x *ChannelUserList_ChannelUser) GetIsBanned() bool {
@@ -23271,19 +23377,19 @@ type ClanUserList_ClanUser struct {
 	// User.
 	User *User `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
 	// Their relationship to the role.
-	RoleId []string `protobuf:"bytes,2,rep,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`
+	RoleId []int64 `protobuf:"varint,2,rep,packed,name=role_id,json=roleId,proto3" json:"role_id,omitempty"`
 	// from the `nick_name` field in the `clan_desc_profile` table.
 	ClanNick string `protobuf:"bytes,3,opt,name=clan_nick,json=clanNick,proto3" json:"clan_nick,omitempty"`
 	// from the `avatar_url` field in the `clan_desc_profile` table.
 	ClanAvatar string `protobuf:"bytes,4,opt,name=clan_avatar,json=clanAvatar,proto3" json:"clan_avatar,omitempty"`
-	ClanId        string `protobuf:"bytes,5,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64 `protobuf:"varint,5,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ClanUserList_ClanUser) Reset() {
 	*x = ClanUserList_ClanUser{}
-	mi := &file_api_api_proto_msgTypes[312]
+	mi := &file_api_api_proto_msgTypes[318]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -23295,7 +23401,7 @@ func (x *ClanUserList_ClanUser) String() string {
 func (*ClanUserList_ClanUser) ProtoMessage() {}
 
 func (x *ClanUserList_ClanUser) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[312]
+	mi := &file_api_api_proto_msgTypes[318]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -23318,7 +23424,7 @@ func (x *ClanUserList_ClanUser) GetUser() *User {
 	return nil
 }
 
-func (x *ClanUserList_ClanUser) GetRoleId() []string {
+func (x *ClanUserList_ClanUser) GetRoleId() []int64 {
 	if x != nil {
 		return x.RoleId
 	}
@@ -23339,24 +23445,24 @@ func (x *ClanUserList_ClanUser) GetClanAvatar() string {
 	return ""
 }
 
-func (x *ClanUserList_ClanUser) GetClanId() string {
+func (x *ClanUserList_ClanUser) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 type UpdateClanOrderRequest_ClanOrder struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Order         int32                  `protobuf:"varint,1,opt,name=order,proto3" json:"order,omitempty"`
-	ClanId        string                 `protobuf:"bytes,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
+	ClanId        int64                  `protobuf:"varint,2,opt,name=clan_id,json=clanId,proto3" json:"clan_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UpdateClanOrderRequest_ClanOrder) Reset() {
 	*x = UpdateClanOrderRequest_ClanOrder{}
-	mi := &file_api_api_proto_msgTypes[313]
+	mi := &file_api_api_proto_msgTypes[319]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -23368,7 +23474,7 @@ func (x *UpdateClanOrderRequest_ClanOrder) String() string {
 func (*UpdateClanOrderRequest_ClanOrder) ProtoMessage() {}
 
 func (x *UpdateClanOrderRequest_ClanOrder) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[313]
+	mi := &file_api_api_proto_msgTypes[319]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -23391,18 +23497,18 @@ func (x *UpdateClanOrderRequest_ClanOrder) GetOrder() int32 {
 	return 0
 }
 
-func (x *UpdateClanOrderRequest_ClanOrder) GetClanId() string {
+func (x *UpdateClanOrderRequest_ClanOrder) GetClanId() int64 {
 	if x != nil {
 		return x.ClanId
 	}
-	return ""
+	return 0
 }
 
 // A single user-role pair.
 type RoleUserList_RoleUser struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The id of the user's account.
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// The username of the user's account.
 	Username string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
 	// The display name of the user.
@@ -23421,7 +23527,7 @@ type RoleUserList_RoleUser struct {
 
 func (x *RoleUserList_RoleUser) Reset() {
 	*x = RoleUserList_RoleUser{}
-	mi := &file_api_api_proto_msgTypes[314]
+	mi := &file_api_api_proto_msgTypes[320]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -23433,7 +23539,7 @@ func (x *RoleUserList_RoleUser) String() string {
 func (*RoleUserList_RoleUser) ProtoMessage() {}
 
 func (x *RoleUserList_RoleUser) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[314]
+	mi := &file_api_api_proto_msgTypes[320]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -23446,14 +23552,14 @@ func (x *RoleUserList_RoleUser) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RoleUserList_RoleUser.ProtoReflect.Descriptor instead.
 func (*RoleUserList_RoleUser) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{136, 0}
+	return file_api_api_proto_rawDescGZIP(), []int{133, 0}
 }
 
-func (x *RoleUserList_RoleUser) GetId() string {
+func (x *RoleUserList_RoleUser) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
-	return ""
+	return 0
 }
 
 func (x *RoleUserList_RoleUser) GetUsername() string {
@@ -23500,7 +23606,7 @@ func (x *RoleUserList_RoleUser) GetOnline() bool {
 
 type GetPubKeysResponse_UserPubKey struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	PK            *PubKey                `protobuf:"bytes,2,opt,name=PK,proto3" json:"PK,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -23508,7 +23614,7 @@ type GetPubKeysResponse_UserPubKey struct {
 
 func (x *GetPubKeysResponse_UserPubKey) Reset() {
 	*x = GetPubKeysResponse_UserPubKey{}
-	mi := &file_api_api_proto_msgTypes[316]
+	mi := &file_api_api_proto_msgTypes[322]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -23520,7 +23626,7 @@ func (x *GetPubKeysResponse_UserPubKey) String() string {
 func (*GetPubKeysResponse_UserPubKey) ProtoMessage() {}
 
 func (x *GetPubKeysResponse_UserPubKey) ProtoReflect() protoreflect.Message {
-	mi := &file_api_api_proto_msgTypes[316]
+	mi := &file_api_api_proto_msgTypes[322]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -23533,14 +23639,14 @@ func (x *GetPubKeysResponse_UserPubKey) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPubKeysResponse_UserPubKey.ProtoReflect.Descriptor instead.
 func (*GetPubKeysResponse_UserPubKey) Descriptor() ([]byte, []int) {
-	return file_api_api_proto_rawDescGZIP(), []int{242, 0}
+	return file_api_api_proto_rawDescGZIP(), []int{238, 0}
 }
 
-func (x *GetPubKeysResponse_UserPubKey) GetUserId() string {
+func (x *GetPubKeysResponse_UserPubKey) GetUserId() int64 {
 	if x != nil {
 		return x.UserId
 	}
-	return ""
+	return 0
 }
 
 func (x *GetPubKeysResponse_UserPubKey) GetPK() *PubKey {
@@ -23554,14 +23660,13 @@ var File_api_api_proto protoreflect.FileDescriptor
 
 const file_api_api_proto_rawDesc = "" +
 	"\n" +
-	"\rapi/api.proto\x12\tmezon.api\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\"\xeb\x02\n" +
+	"\rapi/api.proto\x12\tmezon.api\x1a\x1egoogle/protobuf/wrappers.proto\"\xd1\x02\n" +
 	"\aAccount\x12#\n" +
 	"\x04user\x18\x01 \x01(\v2\x0f.mezon.api.UserR\x04user\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x17\n" +
-	"\aqr_code\x18\x03 \x01(\tR\x06qrCode\x12;\n" +
-	"\vverify_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"verifyTime\x12=\n" +
-	"\fdisable_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\vdisableTime\x12\x12\n" +
+	"\aqr_code\x18\x03 \x01(\tR\x06qrCode\x12.\n" +
+	"\x13verify_time_seconds\x18\x04 \x01(\rR\x11verifyTimeSeconds\x120\n" +
+	"\x14disable_time_seconds\x18\x05 \x01(\rR\x12disableTimeSeconds\x12\x12\n" +
 	"\x04logo\x18\x06 \x01(\tR\x04logo\x12#\n" +
 	"\rsplash_screen\x18\a \x01(\tR\fsplashScreen\x12.\n" +
 	"\x13encrypt_private_key\x18\b \x01(\tR\x11encryptPrivateKey\x12'\n" +
@@ -23573,18 +23678,18 @@ const file_api_api_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"C\n" +
 	"\x11AddFriendsRequest\x12\x10\n" +
-	"\x03ids\x18\x01 \x03(\tR\x03ids\x12\x1c\n" +
+	"\x03ids\x18\x01 \x03(\x03R\x03ids\x12\x1c\n" +
 	"\tusernames\x18\x02 \x03(\tR\tusernames\"D\n" +
 	"\x12AddFriendsResponse\x12\x10\n" +
-	"\x03ids\x18\x01 \x03(\tR\x03ids\x12\x1c\n" +
+	"\x03ids\x18\x01 \x03(\x03R\x03ids\x12\x1c\n" +
 	"\tusernames\x18\x02 \x03(\tR\tusernames\"L\n" +
 	"\x14AddGroupUsersRequest\x12\x19\n" +
-	"\bgroup_id\x18\x01 \x01(\tR\agroupId\x12\x19\n" +
-	"\buser_ids\x18\x02 \x03(\tR\auserIds\"\xe3\x01\n" +
+	"\bgroup_id\x18\x01 \x01(\x03R\agroupId\x12\x19\n" +
+	"\buser_ids\x18\x02 \x03(\x03R\auserIds\"\xc7\x01\n" +
 	"\x15SessionRefreshRequest\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\x12>\n" +
-	"\x04vars\x18\x02 \x03(\v2*.mezon.api.SessionRefreshRequest.VarsEntryR\x04vars\x12;\n" +
-	"\vis_remember\x18\x03 \x01(\v2\x1a.google.protobuf.BoolValueR\n" +
+	"\x04vars\x18\x02 \x03(\v2*.mezon.api.SessionRefreshRequest.VarsEntryR\x04vars\x12\x1f\n" +
+	"\vis_remember\x18\x03 \x01(\bR\n" +
 	"isRemember\x1a7\n" +
 	"\tVarsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -23600,57 +23705,52 @@ const file_api_api_proto_rawDesc = "" +
 	"\x10expired_ban_time\x18\x02 \x01(\x05R\x0eexpiredBanTime\"0\n" +
 	"\x0fIsBannedRequest\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x01 \x01(\tR\tchannelId\"L\n" +
+	"channel_id\x18\x01 \x01(\x03R\tchannelId\"L\n" +
 	"\x14BanGroupUsersRequest\x12\x19\n" +
-	"\bgroup_id\x18\x01 \x01(\tR\agroupId\x12\x19\n" +
-	"\buser_ids\x18\x02 \x03(\tR\auserIds\"E\n" +
+	"\bgroup_id\x18\x01 \x01(\x03R\agroupId\x12\x19\n" +
+	"\buser_ids\x18\x02 \x03(\x03R\auserIds\"E\n" +
 	"\x13BlockFriendsRequest\x12\x10\n" +
-	"\x03ids\x18\x01 \x03(\tR\x03ids\x12\x1c\n" +
-	"\tusernames\x18\x02 \x03(\tR\tusernames\"\xa2\a\n" +
+	"\x03ids\x18\x01 \x03(\x03R\x03ids\x12\x1c\n" +
+	"\tusernames\x18\x02 \x03(\tR\tusernames\"\xa8\x06\n" +
 	"\x0eChannelMessage\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x12\x1d\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12\x1d\n" +
 	"\n" +
-	"message_id\x18\x03 \x01(\tR\tmessageId\x12\x12\n" +
+	"message_id\x18\x03 \x01(\x03R\tmessageId\x12\x12\n" +
 	"\x04code\x18\x04 \x01(\x05R\x04code\x12\x1b\n" +
-	"\tsender_id\x18\x05 \x01(\tR\bsenderId\x12\x1a\n" +
+	"\tsender_id\x18\x05 \x01(\x03R\bsenderId\x12\x1a\n" +
 	"\busername\x18\x06 \x01(\tR\busername\x12\x16\n" +
 	"\x06avatar\x18\a \x01(\tR\x06avatar\x12\x18\n" +
-	"\acontent\x18\b \x01(\tR\acontent\x12;\n" +
-	"\vcreate_time\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"createTime\x12;\n" +
-	"\vupdate_time\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"updateTime\x12#\n" +
-	"\rchannel_label\x18\v \x01(\tR\fchannelLabel\x12\x1b\n" +
-	"\tclan_logo\x18\f \x01(\tR\bclanLogo\x12#\n" +
-	"\rcategory_name\x18\r \x01(\tR\fcategoryName\x12!\n" +
-	"\fdisplay_name\x18\x0e \x01(\tR\vdisplayName\x12\x1b\n" +
-	"\tclan_nick\x18\x0f \x01(\tR\bclanNick\x12\x1f\n" +
-	"\vclan_avatar\x18\x10 \x01(\tR\n" +
+	"\acontent\x18\b \x01(\tR\acontent\x12#\n" +
+	"\rchannel_label\x18\t \x01(\tR\fchannelLabel\x12\x1b\n" +
+	"\tclan_logo\x18\n" +
+	" \x01(\tR\bclanLogo\x12#\n" +
+	"\rcategory_name\x18\v \x01(\tR\fcategoryName\x12!\n" +
+	"\fdisplay_name\x18\f \x01(\tR\vdisplayName\x12\x1b\n" +
+	"\tclan_nick\x18\r \x01(\tR\bclanNick\x12\x1f\n" +
+	"\vclan_avatar\x18\x0e \x01(\tR\n" +
 	"clanAvatar\x12\x1c\n" +
-	"\treactions\x18\x11 \x01(\tR\treactions\x12\x1a\n" +
-	"\bmentions\x18\x12 \x01(\tR\bmentions\x12 \n" +
-	"\vattachments\x18\x13 \x01(\tR\vattachments\x12\x1e\n" +
+	"\treactions\x18\x0f \x01(\fR\treactions\x12\x1a\n" +
+	"\bmentions\x18\x10 \x01(\fR\bmentions\x12 \n" +
+	"\vattachments\x18\x11 \x01(\fR\vattachments\x12\x1e\n" +
 	"\n" +
-	"references\x18\x14 \x01(\tR\n" +
+	"references\x18\x12 \x01(\fR\n" +
 	"references\x12-\n" +
-	"\x12referenced_message\x18\x15 \x01(\tR\x11referencedMessage\x12.\n" +
-	"\x13create_time_seconds\x18\x16 \x01(\rR\x11createTimeSeconds\x12.\n" +
-	"\x13update_time_seconds\x18\x17 \x01(\rR\x11updateTimeSeconds\x12\x12\n" +
-	"\x04mode\x18\x18 \x01(\x05R\x04mode\x12!\n" +
-	"\fhide_editted\x18\x19 \x01(\bR\vhideEditted\x12\x1b\n" +
-	"\tis_public\x18\x1a \x01(\bR\bisPublic\x12\x19\n" +
-	"\btopic_id\x18\x1b \x01(\tR\atopicId\"\xe3\x01\n" +
+	"\x12referenced_message\x18\x13 \x01(\fR\x11referencedMessage\x12.\n" +
+	"\x13create_time_seconds\x18\x14 \x01(\rR\x11createTimeSeconds\x12.\n" +
+	"\x13update_time_seconds\x18\x15 \x01(\rR\x11updateTimeSeconds\x12\x12\n" +
+	"\x04mode\x18\x16 \x01(\x05R\x04mode\x12!\n" +
+	"\fhide_editted\x18\x17 \x01(\bR\vhideEditted\x12\x1b\n" +
+	"\tis_public\x18\x18 \x01(\bR\bisPublic\x12\x19\n" +
+	"\btopic_id\x18\x19 \x01(\x03R\atopicId\"\xd6\x01\n" +
 	"\x0eMessageMention\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1a\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\x03R\x06userId\x12\x1a\n" +
 	"\busername\x18\x03 \x01(\tR\busername\x12\x17\n" +
-	"\arole_id\x18\x04 \x01(\tR\x06roleId\x12\x1a\n" +
-	"\brolename\x18\x05 \x01(\tR\brolename\x12;\n" +
-	"\vcreate_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"createTime\x12\f\n" +
+	"\arole_id\x18\x04 \x01(\x03R\x06roleId\x12\x1a\n" +
+	"\brolename\x18\x05 \x01(\tR\brolename\x12.\n" +
+	"\x13create_time_seconds\x18\x06 \x01(\rR\x11createTimeSeconds\x12\f\n" +
 	"\x01s\x18\a \x01(\x05R\x01s\x12\f\n" +
 	"\x01e\x18\b \x01(\x05R\x01e\"\x87\x03\n" +
 	"\x10NotificationInfo\x12\x1a\n" +
@@ -23668,29 +23768,29 @@ const file_api_api_proto_rawDesc = "" +
 	" \x01(\tR\bclanLogo\x127\n" +
 	"\achannel\x18\v \x01(\v2\x1d.mezon.api.ChannelDescriptionR\achannel\"\xda\x03\n" +
 	"\x0fMessageReaction\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
-	"\bemoji_id\x18\x02 \x01(\tR\aemojiId\x12\x14\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x19\n" +
+	"\bemoji_id\x18\x02 \x01(\x03R\aemojiId\x12\x14\n" +
 	"\x05emoji\x18\x03 \x01(\tR\x05emoji\x12\x1b\n" +
-	"\tsender_id\x18\x04 \x01(\tR\bsenderId\x12\x1f\n" +
+	"\tsender_id\x18\x04 \x01(\x03R\bsenderId\x12\x1f\n" +
 	"\vsender_name\x18\x05 \x01(\tR\n" +
 	"senderName\x12#\n" +
 	"\rsender_avatar\x18\x06 \x01(\tR\fsenderAvatar\x12\x16\n" +
 	"\x06action\x18\a \x01(\bR\x06action\x12\x14\n" +
 	"\x05count\x18\b \x01(\x05R\x05count\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\t \x01(\tR\tchannelId\x12\x1d\n" +
+	"channel_id\x18\t \x01(\x03R\tchannelId\x12\x1d\n" +
 	"\n" +
 	"message_id\x18\n" +
-	" \x01(\tR\tmessageId\x12\x17\n" +
-	"\aclan_id\x18\v \x01(\tR\x06clanId\x12\x12\n" +
+	" \x01(\x03R\tmessageId\x12\x17\n" +
+	"\aclan_id\x18\v \x01(\x03R\x06clanId\x12\x12\n" +
 	"\x04mode\x18\f \x01(\x05R\x04mode\x12*\n" +
-	"\x11message_sender_id\x18\r \x01(\tR\x0fmessageSenderId\x12\x1b\n" +
+	"\x11message_sender_id\x18\r \x01(\x03R\x0fmessageSenderId\x12\x1b\n" +
 	"\tis_public\x18\x0e \x01(\bR\bisPublic\x12\x19\n" +
-	"\btopic_id\x18\x0f \x01(\tR\atopicId\x12&\n" +
-	"\x0femoji_recent_id\x18\x10 \x01(\tR\remojiRecentId\"\xd9\x01\n" +
+	"\btopic_id\x18\x0f \x01(\x03R\atopicId\x12&\n" +
+	"\x0femoji_recent_id\x18\x10 \x01(\x03R\remojiRecentId\"\xd9\x01\n" +
 	"\x11MessageAttachment\x12\x1a\n" +
 	"\bfilename\x18\x01 \x01(\tR\bfilename\x12\x12\n" +
-	"\x04size\x18\x02 \x01(\x03R\x04size\x12\x10\n" +
+	"\x04size\x18\x02 \x01(\x05R\x04size\x12\x10\n" +
 	"\x03url\x18\x03 \x01(\tR\x03url\x12\x1a\n" +
 	"\bfiletype\x18\x04 \x01(\tR\bfiletype\x12\x14\n" +
 	"\x05width\x18\x05 \x01(\x05R\x05width\x12\x16\n" +
@@ -23700,12 +23800,12 @@ const file_api_api_proto_rawDesc = "" +
 	"\n" +
 	"MessageRef\x12\x1d\n" +
 	"\n" +
-	"message_id\x18\x01 \x01(\tR\tmessageId\x12$\n" +
-	"\x0emessage_ref_id\x18\x02 \x01(\tR\fmessageRefId\x12\x18\n" +
+	"message_id\x18\x01 \x01(\x03R\tmessageId\x12$\n" +
+	"\x0emessage_ref_id\x18\x02 \x01(\x03R\fmessageRefId\x12\x18\n" +
 	"\acontent\x18\x03 \x01(\tR\acontent\x12%\n" +
 	"\x0ehas_attachment\x18\x04 \x01(\bR\rhasAttachment\x12\x19\n" +
 	"\bref_type\x18\x05 \x01(\x05R\arefType\x12*\n" +
-	"\x11message_sender_id\x18\x06 \x01(\tR\x0fmessageSenderId\x126\n" +
+	"\x11message_sender_id\x18\x06 \x01(\x03R\x0fmessageSenderId\x126\n" +
 	"\x17message_sender_username\x18\a \x01(\tR\x15messageSenderUsername\x122\n" +
 	"\x15mesages_sender_avatar\x18\b \x01(\tR\x13mesagesSenderAvatar\x127\n" +
 	"\x18message_sender_clan_nick\x18\t \x01(\tR\x15messageSenderClanNick\x12=\n" +
@@ -23713,7 +23813,7 @@ const file_api_api_proto_rawDesc = "" +
 	" \x01(\tR\x18messageSenderDisplayName\"I\n" +
 	"\x0eMessageDeleted\x12\x1d\n" +
 	"\n" +
-	"message_id\x18\x01 \x01(\tR\tmessageId\x12\x18\n" +
+	"message_id\x18\x01 \x01(\x03R\tmessageId\x12\x18\n" +
 	"\adeletor\x18\x02 \x01(\tR\adeletor\"\xe5\x01\n" +
 	"\x12ChannelMessageList\x125\n" +
 	"\bmessages\x18\x01 \x03(\v2\x19.mezon.api.ChannelMessageR\bmessages\x12K\n" +
@@ -23728,29 +23828,28 @@ const file_api_api_proto_rawDesc = "" +
 	"\x04open\x18\x05 \x01(\bR\x04open\x12\x1b\n" +
 	"\tmax_count\x18\x06 \x01(\x05R\bmaxCount\"F\n" +
 	"\x14DeleteFriendsRequest\x12\x10\n" +
-	"\x03ids\x18\x01 \x03(\tR\x03ids\x12\x1c\n" +
+	"\x03ids\x18\x01 \x03(\x03R\x03ids\x12\x1c\n" +
 	"\tusernames\x18\x02 \x03(\tR\tusernames\"/\n" +
 	"\x12DeleteGroupRequest\x12\x19\n" +
-	"\bgroup_id\x18\x01 \x01(\tR\agroupId\"J\n" +
+	"\bgroup_id\x18\x01 \x01(\x03R\agroupId\"J\n" +
 	"\x1aDeleteNotificationsRequest\x12\x10\n" +
-	"\x03ids\x18\x01 \x03(\tR\x03ids\x12\x1a\n" +
-	"\bcategory\x18\x02 \x01(\x05R\bcategory\"\xf2\x01\n" +
+	"\x03ids\x18\x01 \x03(\x03R\x03ids\x12\x1a\n" +
+	"\bcategory\x18\x02 \x01(\x05R\bcategory\"\xe5\x01\n" +
 	"\x05Event\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12@\n" +
 	"\n" +
 	"properties\x18\x02 \x03(\v2 .mezon.api.Event.PropertiesEntryR\n" +
-	"properties\x128\n" +
-	"\ttimestamp\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\x12\x1a\n" +
+	"properties\x12+\n" +
+	"\x11timestamp_seconds\x18\x03 \x01(\rR\x10timestampSeconds\x12\x1a\n" +
 	"\bexternal\x18\x04 \x01(\bR\bexternal\x1a=\n" +
 	"\x0fPropertiesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe5\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd8\x01\n" +
 	"\x06Friend\x12#\n" +
 	"\x04user\x18\x01 \x01(\v2\x0f.mezon.api.UserR\x04user\x12\x14\n" +
-	"\x05state\x18\x02 \x01(\x05R\x05state\x12;\n" +
-	"\vupdate_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"updateTime\x12\x1b\n" +
-	"\tsource_id\x18\x04 \x01(\tR\bsourceId\"F\n" +
+	"\x05state\x18\x02 \x01(\x05R\x05state\x12.\n" +
+	"\x13update_time_seconds\x18\x03 \x01(\rR\x11updateTimeSeconds\x12\x1b\n" +
+	"\tsource_id\x18\x04 \x01(\x03R\bsourceId\"F\n" +
 	"\x05State\x12\n" +
 	"\n" +
 	"\x06FRIEND\x10\x00\x12\x0f\n" +
@@ -23769,39 +23868,38 @@ const file_api_api_proto_rawDesc = "" +
 	"\rchannel_users\x18\x01 \x03(\v2&.mezon.api.ChannelUserList.ChannelUserR\fchannelUsers\x12\x16\n" +
 	"\x06cursor\x18\x02 \x01(\tR\x06cursor\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x03 \x01(\tR\tchannelId\x1a\xa5\x02\n" +
+	"channel_id\x18\x03 \x01(\x03R\tchannelId\x1a\xa5\x02\n" +
 	"\vChannelUser\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x17\n" +
-	"\arole_id\x18\x02 \x03(\tR\x06roleId\x12\x0e\n" +
-	"\x02id\x18\x03 \x01(\tR\x02id\x12\x1b\n" +
-	"\tthread_id\x18\x04 \x01(\tR\bthreadId\x12\x1b\n" +
+	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x17\n" +
+	"\arole_id\x18\x02 \x03(\x03R\x06roleId\x12\x0e\n" +
+	"\x02id\x18\x03 \x01(\x03R\x02id\x12\x1b\n" +
+	"\tthread_id\x18\x04 \x01(\x03R\bthreadId\x12\x1b\n" +
 	"\tclan_nick\x18\x05 \x01(\tR\bclanNick\x12\x1f\n" +
 	"\vclan_avatar\x18\x06 \x01(\tR\n" +
 	"clanAvatar\x12\x17\n" +
-	"\aclan_id\x18\a \x01(\tR\x06clanId\x12\x19\n" +
-	"\badded_by\x18\b \x01(\tR\aaddedBy\x12\x1b\n" +
+	"\aclan_id\x18\a \x01(\x03R\x06clanId\x12\x19\n" +
+	"\badded_by\x18\b \x01(\x03R\aaddedBy\x12\x1b\n" +
 	"\tis_banned\x18\t \x01(\bR\bisBanned\x12(\n" +
 	"\x10expired_ban_time\x18\n" +
 	" \x01(\x05R\x0eexpiredBanTime\"|\n" +
 	"\x10VoiceChannelUser\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\x03R\x06userId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x03 \x01(\tR\tchannelId\x12 \n" +
+	"channel_id\x18\x03 \x01(\x03R\tchannelId\x12 \n" +
 	"\vparticipant\x18\x04 \x01(\tR\vparticipant\"c\n" +
 	"\x14VoiceChannelUserList\x12K\n" +
-	"\x13voice_channel_users\x18\x01 \x03(\v2\x1b.mezon.api.VoiceChannelUserR\x11voiceChannelUsers\"\xaf\x02\n" +
+	"\x13voice_channel_users\x18\x01 \x03(\v2\x1b.mezon.api.VoiceChannelUserR\x11voiceChannelUsers\"\xa2\x02\n" +
 	"\x11ChannelAttachment\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1a\n" +
 	"\bfilename\x18\x02 \x01(\tR\bfilename\x12\x1a\n" +
 	"\bfiletype\x18\x03 \x01(\tR\bfiletype\x12\x1a\n" +
 	"\bfilesize\x18\x04 \x01(\tR\bfilesize\x12\x10\n" +
 	"\x03url\x18\x05 \x01(\tR\x03url\x12\x1a\n" +
-	"\buploader\x18\x06 \x01(\tR\buploader\x12;\n" +
-	"\vcreate_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"createTime\x12\x1d\n" +
+	"\buploader\x18\x06 \x01(\x03R\buploader\x12.\n" +
+	"\x13create_time_seconds\x18\a \x01(\rR\x11createTimeSeconds\x12\x1d\n" +
 	"\n" +
-	"message_id\x18\b \x01(\tR\tmessageId\x12\x14\n" +
+	"message_id\x18\b \x01(\x03R\tmessageId\x12\x14\n" +
 	"\x05width\x18\t \x01(\x05R\x05width\x12\x16\n" +
 	"\x06height\x18\n" +
 	" \x01(\x05R\x06height\"W\n" +
@@ -23811,14 +23909,14 @@ const file_api_api_proto_rawDesc = "" +
 	"\n" +
 	"clan_users\x18\x01 \x03(\v2 .mezon.api.ClanUserList.ClanUserR\tclanUsers\x12\x16\n" +
 	"\x06cursor\x18\x02 \x01(\tR\x06cursor\x12\x17\n" +
-	"\aclan_id\x18\x03 \x01(\tR\x06clanId\x1a\x9f\x01\n" +
+	"\aclan_id\x18\x03 \x01(\x03R\x06clanId\x1a\x9f\x01\n" +
 	"\bClanUser\x12#\n" +
 	"\x04user\x18\x01 \x01(\v2\x0f.mezon.api.UserR\x04user\x12\x17\n" +
-	"\arole_id\x18\x02 \x03(\tR\x06roleId\x12\x1b\n" +
+	"\arole_id\x18\x02 \x03(\x03R\x06roleId\x12\x1b\n" +
 	"\tclan_nick\x18\x03 \x01(\tR\bclanNick\x12\x1f\n" +
 	"\vclan_avatar\x18\x04 \x01(\tR\n" +
 	"clanAvatar\x12\x17\n" +
-	"\aclan_id\x18\x05 \x01(\tR\x06clanId\"\x8b\x01\n" +
+	"\aclan_id\x18\x05 \x01(\x03R\x06clanId\"\x8b\x01\n" +
 	"\x1bRegistFcmDeviceTokenRequest\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\x12\x1b\n" +
 	"\tdevice_id\x18\x02 \x01(\tR\bdeviceId\x12\x1a\n" +
@@ -23827,101 +23925,99 @@ const file_api_api_proto_rawDesc = "" +
 	"voip_token\x18\x04 \x01(\tR\tvoipToken\"m\n" +
 	"\x1cRegistFcmDeviceTokenResponse\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\x12\x1b\n" +
-	"\tdevice_id\x18\x02 \x01(\tR\bdeviceId\x12\x1a\n" +
-	"\bplatform\x18\x03 \x01(\tR\bplatform\"\xfc\x01\n" +
+	"\tdevice_id\x18\x02 \x01(\x03R\bdeviceId\x12\x1a\n" +
+	"\bplatform\x18\x03 \x01(\tR\bplatform\"\xc2\x01\n" +
 	"\x1aListChannelMessagesRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x12\x1d\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12\x1d\n" +
 	"\n" +
-	"message_id\x18\x03 \x01(\tR\tmessageId\x121\n" +
-	"\x05limit\x18\x04 \x01(\v2\x1b.google.protobuf.Int32ValueR\x05limit\x129\n" +
-	"\tdirection\x18\x05 \x01(\v2\x1b.google.protobuf.Int32ValueR\tdirection\x12\x19\n" +
-	"\btopic_id\x18\x06 \x01(\tR\atopicId\"\x92\x01\n" +
-	"\x12ListFriendsRequest\x121\n" +
-	"\x05limit\x18\x01 \x01(\v2\x1b.google.protobuf.Int32ValueR\x05limit\x121\n" +
-	"\x05state\x18\x02 \x01(\v2\x1b.google.protobuf.Int32ValueR\x05state\x12\x16\n" +
-	"\x06cursor\x18\x03 \x01(\tR\x06cursor\"\xf4\x01\n" +
+	"message_id\x18\x03 \x01(\x03R\tmessageId\x12\x14\n" +
+	"\x05limit\x18\x04 \x01(\x05R\x05limit\x12\x1c\n" +
+	"\tdirection\x18\x05 \x01(\x05R\tdirection\x12\x19\n" +
+	"\btopic_id\x18\x06 \x01(\x03R\atopicId\"X\n" +
+	"\x12ListFriendsRequest\x12\x14\n" +
+	"\x05limit\x18\x01 \x01(\x05R\x05limit\x12\x14\n" +
+	"\x05state\x18\x02 \x01(\x05R\x05state\x12\x16\n" +
+	"\x06cursor\x18\x03 \x01(\tR\x06cursor\"\x9e\x01\n" +
 	"\x11ListGroupsRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x16\n" +
-	"\x06cursor\x18\x02 \x01(\tR\x06cursor\x121\n" +
-	"\x05limit\x18\x03 \x01(\v2\x1b.google.protobuf.Int32ValueR\x05limit\x12\x19\n" +
-	"\blang_tag\x18\x04 \x01(\tR\alangTag\x125\n" +
-	"\amembers\x18\x05 \x01(\v2\x1b.google.protobuf.Int32ValueR\amembers\x12.\n" +
-	"\x04open\x18\x06 \x01(\v2\x1a.google.protobuf.BoolValueR\x04open\"\xb0\x01\n" +
+	"\x06cursor\x18\x02 \x01(\tR\x06cursor\x12\x14\n" +
+	"\x05limit\x18\x03 \x01(\x05R\x05limit\x12\x19\n" +
+	"\blang_tag\x18\x04 \x01(\tR\alangTag\x12\x18\n" +
+	"\amembers\x18\x05 \x01(\x05R\amembers\x12\x12\n" +
+	"\x04open\x18\x06 \x01(\bR\x04open\"v\n" +
 	"\x15ListGroupUsersRequest\x12\x19\n" +
-	"\bgroup_id\x18\x01 \x01(\tR\agroupId\x121\n" +
-	"\x05limit\x18\x02 \x01(\v2\x1b.google.protobuf.Int32ValueR\x05limit\x121\n" +
-	"\x05state\x18\x03 \x01(\v2\x1b.google.protobuf.Int32ValueR\x05state\x12\x16\n" +
-	"\x06cursor\x18\x04 \x01(\tR\x06cursor\"\xf2\x01\n" +
+	"\bgroup_id\x18\x01 \x01(\x03R\agroupId\x12\x14\n" +
+	"\x05limit\x18\x02 \x01(\x05R\x05limit\x12\x14\n" +
+	"\x05state\x18\x03 \x01(\x05R\x05state\x12\x16\n" +
+	"\x06cursor\x18\x04 \x01(\tR\x06cursor\"\xb8\x01\n" +
 	"\x17ListChannelUsersRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x12!\n" +
-	"\fchannel_type\x18\x03 \x01(\x05R\vchannelType\x121\n" +
-	"\x05limit\x18\x04 \x01(\v2\x1b.google.protobuf.Int32ValueR\x05limit\x121\n" +
-	"\x05state\x18\x05 \x01(\v2\x1b.google.protobuf.Int32ValueR\x05state\x12\x16\n" +
-	"\x06cursor\x18\x06 \x01(\tR\x06cursor\"\x9f\x02\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12!\n" +
+	"\fchannel_type\x18\x03 \x01(\x05R\vchannelType\x12\x14\n" +
+	"\x05limit\x18\x04 \x01(\x05R\x05limit\x12\x14\n" +
+	"\x05state\x18\x05 \x01(\x05R\x05state\x12\x16\n" +
+	"\x06cursor\x18\x06 \x01(\tR\x06cursor\"\xe5\x01\n" +
 	"\x1cListChannelAttachmentRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x12\x1b\n" +
-	"\tfile_type\x18\x03 \x01(\tR\bfileType\x121\n" +
-	"\x05limit\x18\x04 \x01(\v2\x1b.google.protobuf.Int32ValueR\x05limit\x121\n" +
-	"\x05state\x18\x05 \x01(\v2\x1b.google.protobuf.Int32ValueR\x05state\x12\x16\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12\x1b\n" +
+	"\tfile_type\x18\x03 \x01(\tR\bfileType\x12\x14\n" +
+	"\x05limit\x18\x04 \x01(\x05R\x05limit\x12\x14\n" +
+	"\x05state\x18\x05 \x01(\x05R\x05state\x12\x16\n" +
 	"\x06before\x18\x06 \x01(\rR\x06before\x12\x14\n" +
 	"\x05after\x18\a \x01(\rR\x05after\x12\x16\n" +
 	"\x06around\x18\b \x01(\rR\x06around\"/\n" +
 	"\x14ListClanUsersRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\"\xe6\x01\n" +
-	"\x18ListNotificationsRequest\x121\n" +
-	"\x05limit\x18\x01 \x01(\v2\x1b.google.protobuf.Int32ValueR\x05limit\x12\x17\n" +
-	"\aclan_id\x18\x02 \x01(\tR\x06clanId\x12'\n" +
-	"\x0fnotification_id\x18\x03 \x01(\tR\x0enotificationId\x12\x1a\n" +
-	"\bcategory\x18\x04 \x01(\x05R\bcategory\x129\n" +
-	"\tdirection\x18\x05 \x01(\v2\x1b.google.protobuf.Int32ValueR\tdirection\"\xae\x01\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\"\xac\x01\n" +
+	"\x18ListNotificationsRequest\x12\x14\n" +
+	"\x05limit\x18\x01 \x01(\x05R\x05limit\x12\x17\n" +
+	"\aclan_id\x18\x02 \x01(\x03R\x06clanId\x12'\n" +
+	"\x0fnotification_id\x18\x03 \x01(\x03R\x0enotificationId\x12\x1a\n" +
+	"\bcategory\x18\x04 \x01(\x05R\bcategory\x12\x1c\n" +
+	"\tdirection\x18\x05 \x01(\x05R\tdirection\"t\n" +
 	"\x15ListUserGroupsRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x121\n" +
-	"\x05limit\x18\x02 \x01(\v2\x1b.google.protobuf.Int32ValueR\x05limit\x121\n" +
-	"\x05state\x18\x03 \x01(\v2\x1b.google.protobuf.Int32ValueR\x05state\x12\x16\n" +
-	"\x06cursor\x18\x04 \x01(\tR\x06cursor\"\xca\x03\n" +
+	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x14\n" +
+	"\x05limit\x18\x02 \x01(\x05R\x05limit\x12\x14\n" +
+	"\x05state\x18\x03 \x01(\x05R\x05state\x12\x16\n" +
+	"\x06cursor\x18\x04 \x01(\tR\x06cursor\"\xbd\x03\n" +
 	"\fNotification\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x18\n" +
 	"\asubject\x18\x02 \x01(\tR\asubject\x12\x18\n" +
-	"\acontent\x18\x03 \x01(\tR\acontent\x12\x12\n" +
+	"\acontent\x18\x03 \x01(\fR\acontent\x12\x12\n" +
 	"\x04code\x18\x04 \x01(\x05R\x04code\x12\x1b\n" +
-	"\tsender_id\x18\x05 \x01(\tR\bsenderId\x12;\n" +
-	"\vcreate_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"createTime\x12\x1e\n" +
+	"\tsender_id\x18\x05 \x01(\x03R\bsenderId\x12.\n" +
+	"\x13create_time_seconds\x18\x06 \x01(\rR\x11createTimeSeconds\x12\x1e\n" +
 	"\n" +
 	"persistent\x18\a \x01(\bR\n" +
 	"persistent\x12\x17\n" +
-	"\aclan_id\x18\b \x01(\tR\x06clanId\x12\x1d\n" +
+	"\aclan_id\x18\b \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\t \x01(\tR\tchannelId\x12!\n" +
+	"channel_id\x18\t \x01(\x03R\tchannelId\x12!\n" +
 	"\fchannel_type\x18\n" +
 	" \x01(\x05R\vchannelType\x12\x1d\n" +
 	"\n" +
 	"avatar_url\x18\v \x01(\tR\tavatarUrl\x127\n" +
 	"\achannel\x18\f \x01(\v2\x1d.mezon.api.ChannelDescriptionR\achannel\x12\x19\n" +
-	"\btopic_id\x18\r \x01(\tR\atopicId\x12\x1a\n" +
-	"\bcategory\x18\x0e \x01(\x05R\bcategory\"\x8f\x01\n" +
+	"\btopic_id\x18\r \x01(\x03R\atopicId\x12\x1a\n" +
+	"\bcategory\x18\x0e \x01(\x05R\bcategory\"\x82\x01\n" +
 	"\vEmojiRecent\x12(\n" +
-	"\x10emoji_recents_id\x18\x01 \x01(\tR\x0eemojiRecentsId\x12\x19\n" +
-	"\bemoji_id\x18\x02 \x01(\tR\aemojiId\x12;\n" +
-	"\vupdate_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"updateTime\"N\n" +
+	"\x10emoji_recents_id\x18\x01 \x01(\x03R\x0eemojiRecentsId\x12\x19\n" +
+	"\bemoji_id\x18\x02 \x01(\x03R\aemojiId\x12.\n" +
+	"\x13update_time_seconds\x18\x03 \x01(\rR\x11updateTimeSeconds\"N\n" +
 	"\x0fEmojiRecentList\x12;\n" +
 	"\remoji_recents\x18\x01 \x03(\v2\x16.mezon.api.EmojiRecentR\femojiRecents\"|\n" +
 	"\x10NotificationList\x12=\n" +
 	"\rnotifications\x18\x01 \x03(\v2\x17.mezon.api.NotificationR\rnotifications\x12)\n" +
 	"\x10cacheable_cursor\x18\x02 \x01(\tR\x0fcacheableCursor\"P\n" +
 	"\x18PromoteGroupUsersRequest\x12\x19\n" +
-	"\bgroup_id\x18\x01 \x01(\tR\agroupId\x12\x19\n" +
-	"\buser_ids\x18\x02 \x03(\tR\auserIds\"O\n" +
+	"\bgroup_id\x18\x01 \x01(\x03R\agroupId\x12\x19\n" +
+	"\buser_ids\x18\x02 \x03(\x03R\auserIds\"O\n" +
 	"\x17DemoteGroupUsersRequest\x12\x19\n" +
-	"\bgroup_id\x18\x01 \x01(\tR\agroupId\x12\x19\n" +
-	"\buser_ids\x18\x02 \x03(\tR\auserIds\"J\n" +
+	"\bgroup_id\x18\x01 \x01(\x03R\agroupId\x12\x19\n" +
+	"\buser_ids\x18\x02 \x03(\x03R\auserIds\"J\n" +
 	"\x03Rpc\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
 	"\apayload\x18\x02 \x01(\tR\apayload\x12\x19\n" +
@@ -23930,14 +24026,14 @@ const file_api_api_proto_rawDesc = "" +
 	"\acreated\x18\x01 \x01(\bR\acreated\x12\x14\n" +
 	"\x05token\x18\x02 \x01(\tR\x05token\x12#\n" +
 	"\rrefresh_token\x18\x03 \x01(\tR\frefreshToken\x12\x17\n" +
-	"\auser_id\x18\x04 \x01(\tR\x06userId\x12\x1f\n" +
+	"\auser_id\x18\x04 \x01(\x03R\x06userId\x12\x1f\n" +
 	"\vis_remember\x18\x05 \x01(\bR\n" +
 	"isRemember\x12\x17\n" +
 	"\aapi_url\x18\x06 \x01(\tR\x06apiUrl\x12\x19\n" +
 	"\bid_token\x18\a \x01(\tR\aidToken\"V\n" +
 	"\x15UpdateUsernameRequest\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12!\n" +
-	"\fdisplay_name\x18\x02 \x01(\tR\vdisplayName\"\x81\x05\n" +
+	"\fdisplay_name\x18\x02 \x01(\tR\vdisplayName\"\xf4\x04\n" +
 	"\x14UpdateAccountRequest\x12?\n" +
 	"\fdisplay_name\x18\x01 \x01(\v2\x1c.google.protobuf.StringValueR\vdisplayName\x12;\n" +
 	"\n" +
@@ -23945,28 +24041,29 @@ const file_api_api_proto_rawDesc = "" +
 	"\blang_tag\x18\x03 \x01(\v2\x1c.google.protobuf.StringValueR\alangTag\x128\n" +
 	"\blocation\x18\x04 \x01(\v2\x1c.google.protobuf.StringValueR\blocation\x128\n" +
 	"\btimezone\x18\x05 \x01(\v2\x1c.google.protobuf.StringValueR\btimezone\x127\n" +
-	"\babout_me\x18\x06 \x01(\v2\x1c.google.protobuf.StringValueR\aaboutMe\x12,\n" +
-	"\x03dob\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\x03dob\x120\n" +
+	"\babout_me\x18\x06 \x01(\v2\x1c.google.protobuf.StringValueR\aaboutMe\x12\x1f\n" +
+	"\vdob_seconds\x18\a \x01(\rR\n" +
+	"dobSeconds\x120\n" +
 	"\x04logo\x18\b \x01(\v2\x1c.google.protobuf.StringValueR\x04logo\x12A\n" +
 	"\rsplash_screen\x18\t \x01(\v2\x1c.google.protobuf.StringValueR\fsplashScreen\x12.\n" +
 	"\x13encrypt_private_key\x18\n" +
 	" \x01(\tR\x11encryptPrivateKey\x122\n" +
-	"\x05email\x18\v \x01(\v2\x1c.google.protobuf.StringValueR\x05email\"\xc7\x02\n" +
+	"\x05email\x18\v \x01(\v2\x1c.google.protobuf.StringValueR\x05email\"\xab\x02\n" +
 	"\x12UpdateGroupRequest\x12\x19\n" +
-	"\bgroup_id\x18\x01 \x01(\tR\agroupId\x120\n" +
+	"\bgroup_id\x18\x01 \x01(\x03R\agroupId\x120\n" +
 	"\x04name\x18\x02 \x01(\v2\x1c.google.protobuf.StringValueR\x04name\x12>\n" +
 	"\vdescription\x18\x03 \x01(\v2\x1c.google.protobuf.StringValueR\vdescription\x127\n" +
 	"\blang_tag\x18\x04 \x01(\v2\x1c.google.protobuf.StringValueR\alangTag\x12;\n" +
 	"\n" +
-	"avatar_url\x18\x05 \x01(\v2\x1c.google.protobuf.StringValueR\tavatarUrl\x12.\n" +
-	"\x04open\x18\x06 \x01(\v2\x1a.google.protobuf.BoolValueR\x04open\"z\n" +
+	"avatar_url\x18\x05 \x01(\v2\x1c.google.protobuf.StringValueR\tavatarUrl\x12\x12\n" +
+	"\x04open\x18\x06 \x01(\bR\x04open\"z\n" +
 	"\x19UpdateCategoryDescRequest\x12\x1f\n" +
-	"\vcategory_id\x18\x01 \x01(\tR\n" +
+	"\vcategory_id\x18\x01 \x01(\x03R\n" +
 	"categoryId\x12#\n" +
 	"\rcategory_name\x18\x02 \x01(\tR\fcategoryName\x12\x17\n" +
-	"\aclan_id\x18\x03 \x01(\tR\x06clanId\"\xb6\x05\n" +
+	"\aclan_id\x18\x03 \x01(\x03R\x06clanId\"\x82\x05\n" +
 	"\x04User\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x12!\n" +
 	"\fdisplay_name\x18\x03 \x01(\tR\vdisplayName\x12\x1d\n" +
 	"\n" +
@@ -23980,50 +24077,49 @@ const file_api_api_proto_rawDesc = "" +
 	"\fphone_number\x18\n" +
 	" \x01(\tR\vphoneNumber\x12\x1d\n" +
 	"\n" +
-	"edge_count\x18\v \x01(\x05R\tedgeCount\x12;\n" +
-	"\vcreate_time\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"createTime\x12;\n" +
-	"\vupdate_time\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"updateTime\x12\x19\n" +
-	"\babout_me\x18\x0e \x01(\tR\aaboutMe\x127\n" +
-	"\tjoin_time\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\bjoinTime\x12\x1b\n" +
-	"\tis_mobile\x18\x10 \x01(\bR\bisMobile\x12,\n" +
-	"\x03dob\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampR\x03dob\x12\x19\n" +
+	"edge_count\x18\v \x01(\x05R\tedgeCount\x12.\n" +
+	"\x13create_time_seconds\x18\f \x01(\rR\x11createTimeSeconds\x12.\n" +
+	"\x13update_time_seconds\x18\r \x01(\rR\x11updateTimeSeconds\x12\x19\n" +
+	"\babout_me\x18\x0e \x01(\tR\aaboutMe\x12*\n" +
+	"\x11join_time_seconds\x18\x0f \x01(\rR\x0fjoinTimeSeconds\x12\x1b\n" +
+	"\tis_mobile\x18\x10 \x01(\bR\bisMobile\x12\x1f\n" +
+	"\vdob_seconds\x18\x11 \x01(\rR\n" +
+	"dobSeconds\x12\x19\n" +
 	"\bmezon_id\x18\x12 \x01(\tR\amezonId\x12&\n" +
 	"\x0flist_nick_names\x18\x13 \x03(\tR\rlistNickNames\x12\x16\n" +
 	"\x06status\x18\x14 \x01(\tR\x06status\".\n" +
 	"\x05Users\x12%\n" +
 	"\x05users\x18\x01 \x03(\v2\x0f.mezon.api.UserR\x05users\"\xd1\x01\n" +
 	"\x0fClanDescProfile\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"creator_id\x18\x02 \x01(\tR\tcreatorId\x12\x1b\n" +
+	"creator_id\x18\x02 \x01(\x03R\tcreatorId\x12\x1b\n" +
 	"\tnick_name\x18\x03 \x01(\tR\bnickName\x12%\n" +
 	"\x0eprofile_banner\x18\x04 \x01(\tR\rprofileBanner\x12#\n" +
 	"\rprofile_theme\x18\x05 \x01(\tR\fprofileTheme\x12\x1d\n" +
 	"\n" +
 	"avatar_url\x18\x06 \x01(\tR\tavatarUrl\"\xbf\x01\n" +
 	"\x1cUpdateClanDescProfileRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1b\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1b\n" +
 	"\tnick_name\x18\x02 \x01(\tR\bnickName\x12%\n" +
 	"\x0eprofile_banner\x18\x03 \x01(\tR\rprofileBanner\x12#\n" +
 	"\rprofile_theme\x18\x04 \x01(\tR\fprofileTheme\x12\x1d\n" +
 	"\n" +
 	"avatar_url\x18\x05 \x01(\tR\tavatarUrl\"1\n" +
 	"\x16ClanDescProfileRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\"\xe1\x04\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\"\xe1\x04\n" +
 	"\bClanDesc\x12\x1d\n" +
 	"\n" +
-	"creator_id\x18\x01 \x01(\tR\tcreatorId\x12\x1b\n" +
+	"creator_id\x18\x01 \x01(\x03R\tcreatorId\x12\x1b\n" +
 	"\tclan_name\x18\x02 \x01(\tR\bclanName\x12\x12\n" +
 	"\x04logo\x18\x03 \x01(\tR\x04logo\x12\x16\n" +
 	"\x06banner\x18\x04 \x01(\tR\x06banner\x12\x17\n" +
-	"\aclan_id\x18\x05 \x01(\tR\x06clanId\x12\x16\n" +
+	"\aclan_id\x18\x05 \x01(\x03R\x06clanId\x12\x16\n" +
 	"\x06status\x18\x06 \x01(\x05R\x06status\x12\x1f\n" +
 	"\vbadge_count\x18\a \x01(\x05R\n" +
 	"badgeCount\x12#\n" +
 	"\ris_onboarding\x18\b \x01(\bR\fisOnboarding\x12,\n" +
-	"\x12welcome_channel_id\x18\t \x01(\tR\x10welcomeChannelId\x12+\n" +
+	"\x12welcome_channel_id\x18\t \x01(\x03R\x10welcomeChannelId\x12+\n" +
 	"\x11onboarding_banner\x18\n" +
 	" \x01(\tR\x10onboardingBanner\x12\x1d\n" +
 	"\n" +
@@ -24040,13 +24136,13 @@ const file_api_api_proto_rawDesc = "" +
 	"\x04logo\x18\x02 \x01(\tR\x04logo\x12\x16\n" +
 	"\x06banner\x18\x03 \x01(\tR\x06banner\"\xeb\x05\n" +
 	"\x15UpdateClanDescRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1b\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1b\n" +
 	"\tclan_name\x18\x02 \x01(\tR\bclanName\x120\n" +
 	"\x04logo\x18\x03 \x01(\v2\x1c.google.protobuf.StringValueR\x04logo\x124\n" +
 	"\x06banner\x18\x04 \x01(\v2\x1c.google.protobuf.StringValueR\x06banner\x12\x16\n" +
 	"\x06status\x18\x05 \x01(\x05R\x06status\x12?\n" +
 	"\ris_onboarding\x18\x06 \x01(\v2\x1a.google.protobuf.BoolValueR\fisOnboarding\x12,\n" +
-	"\x12welcome_channel_id\x18\a \x01(\tR\x10welcomeChannelId\x12I\n" +
+	"\x12welcome_channel_id\x18\a \x01(\x03R\x10welcomeChannelId\x12I\n" +
 	"\x11onboarding_banner\x18\b \x01(\v2\x1c.google.protobuf.StringValueR\x10onboardingBanner\x12=\n" +
 	"\fis_community\x18\t \x01(\v2\x1a.google.protobuf.BoolValueR\visCommunity\x12G\n" +
 	"\x10community_banner\x18\n" +
@@ -24056,66 +24152,63 @@ const file_api_api_proto_rawDesc = "" +
 	"\tshort_url\x18\r \x01(\v2\x1c.google.protobuf.StringValueR\bshortUrl\x12+\n" +
 	"\x11prevent_anonymous\x18\x0e \x01(\bR\x10preventAnonymous\"9\n" +
 	"\x15DeleteClanDescRequest\x12 \n" +
-	"\fclan_desc_id\x18\x01 \x01(\tR\n" +
-	"clanDescId\"\x93\x01\n" +
-	"\x13ListClanDescRequest\x121\n" +
-	"\x05limit\x18\x01 \x01(\v2\x1b.google.protobuf.Int32ValueR\x05limit\x121\n" +
-	"\x05state\x18\x02 \x01(\v2\x1b.google.protobuf.Int32ValueR\x05state\x12\x16\n" +
+	"\fclan_desc_id\x18\x01 \x01(\x03R\n" +
+	"clanDescId\"Y\n" +
+	"\x13ListClanDescRequest\x12\x14\n" +
+	"\x05limit\x18\x01 \x01(\x05R\x05limit\x12\x14\n" +
+	"\x05state\x18\x02 \x01(\x05R\x05state\x12\x16\n" +
 	"\x06cursor\x18\x03 \x01(\tR\x06cursor\"<\n" +
 	"!ListClanUnreadMsgIndicatorRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\"R\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\"R\n" +
 	"\"ListClanUnreadMsgIndicatorResponse\x12,\n" +
 	"\x12has_unread_message\x18\x01 \x01(\bR\x10hasUnreadMessage\"?\n" +
 	"\fClanDescList\x12/\n" +
 	"\bclandesc\x18\x01 \x03(\v2\x13.mezon.api.ClanDescR\bclandesc\"p\n" +
 	"\x15LinkInviteUserRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x12\x1f\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12\x1f\n" +
 	"\vexpiry_time\x18\x03 \x01(\x05R\n" +
 	"expiryTime\"0\n" +
 	"\x11InviteUserRequest\x12\x1b\n" +
-	"\tinvite_id\x18\x01 \x01(\tR\binviteId\"\xe9\x02\n" +
+	"\tinvite_id\x18\x01 \x01(\x03R\binviteId\"\xdc\x02\n" +
 	"\rInviteUserRes\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x12\x1b\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12\x1b\n" +
 	"\tclan_name\x18\x03 \x01(\tR\bclanName\x12#\n" +
 	"\rchannel_label\x18\x04 \x01(\tR\fchannelLabel\x12\x1f\n" +
 	"\vuser_joined\x18\x05 \x01(\bR\n" +
-	"userJoined\x12;\n" +
-	"\vexpiry_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"expiryTime\x12@\n" +
+	"userJoined\x12.\n" +
+	"\x13expiry_time_seconds\x18\x06 \x01(\rR\x11expiryTimeSeconds\x12@\n" +
 	"\fchannel_desc\x18\a \x01(\v2\x1d.mezon.api.ChannelDescriptionR\vchannelDesc\x12\x1b\n" +
 	"\tclan_logo\x18\b \x01(\tR\bclanLogo\x12!\n" +
 	"\fmember_count\x18\t \x01(\x05R\vmemberCount\"P\n" +
 	"\x16JoinClanChannelRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\"\x92\x02\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\"\xf8\x01\n" +
 	"\x0eLinkInviteUser\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"creator_id\x18\x02 \x01(\tR\tcreatorId\x12\x1d\n" +
+	"creator_id\x18\x02 \x01(\x03R\tcreatorId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x03 \x01(\tR\tchannelId\x12\x1f\n" +
+	"channel_id\x18\x03 \x01(\x03R\tchannelId\x12\x1f\n" +
 	"\vinvite_link\x18\x04 \x01(\tR\n" +
-	"inviteLink\x12;\n" +
-	"\vcreate_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"createTime\x12;\n" +
-	"\vexpiry_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"expiryTime\x12\x0e\n" +
-	"\x02id\x18\a \x01(\tR\x02id\"\x8a\x01\n" +
+	"inviteLink\x12.\n" +
+	"\x13create_time_seconds\x18\x05 \x01(\rR\x11createTimeSeconds\x12.\n" +
+	"\x13expiry_time_seconds\x18\x06 \x01(\rR\x11expiryTimeSeconds\x12\x0e\n" +
+	"\x02id\x18\a \x01(\x03R\x02id\"\x8a\x01\n" +
 	"\vClanProfile\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x1b\n" +
+	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x1b\n" +
 	"\tnick_name\x18\x02 \x01(\tR\bnickName\x12\x16\n" +
 	"\x06avatar\x18\x03 \x01(\tR\x06avatar\x12\x17\n" +
-	"\aclan_id\x18\x04 \x01(\tR\x06clanId\x12\x14\n" +
+	"\aclan_id\x18\x04 \x01(\x03R\x06clanId\x12\x14\n" +
 	"\x05about\x18\x05 \x01(\tR\x05about\"-\n" +
 	"\x12ClanProfileRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\"\xa4\x01\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\"\xa4\x01\n" +
 	"\x18UpdateClanProfileRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x129\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x129\n" +
 	"\tnick_name\x18\x02 \x01(\v2\x1c.google.protobuf.StringValueR\bnickName\x124\n" +
 	"\x06avatar\x18\x03 \x01(\v2\x1c.google.protobuf.StringValueR\x06avatar\"\xa2\x01\n" +
 	"\x16UpdateClanOrderRequest\x12L\n" +
@@ -24123,107 +24216,65 @@ const file_api_api_proto_rawDesc = "" +
 	"clansOrder\x1a:\n" +
 	"\tClanOrder\x12\x14\n" +
 	"\x05order\x18\x01 \x01(\x05R\x05order\x12\x17\n" +
-	"\aclan_id\x18\x02 \x01(\tR\x06clanId\"\xb3\x01\n" +
+	"\aclan_id\x18\x02 \x01(\x03R\x06clanId\"\xb3\x01\n" +
 	"\fCategoryDesc\x12\x1d\n" +
 	"\n" +
-	"creator_id\x18\x01 \x01(\tR\tcreatorId\x12\x17\n" +
-	"\aclan_id\x18\x02 \x01(\tR\x06clanId\x12#\n" +
+	"creator_id\x18\x01 \x01(\x03R\tcreatorId\x12\x17\n" +
+	"\aclan_id\x18\x02 \x01(\x03R\x06clanId\x12#\n" +
 	"\rcategory_name\x18\x03 \x01(\tR\fcategoryName\x12\x1f\n" +
-	"\vcategory_id\x18\x04 \x01(\tR\n" +
+	"\vcategory_id\x18\x04 \x01(\x03R\n" +
 	"categoryId\x12%\n" +
 	"\x0ecategory_order\x18\x05 \x01(\x05R\rcategoryOrder\"u\n" +
 	"\x1aUpdateCategoryOrderRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12>\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12>\n" +
 	"\n" +
 	"categories\x18\x02 \x03(\v2\x1e.mezon.api.CategoryOrderUpdateR\n" +
 	"categories\"c\n" +
 	"\x16UpdateRoleOrderRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x120\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x120\n" +
 	"\x05roles\x18\x02 \x03(\v2\x1a.mezon.api.RoleOrderUpdateR\x05roles\"@\n" +
 	"\x0fRoleOrderUpdate\x12\x17\n" +
-	"\arole_id\x18\x01 \x01(\tR\x06roleId\x12\x14\n" +
+	"\arole_id\x18\x01 \x01(\x03R\x06roleId\x12\x14\n" +
 	"\x05order\x18\x02 \x01(\x05R\x05order\"L\n" +
 	"\x13CategoryOrderUpdate\x12\x1f\n" +
-	"\vcategory_id\x18\x01 \x01(\tR\n" +
+	"\vcategory_id\x18\x01 \x01(\x03R\n" +
 	"categoryId\x12\x14\n" +
 	"\x05order\x18\x02 \x01(\x05R\x05order\"Y\n" +
 	"\x19CreateCategoryDescRequest\x12#\n" +
 	"\rcategory_name\x18\x01 \x01(\tR\fcategoryName\x12\x17\n" +
-	"\aclan_id\x18\x02 \x01(\tR\x06clanId\"|\n" +
+	"\aclan_id\x18\x02 \x01(\x03R\x06clanId\"|\n" +
 	"\x19DeleteCategoryDescRequest\x12\x1f\n" +
-	"\vcategory_id\x18\x01 \x01(\tR\n" +
+	"\vcategory_id\x18\x01 \x01(\x03R\n" +
 	"categoryId\x12\x17\n" +
-	"\aclan_id\x18\x02 \x01(\tR\x06clanId\x12%\n" +
+	"\aclan_id\x18\x02 \x01(\x03R\x06clanId\x12%\n" +
 	"\x0ecategory_label\x18\x03 \x01(\tR\rcategoryLabel\"O\n" +
 	"\x10CategoryDescList\x12;\n" +
-	"\fcategorydesc\x18\x01 \x03(\v2\x17.mezon.api.CategoryDescR\fcategorydesc\"\x98\x01\n" +
-	"\x18ListCategoryDescsRequest\x121\n" +
-	"\x05limit\x18\x01 \x01(\v2\x1b.google.protobuf.Int32ValueR\x05limit\x121\n" +
-	"\x05state\x18\x02 \x01(\v2\x1b.google.protobuf.Int32ValueR\x05state\x12\x16\n" +
-	"\x06cursor\x18\x03 \x01(\tR\x06cursor\"\xfe\x01\n" +
+	"\fcategorydesc\x18\x01 \x03(\v2\x17.mezon.api.CategoryDescR\fcategorydesc\"^\n" +
+	"\x18ListCategoryDescsRequest\x12\x14\n" +
+	"\x05limit\x18\x01 \x01(\x05R\x05limit\x12\x14\n" +
+	"\x05state\x18\x02 \x01(\x05R\x05state\x12\x16\n" +
+	"\x06cursor\x18\x03 \x01(\tR\x06cursor\"\x8a\x01\n" +
 	"\x14ChannelMessageHeader\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12+\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12+\n" +
 	"\x11timestamp_seconds\x18\x02 \x01(\rR\x10timestampSeconds\x12\x1b\n" +
-	"\tsender_id\x18\x03 \x01(\tR\bsenderId\x12\x18\n" +
-	"\acontent\x18\x04 \x01(\tR\acontent\x12\x1e\n" +
-	"\n" +
-	"attachment\x18\x05 \x01(\tR\n" +
-	"attachment\x12\x1c\n" +
-	"\treference\x18\x06 \x01(\tR\treference\x12\x18\n" +
-	"\amention\x18\a \x01(\tR\amention\x12\x1a\n" +
-	"\breaction\x18\b \x01(\tR\breaction\"\xf8\b\n" +
-	"\x15ChannelDescriptionOld\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1b\n" +
-	"\tparent_id\x18\x02 \x01(\tR\bparentId\x12\x1d\n" +
-	"\n" +
-	"channel_id\x18\x03 \x01(\tR\tchannelId\x12\x1f\n" +
-	"\vcategory_id\x18\x04 \x01(\tR\n" +
-	"categoryId\x12#\n" +
-	"\rcategory_name\x18\x05 \x01(\tR\fcategoryName\x12/\n" +
-	"\x04type\x18\x06 \x01(\v2\x1b.google.protobuf.Int32ValueR\x04type\x12\x1d\n" +
-	"\n" +
-	"creator_id\x18\a \x01(\tR\tcreatorId\x12#\n" +
-	"\rchannel_label\x18\b \x01(\tR\fchannelLabel\x12'\n" +
-	"\x0fchannel_private\x18\t \x01(\x05R\x0echannelPrivate\x12\x18\n" +
-	"\aavatars\x18\n" +
-	" \x03(\tR\aavatars\x12\x19\n" +
-	"\buser_ids\x18\v \x03(\tR\auserIds\x12K\n" +
-	"\x11last_sent_message\x18\f \x01(\v2\x1f.mezon.api.ChannelMessageHeaderR\x0flastSentMessage\x12K\n" +
-	"\x11last_seen_message\x18\r \x01(\v2\x1f.mezon.api.ChannelMessageHeaderR\x0flastSeenMessage\x12\x18\n" +
-	"\aonlines\x18\x0e \x03(\bR\aonlines\x12!\n" +
-	"\fmeeting_code\x18\x0f \x01(\tR\vmeetingCode\x12*\n" +
-	"\x11count_mess_unread\x18\x10 \x01(\x05R\x0fcountMessUnread\x12\x16\n" +
-	"\x06active\x18\x11 \x01(\x05R\x06active\x12(\n" +
-	"\x10last_pin_message\x18\x12 \x01(\tR\x0elastPinMessage\x12\x1c\n" +
-	"\tusernames\x18\x13 \x03(\tR\tusernames\x12!\n" +
-	"\fcreator_name\x18\x14 \x01(\tR\vcreatorName\x12.\n" +
-	"\x13create_time_seconds\x18\x15 \x01(\rR\x11createTimeSeconds\x12.\n" +
-	"\x13update_time_seconds\x18\x16 \x01(\rR\x11updateTimeSeconds\x12#\n" +
-	"\rdisplay_names\x18\x17 \x03(\tR\fdisplayNames\x12%\n" +
-	"\x0echannel_avatar\x18\x18 \x01(\tR\rchannelAvatar\x12\x1b\n" +
-	"\tclan_name\x18\x19 \x01(\tR\bclanName\x12\x15\n" +
-	"\x06app_id\x18\x1a \x01(\tR\x05appId\x12\x17\n" +
-	"\ais_mute\x18\x1b \x01(\bR\x06isMute\x12%\n" +
-	"\x0eage_restricted\x18\x1c \x01(\x05R\rageRestricted\x12\x14\n" +
-	"\x05topic\x18\x1d \x01(\tR\x05topic\x12\x12\n" +
-	"\x04e2ee\x18\x1e \x01(\x05R\x04e2ee\x12!\n" +
-	"\fmember_count\x18\x1f \x01(\x05R\vmemberCount\"\xd8\b\n" +
+	"\tsender_id\x18\x03 \x01(\x03R\bsenderId\x12\x18\n" +
+	"\acontent\x18\x04 \x01(\tR\acontent\"\xd8\b\n" +
 	"\x12ChannelDescription\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1b\n" +
-	"\tparent_id\x18\x02 \x01(\tR\bparentId\x12\x1d\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1b\n" +
+	"\tparent_id\x18\x02 \x01(\x03R\bparentId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x03 \x01(\tR\tchannelId\x12\x1f\n" +
-	"\vcategory_id\x18\x04 \x01(\tR\n" +
+	"channel_id\x18\x03 \x01(\x03R\tchannelId\x12\x1f\n" +
+	"\vcategory_id\x18\x04 \x01(\x03R\n" +
 	"categoryId\x12#\n" +
 	"\rcategory_name\x18\x05 \x01(\tR\fcategoryName\x12\x12\n" +
 	"\x04type\x18\x06 \x01(\x05R\x04type\x12\x1d\n" +
 	"\n" +
-	"creator_id\x18\a \x01(\tR\tcreatorId\x12#\n" +
+	"creator_id\x18\a \x01(\x03R\tcreatorId\x12#\n" +
 	"\rchannel_label\x18\b \x01(\tR\fchannelLabel\x12'\n" +
 	"\x0fchannel_private\x18\t \x01(\x05R\x0echannelPrivate\x12\x18\n" +
 	"\aavatars\x18\n" +
 	" \x03(\tR\aavatars\x12\x19\n" +
-	"\buser_ids\x18\v \x03(\tR\auserIds\x12K\n" +
+	"\buser_ids\x18\v \x03(\x03R\auserIds\x12K\n" +
 	"\x11last_sent_message\x18\f \x01(\v2\x1f.mezon.api.ChannelMessageHeaderR\x0flastSentMessage\x12K\n" +
 	"\x11last_seen_message\x18\r \x01(\v2\x1f.mezon.api.ChannelMessageHeaderR\x0flastSeenMessage\x12\x18\n" +
 	"\aonlines\x18\x0e \x03(\bR\aonlines\x12!\n" +
@@ -24238,118 +24289,120 @@ const file_api_api_proto_rawDesc = "" +
 	"\rdisplay_names\x18\x17 \x03(\tR\fdisplayNames\x12%\n" +
 	"\x0echannel_avatar\x18\x18 \x01(\tR\rchannelAvatar\x12\x1b\n" +
 	"\tclan_name\x18\x19 \x01(\tR\bclanName\x12\x15\n" +
-	"\x06app_id\x18\x1a \x01(\tR\x05appId\x12\x17\n" +
+	"\x06app_id\x18\x1a \x01(\x03R\x05appId\x12\x17\n" +
 	"\ais_mute\x18\x1b \x01(\bR\x06isMute\x12%\n" +
 	"\x0eage_restricted\x18\x1c \x01(\x05R\rageRestricted\x12\x14\n" +
 	"\x05topic\x18\x1d \x01(\tR\x05topic\x12\x12\n" +
 	"\x04e2ee\x18\x1e \x01(\x05R\x04e2ee\x12!\n" +
-	"\fmember_count\x18\x1f \x01(\x05R\vmemberCount\"f\n" +
+	"\fmember_count\x18\x1f \x01(\x05R\vmemberCount\"R\n" +
 	"\x0fChannelDescList\x12?\n" +
+	"\vchanneldesc\x18\x01 \x03(\v2\x1d.mezon.api.ChannelDescriptionR\vchanneldesc\"l\n" +
+	"\x15ChannelDescListNoPool\x12?\n" +
 	"\vchanneldesc\x18\x01 \x03(\v2\x1d.mezon.api.ChannelDescriptionR\vchanneldesc\x12\x12\n" +
-	"\x04page\x18\x02 \x01(\x05R\x04page\"\xff\x01\n" +
-	"\x11ListThreadRequest\x121\n" +
-	"\x05limit\x18\x01 \x01(\v2\x1b.google.protobuf.Int32ValueR\x05limit\x121\n" +
-	"\x05state\x18\x02 \x01(\v2\x1b.google.protobuf.Int32ValueR\x05state\x12\x17\n" +
-	"\aclan_id\x18\x03 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\x04page\x18\x02 \x01(\x05R\x04page\"\xa8\x01\n" +
+	"\x11ListThreadRequest\x12\x14\n" +
+	"\x05limit\x18\x01 \x01(\x05R\x05limit\x12\x14\n" +
+	"\x05state\x18\x02 \x01(\x05R\x05state\x12\x17\n" +
+	"\aclan_id\x18\x03 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x04 \x01(\tR\tchannelId\x12\x1b\n" +
-	"\tthread_id\x18\x05 \x01(\tR\bthreadId\x12/\n" +
-	"\x04page\x18\x06 \x01(\v2\x1b.google.protobuf.Int32ValueR\x04page\"\xf0\x01\n" +
-	"\x17ListChannelDescsRequest\x121\n" +
-	"\x05limit\x18\x01 \x01(\v2\x1b.google.protobuf.Int32ValueR\x05limit\x121\n" +
-	"\x05state\x18\x02 \x01(\v2\x1b.google.protobuf.Int32ValueR\x05state\x12\x16\n" +
+	"channel_id\x18\x04 \x01(\x03R\tchannelId\x12\x1b\n" +
+	"\tthread_id\x18\x05 \x01(\x03R\bthreadId\x12\x12\n" +
+	"\x04page\x18\x06 \x01(\x05R\x04page\"\xb6\x01\n" +
+	"\x17ListChannelDescsRequest\x12\x14\n" +
+	"\x05limit\x18\x01 \x01(\x05R\x05limit\x12\x14\n" +
+	"\x05state\x18\x02 \x01(\x05R\x05state\x12\x16\n" +
 	"\x06cursor\x18\x03 \x01(\tR\x06cursor\x12\x17\n" +
-	"\aclan_id\x18\x04 \x01(\tR\x06clanId\x12!\n" +
+	"\aclan_id\x18\x04 \x01(\x03R\x06clanId\x12!\n" +
 	"\fchannel_type\x18\x05 \x01(\x05R\vchannelType\x12\x1b\n" +
 	"\tis_mobile\x18\x06 \x01(\bR\bisMobile\"9\n" +
 	"\x18ListChannelDetailRequest\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x01 \x01(\tR\tchannelId\"U\n" +
+	"channel_id\x18\x01 \x01(\x03R\tchannelId\"U\n" +
 	"\x19AddRoleChannelDescRequest\x12\x19\n" +
-	"\brole_ids\x18\x01 \x03(\tR\aroleIds\x12\x1d\n" +
+	"\brole_ids\x18\x01 \x03(\x03R\aroleIds\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\"\xc1\x02\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\"\xa4\x02\n" +
 	"\x18CreateChannelDescRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1b\n" +
-	"\tparent_id\x18\x02 \x01(\tR\bparentId\x12\x1d\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1b\n" +
+	"\tparent_id\x18\x02 \x01(\x03R\bparentId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x03 \x01(\tR\tchannelId\x12\x1f\n" +
-	"\vcategory_id\x18\x04 \x01(\tR\n" +
-	"categoryId\x12/\n" +
-	"\x04type\x18\x05 \x01(\v2\x1b.google.protobuf.Int32ValueR\x04type\x12#\n" +
+	"channel_id\x18\x03 \x01(\x03R\tchannelId\x12\x1f\n" +
+	"\vcategory_id\x18\x04 \x01(\x03R\n" +
+	"categoryId\x12\x12\n" +
+	"\x04type\x18\x05 \x01(\x05R\x04type\x12#\n" +
 	"\rchannel_label\x18\x06 \x01(\tR\fchannelLabel\x12'\n" +
 	"\x0fchannel_private\x18\a \x01(\x05R\x0echannelPrivate\x12\x19\n" +
-	"\buser_ids\x18\b \x03(\tR\auserIds\x12\x15\n" +
-	"\x06app_id\x18\t \x01(\tR\x05appId\"R\n" +
+	"\buser_ids\x18\b \x03(\x03R\auserIds\x12\x15\n" +
+	"\x06app_id\x18\t \x01(\x03R\x05appId\"R\n" +
 	"\x18DeleteChannelDescRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\"\x81\x03\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\"\xe3\x02\n" +
 	"\x18UpdateChannelDescRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x12A\n" +
-	"\rchannel_label\x18\x03 \x01(\v2\x1c.google.protobuf.StringValueR\fchannelLabel\x12=\n" +
-	"\vcategory_id\x18\x04 \x01(\v2\x1c.google.protobuf.StringValueR\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12A\n" +
+	"\rchannel_label\x18\x03 \x01(\v2\x1c.google.protobuf.StringValueR\fchannelLabel\x12\x1f\n" +
+	"\vcategory_id\x18\x04 \x01(\x03R\n" +
 	"categoryId\x12\x15\n" +
-	"\x06app_id\x18\x05 \x01(\tR\x05appId\x12\x14\n" +
+	"\x06app_id\x18\x05 \x01(\x03R\x05appId\x12\x14\n" +
 	"\x05topic\x18\x06 \x01(\tR\x05topic\x12%\n" +
 	"\x0eage_restricted\x18\a \x01(\x05R\rageRestricted\x12\x12\n" +
 	"\x04e2ee\x18\b \x01(\x05R\x04e2ee\x12C\n" +
 	"\x0echannel_avatar\x18\t \x01(\v2\x1c.google.protobuf.StringValueR\rchannelAvatar\"\xb4\x01\n" +
 	"\x1bChangeChannelPrivateRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x12'\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12'\n" +
 	"\x0fchannel_private\x18\x03 \x01(\x05R\x0echannelPrivate\x12\x19\n" +
-	"\buser_ids\x18\x04 \x03(\tR\auserIds\x12\x19\n" +
-	"\brole_ids\x18\x05 \x03(\tR\aroleIds\"R\n" +
+	"\buser_ids\x18\x04 \x03(\x03R\auserIds\x12\x19\n" +
+	"\brole_ids\x18\x05 \x03(\x03R\aroleIds\"R\n" +
 	"\x16AddChannelUsersRequest\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x01 \x01(\tR\tchannelId\x12\x19\n" +
-	"\buser_ids\x18\x02 \x03(\tR\auserIds\"U\n" +
+	"channel_id\x18\x01 \x01(\x03R\tchannelId\x12\x19\n" +
+	"\buser_ids\x18\x02 \x03(\x03R\auserIds\"U\n" +
 	"\x19RemoveChannelUsersRequest\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x01 \x01(\tR\tchannelId\x12\x19\n" +
-	"\buser_ids\x18\x02 \x03(\tR\auserIds\"L\n" +
+	"channel_id\x18\x01 \x01(\x03R\tchannelId\x12\x19\n" +
+	"\buser_ids\x18\x02 \x03(\x03R\auserIds\"L\n" +
 	"\x16RemoveClanUsersRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x19\n" +
-	"\buser_ids\x18\x02 \x03(\tR\auserIds\"\x9b\x01\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x19\n" +
+	"\buser_ids\x18\x02 \x03(\x03R\auserIds\"\x9b\x01\n" +
 	"\x13BanClanUsersRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x12\x19\n" +
-	"\buser_ids\x18\x03 \x03(\tR\auserIds\x12\x19\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12\x19\n" +
+	"\buser_ids\x18\x03 \x03(\x03R\auserIds\x12\x19\n" +
 	"\bban_time\x18\x04 \x01(\x05R\abanTime\x12\x16\n" +
 	"\x06reason\x18\x05 \x01(\tR\x06reason\"\x98\x01\n" +
 	"\n" +
 	"BannedUser\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x01 \x01(\tR\tchannelId\x12\x1b\n" +
-	"\tbanned_id\x18\x02 \x01(\tR\bbannedId\x12\x1b\n" +
-	"\tbanner_id\x18\x03 \x01(\tR\bbannerId\x12\x19\n" +
+	"channel_id\x18\x01 \x01(\x03R\tchannelId\x12\x1b\n" +
+	"\tbanned_id\x18\x02 \x01(\x03R\bbannedId\x12\x1b\n" +
+	"\tbanner_id\x18\x03 \x01(\x03R\bbannerId\x12\x19\n" +
 	"\bban_time\x18\x04 \x01(\x05R\abanTime\x12\x16\n" +
 	"\x06reason\x18\x05 \x01(\tR\x06reason\"O\n" +
 	"\x15BannedUserListRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\"J\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\"J\n" +
 	"\x0eBannedUserList\x128\n" +
 	"\fbanned_users\x18\x01 \x03(\v2\x15.mezon.api.BannedUserR\vbannedUsers\"L\n" +
 	"\x12LeaveThreadRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\"\xd6\x04\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\"\xd6\x04\n" +
 	"\x04Role\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12\x14\n" +
 	"\x05color\x18\x03 \x01(\tR\x05color\x12\x1b\n" +
 	"\trole_icon\x18\x04 \x01(\tR\broleIcon\x12\x12\n" +
 	"\x04slug\x18\x05 \x01(\tR\x04slug\x12 \n" +
 	"\vdescription\x18\x06 \x01(\tR\vdescription\x12\x1d\n" +
 	"\n" +
-	"creator_id\x18\a \x01(\tR\tcreatorId\x12\x17\n" +
-	"\aclan_id\x18\b \x01(\tR\x06clanId\x12\x16\n" +
+	"creator_id\x18\a \x01(\x03R\tcreatorId\x12\x17\n" +
+	"\aclan_id\x18\b \x01(\x03R\x06clanId\x12\x16\n" +
 	"\x06active\x18\t \x01(\x05R\x06active\x12%\n" +
 	"\x0edisplay_online\x18\n" +
 	" \x01(\x05R\rdisplayOnline\x12#\n" +
@@ -24357,13 +24410,13 @@ const file_api_api_proto_rawDesc = "" +
 	"\x0erole_user_list\x18\f \x01(\v2\x17.mezon.api.RoleUserListR\froleUserList\x12B\n" +
 	"\x0fpermission_list\x18\r \x01(\v2\x19.mezon.api.PermissionListR\x0epermissionList\x12.\n" +
 	"\x13role_channel_active\x18\x0e \x01(\x05R\x11roleChannelActive\x12\x1f\n" +
-	"\vchannel_ids\x18\x0f \x03(\tR\n" +
+	"\vchannel_ids\x18\x0f \x03(\x03R\n" +
 	"channelIds\x120\n" +
 	"\x14max_level_permission\x18\x10 \x01(\x05R\x12maxLevelPermission\x12\x1d\n" +
 	"\n" +
-	"order_role\x18\x11 \x01(\x05R\torderRole\"\xd8\x05\n" +
+	"order_role\x18\x11 \x01(\x05R\torderRole\"\xb1\x05\n" +
 	"\x0fEventManagement\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12\x12\n" +
 	"\x04logo\x18\x03 \x01(\tR\x04logo\x12 \n" +
 	"\vdescription\x18\x04 \x01(\tR\vdescription\x12\x16\n" +
@@ -24371,20 +24424,18 @@ const file_api_api_proto_rawDesc = "" +
 	"\vstart_event\x18\x06 \x01(\x05R\n" +
 	"startEvent\x12\x1d\n" +
 	"\n" +
-	"creator_id\x18\a \x01(\tR\tcreatorId\x12\x17\n" +
-	"\aclan_id\x18\b \x01(\tR\x06clanId\x12(\n" +
-	"\x10channel_voice_id\x18\t \x01(\tR\x0echannelVoiceId\x12\x18\n" +
+	"creator_id\x18\a \x01(\x03R\tcreatorId\x12\x17\n" +
+	"\aclan_id\x18\b \x01(\x03R\x06clanId\x12(\n" +
+	"\x10channel_voice_id\x18\t \x01(\x03R\x0echannelVoiceId\x12\x18\n" +
 	"\aaddress\x18\n" +
-	" \x01(\tR\aaddress\x129\n" +
-	"\n" +
-	"start_time\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
-	"\bend_time\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\x12\x19\n" +
-	"\buser_ids\x18\r \x03(\tR\auserIds\x12;\n" +
-	"\vcreate_time\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"createTime\x12%\n" +
+	" \x01(\tR\aaddress\x12,\n" +
+	"\x12start_time_seconds\x18\v \x01(\rR\x10startTimeSeconds\x12(\n" +
+	"\x10end_time_seconds\x18\f \x01(\rR\x0eendTimeSeconds\x12\x19\n" +
+	"\buser_ids\x18\r \x03(\x03R\auserIds\x12.\n" +
+	"\x13create_time_seconds\x18\x0e \x01(\rR\x11createTimeSeconds\x12%\n" +
 	"\x0emax_permission\x18\x0f \x01(\x05R\rmaxPermission\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x10 \x01(\tR\tchannelId\x12!\n" +
+	"channel_id\x18\x10 \x01(\x03R\tchannelId\x12!\n" +
 	"\fevent_status\x18\x11 \x01(\x05R\veventStatus\x12\x1f\n" +
 	"\vrepeat_type\x18\x12 \x01(\x05R\n" +
 	"repeatType\x12\x1d\n" +
@@ -24393,7 +24444,7 @@ const file_api_api_proto_rawDesc = "" +
 	"\tmeet_room\x18\x14 \x01(\v2$.mezon.api.GenerateMezonMeetResponseR\bmeetRoom\"\xac\x01\n" +
 	"\n" +
 	"Permission\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12\x12\n" +
 	"\x04slug\x18\x03 \x01(\tR\x04slug\x12 \n" +
 	"\vdescription\x18\x04 \x01(\tR\vdescription\x12\x16\n" +
@@ -24401,102 +24452,83 @@ const file_api_api_proto_rawDesc = "" +
 	"\x05scope\x18\x06 \x01(\x05R\x05scope\x12\x14\n" +
 	"\x05level\x18\a \x01(\x05R\x05level\"a\n" +
 	"\x13NotificationSetting\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12:\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12:\n" +
 	"\x19notification_setting_type\x18\x02 \x01(\x05R\x17notificationSettingType\"y\n" +
 	"\x10DeletePinMessage\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1d\n" +
 	"\n" +
-	"message_id\x18\x02 \x01(\tR\tmessageId\x12\x1d\n" +
+	"message_id\x18\x02 \x01(\x03R\tmessageId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x03 \x01(\tR\tchannelId\x12\x17\n" +
-	"\aclan_id\x18\x04 \x01(\tR\x06clanId\"\xd2\x02\n" +
+	"channel_id\x18\x03 \x01(\x03R\tchannelId\x12\x17\n" +
+	"\aclan_id\x18\x04 \x01(\x03R\x06clanId\"\x95\x02\n" +
 	"\n" +
 	"PinMessage\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1d\n" +
 	"\n" +
-	"message_id\x18\x02 \x01(\tR\tmessageId\x12\x1d\n" +
+	"message_id\x18\x02 \x01(\x03R\tmessageId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x03 \x01(\tR\tchannelId\x12\x1b\n" +
-	"\tsender_id\x18\x04 \x01(\tR\bsenderId\x12\x18\n" +
+	"channel_id\x18\x03 \x01(\x03R\tchannelId\x12\x1b\n" +
+	"\tsender_id\x18\x04 \x01(\x03R\bsenderId\x12\x18\n" +
 	"\acontent\x18\x05 \x01(\tR\acontent\x12\x1a\n" +
 	"\busername\x18\x06 \x01(\tR\busername\x12\x16\n" +
-	"\x06avatar\x18\a \x01(\tR\x06avatar\x12;\n" +
-	"\vcreate_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"createTime\x12.\n" +
-	"\x13create_time_seconds\x18\t \x01(\rR\x11createTimeSeconds\x12\x1e\n" +
+	"\x06avatar\x18\a \x01(\tR\x06avatar\x12.\n" +
+	"\x13create_time_seconds\x18\b \x01(\rR\x11createTimeSeconds\x12\x1e\n" +
 	"\n" +
-	"attachment\x18\n" +
-	" \x01(\tR\n" +
+	"attachment\x18\t \x01(\fR\n" +
 	"attachment\"T\n" +
 	"\x0fPinMessagesList\x12A\n" +
-	"\x11pin_messages_list\x18\x01 \x03(\v2\x15.mezon.api.PinMessageR\x0fpinMessagesList\"\xd5\x01\n" +
+	"\x11pin_messages_list\x18\x01 \x03(\v2\x15.mezon.api.PinMessageR\x0fpinMessagesList\"\xc8\x01\n" +
 	"\x17NotificationUserChannel\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12:\n" +
-	"\x19notification_setting_type\x18\x02 \x01(\x05R\x17notificationSettingType\x127\n" +
-	"\ttime_mute\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\btimeMute\x12\x16\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12:\n" +
+	"\x19notification_setting_type\x18\x02 \x01(\x05R\x17notificationSettingType\x12*\n" +
+	"\x11time_mute_seconds\x18\x03 \x01(\rR\x0ftimeMuteSeconds\x12\x16\n" +
 	"\x06active\x18\x04 \x01(\x05R\x06active\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x05 \x01(\tR\tchannelId\"\\\n" +
+	"channel_id\x18\x05 \x01(\x03R\tchannelId\"\\\n" +
 	"\x12NotifiReactMessage\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\x03R\x06userId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x03 \x01(\tR\tchannelId\"2\n" +
+	"channel_id\x18\x03 \x01(\x03R\tchannelId\"2\n" +
 	"\x17DefaultNotificationClan\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\">\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\">\n" +
 	"\x1bDefaultNotificationCategory\x12\x1f\n" +
-	"\vcategory_id\x18\x01 \x01(\tR\n" +
+	"\vcategory_id\x18\x01 \x01(\x03R\n" +
 	"categoryId\"4\n" +
 	"\x13NotificationChannel\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x01 \x01(\tR\tchannelId\"+\n" +
+	"channel_id\x18\x01 \x01(\x03R\tchannelId\"+\n" +
 	"\x10NotificationClan\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\"l\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\"l\n" +
 	"\x17NotificationSettingList\x12Q\n" +
 	"\x14notification_setting\x18\x01 \x03(\v2\x1e.mezon.api.NotificationSettingR\x13notificationSetting\"\x8e\x01\n" +
 	"\x16SetNotificationRequest\x12.\n" +
-	"\x13channel_category_id\x18\x01 \x01(\tR\x11channelCategoryId\x12+\n" +
+	"\x13channel_category_id\x18\x01 \x01(\x03R\x11channelCategoryId\x12+\n" +
 	"\x11notification_type\x18\x02 \x01(\x05R\x10notificationType\x12\x17\n" +
-	"\aclan_id\x18\x03 \x01(\tR\x06clanId\"j\n" +
+	"\aclan_id\x18\x03 \x01(\x03R\x06clanId\"j\n" +
 	"\x11PinMessageRequest\x12\x1d\n" +
 	"\n" +
-	"message_id\x18\x01 \x01(\tR\tmessageId\x12\x1d\n" +
+	"message_id\x18\x01 \x01(\x03R\tmessageId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x12\x17\n" +
-	"\aclan_id\x18\x03 \x01(\tR\x06clanId\"n\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12\x17\n" +
+	"\aclan_id\x18\x03 \x01(\x03R\x06clanId\"n\n" +
 	"\x0eSetMuteRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1b\n" +
 	"\tmute_time\x18\x02 \x01(\x05R\bmuteTime\x12\x16\n" +
 	"\x06active\x18\x03 \x01(\x05R\x06active\x12\x17\n" +
-	"\aclan_id\x18\x04 \x01(\tR\x06clanId\"b\n" +
-	"\x14HashtagDmListRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x03(\tR\x06userId\x121\n" +
-	"\x05limit\x18\x02 \x01(\v2\x1b.google.protobuf.Int32ValueR\x05limit\"D\n" +
-	"\rHashtagDmList\x123\n" +
-	"\n" +
-	"hashtag_dm\x18\x01 \x03(\v2\x14.mezon.api.HashtagDmR\thashtagDm\"\x82\x02\n" +
-	"\tHashtagDm\x12\x1d\n" +
-	"\n" +
-	"channel_id\x18\x01 \x01(\tR\tchannelId\x12#\n" +
-	"\rchannel_label\x18\x02 \x01(\tR\fchannelLabel\x12\x17\n" +
-	"\aclan_id\x18\x03 \x01(\tR\x06clanId\x12\x1b\n" +
-	"\tclan_name\x18\x04 \x01(\tR\bclanName\x12!\n" +
-	"\fmeeting_code\x18\x05 \x01(\tR\vmeetingCode\x12\x12\n" +
-	"\x04type\x18\x06 \x01(\x05R\x04type\x12'\n" +
-	"\x0fchannel_private\x18\a \x01(\x05R\x0echannelPrivate\x12\x1b\n" +
-	"\tparent_id\x18\b \x01(\tR\bparentId\"\xb6\x01\n" +
+	"\aclan_id\x18\x04 \x01(\x03R\x06clanId\"\xb6\x01\n" +
 	"&NotificationChannelCategorySettingList\x12\x8b\x01\n" +
 	"+notification_channel_category_settings_list\x18\x01 \x03(\v2-.mezon.api.NotificationChannelCategorySettingR'notificationChannelCategorySettingsList\"\xf4\x01\n" +
 	"\"NotificationChannelCategorySetting\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x124\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x124\n" +
 	"\x16channel_category_label\x18\x02 \x01(\tR\x14channelCategoryLabel\x12:\n" +
 	"\x19notification_setting_type\x18\x03 \x01(\x05R\x17notificationSettingType\x124\n" +
 	"\x16channel_category_title\x18\x04 \x01(\tR\x14channelCategoryTitle\x12\x16\n" +
 	"\x06action\x18\x05 \x01(\x05R\x06action\"\x86\x01\n" +
 	"\x1dSetDefaultNotificationRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12+\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12+\n" +
 	"\x11notification_type\x18\x02 \x01(\x05R\x10notificationType\x12\x1f\n" +
-	"\vcategory_id\x18\x03 \x01(\tR\n" +
+	"\vcategory_id\x18\x03 \x01(\x03R\n" +
 	"categoryId\"c\n" +
 	"\bRoleList\x12%\n" +
 	"\x05roles\x18\x01 \x03(\v2\x0f.mezon.api.RoleR\x05roles\x120\n" +
@@ -24507,21 +24539,21 @@ const file_api_api_proto_rawDesc = "" +
 	"\vpermissions\x18\x01 \x03(\v2\x15.mezon.api.PermissionR\vpermissions\x120\n" +
 	"\x14max_level_permission\x18\x02 \x01(\x05R\x12maxLevelPermission\"1\n" +
 	"\x16ListPermissionsRequest\x12\x17\n" +
-	"\arole_id\x18\x01 \x01(\tR\x06roleId\"z\n" +
+	"\arole_id\x18\x01 \x01(\x03R\x06roleId\"]\n" +
 	"\x14ListRoleUsersRequest\x12\x17\n" +
-	"\arole_id\x18\x01 \x01(\tR\x06roleId\x121\n" +
-	"\x05limit\x18\x02 \x01(\v2\x1b.google.protobuf.Int32ValueR\x05limit\x12\x16\n" +
+	"\arole_id\x18\x01 \x01(\x03R\x06roleId\x12\x14\n" +
+	"\x05limit\x18\x02 \x01(\x05R\x05limit\x12\x16\n" +
 	"\x06cursor\x18\x03 \x01(\tR\x06cursor\"V\n" +
 	"\x1cListPermissionOfUsersRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\"\xb1\x02\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\"\xb1\x02\n" +
 	"\fRoleUserList\x12?\n" +
 	"\n" +
 	"role_users\x18\x01 \x03(\v2 .mezon.api.RoleUserList.RoleUserR\troleUsers\x12\x16\n" +
 	"\x06cursor\x18\x02 \x01(\tR\x06cursor\x1a\xc7\x01\n" +
 	"\bRoleUser\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x12!\n" +
 	"\fdisplay_name\x18\x03 \x01(\tR\vdisplayName\x12\x1d\n" +
 	"\n" +
@@ -24530,111 +24562,109 @@ const file_api_api_proto_rawDesc = "" +
 	"\blocation\x18\x06 \x01(\tR\blocation\x12\x16\n" +
 	"\x06online\x18\a \x01(\bR\x06online\"F\n" +
 	"\x10UserEventRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x19\n" +
-	"\bevent_id\x18\x02 \x01(\tR\aeventId\",\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x19\n" +
+	"\bevent_id\x18\x02 \x01(\x03R\aeventId\",\n" +
 	"\x11ListEventsRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\"\x84\x03\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\"\x84\x03\n" +
 	"\x11CreateRoleRequest\x12\x14\n" +
 	"\x05title\x18\x01 \x01(\tR\x05title\x12\x14\n" +
 	"\x05color\x18\x02 \x01(\tR\x05color\x12\x1b\n" +
 	"\trole_icon\x18\x03 \x01(\tR\broleIcon\x12 \n" +
 	"\vdescription\x18\x04 \x01(\tR\vdescription\x12\x17\n" +
-	"\aclan_id\x18\x05 \x01(\tR\x06clanId\x12%\n" +
+	"\aclan_id\x18\x05 \x01(\x03R\x06clanId\x12%\n" +
 	"\x0edisplay_online\x18\x06 \x01(\x05R\rdisplayOnline\x12#\n" +
 	"\rallow_mention\x18\a \x01(\x05R\fallowMention\x12*\n" +
-	"\x11max_permission_id\x18\b \x01(\tR\x0fmaxPermissionId\x12 \n" +
-	"\fadd_user_ids\x18\t \x03(\tR\n" +
+	"\x11max_permission_id\x18\b \x01(\x03R\x0fmaxPermissionId\x12 \n" +
+	"\fadd_user_ids\x18\t \x03(\x03R\n" +
 	"addUserIds\x122\n" +
 	"\x15active_permission_ids\x18\n" +
-	" \x03(\tR\x13activePermissionIds\x12\x1d\n" +
+	" \x03(\x03R\x13activePermissionIds\x12\x1d\n" +
 	"\n" +
-	"order_role\x18\v \x01(\x05R\torderRole\"\xfb\x04\n" +
+	"order_role\x18\v \x01(\x05R\torderRole\"\xc5\x04\n" +
 	"\x12CreateEventRequest\x12\x14\n" +
 	"\x05title\x18\x01 \x01(\tR\x05title\x12\x12\n" +
 	"\x04logo\x18\x02 \x01(\tR\x04logo\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x17\n" +
-	"\aclan_id\x18\x04 \x01(\tR\x06clanId\x12(\n" +
-	"\x10channel_voice_id\x18\x05 \x01(\tR\x0echannelVoiceId\x12\x18\n" +
-	"\aaddress\x18\x06 \x01(\tR\aaddress\x129\n" +
-	"\n" +
-	"start_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
-	"\bend_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\x12\x19\n" +
-	"\bevent_id\x18\t \x01(\tR\aeventId\x12!\n" +
+	"\aclan_id\x18\x04 \x01(\x03R\x06clanId\x12(\n" +
+	"\x10channel_voice_id\x18\x05 \x01(\x03R\x0echannelVoiceId\x12\x18\n" +
+	"\aaddress\x18\x06 \x01(\tR\aaddress\x12,\n" +
+	"\x12start_time_seconds\x18\a \x01(\rR\x10startTimeSeconds\x12(\n" +
+	"\x10end_time_seconds\x18\b \x01(\rR\x0eendTimeSeconds\x12\x19\n" +
+	"\bevent_id\x18\t \x01(\x03R\aeventId\x12!\n" +
 	"\fevent_status\x18\n" +
 	" \x01(\x05R\veventStatus\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\v \x01(\tR\tchannelId\x12\x16\n" +
+	"channel_id\x18\v \x01(\x03R\tchannelId\x12\x16\n" +
 	"\x06action\x18\f \x01(\x05R\x06action\x12\x1f\n" +
 	"\vrepeat_type\x18\r \x01(\x05R\n" +
 	"repeatType\x12\x1d\n" +
 	"\n" +
-	"creator_id\x18\x0e \x01(\tR\tcreatorId\x12\x17\n" +
-	"\auser_id\x18\x0f \x01(\tR\x06userId\x129\n" +
+	"creator_id\x18\x0e \x01(\x03R\tcreatorId\x12\x17\n" +
+	"\auser_id\x18\x0f \x01(\x03R\x06userId\x12\x1d\n" +
 	"\n" +
-	"is_private\x18\x10 \x01(\v2\x1a.google.protobuf.BoolValueR\tisPrivate\x12A\n" +
-	"\tmeet_room\x18\x11 \x01(\v2$.mezon.api.GenerateMezonMeetResponseR\bmeetRoom\"\xcf\x03\n" +
+	"is_private\x18\x10 \x01(\bR\tisPrivate\x12A\n" +
+	"\tmeet_room\x18\x11 \x01(\v2$.mezon.api.GenerateMezonMeetResponseR\bmeetRoom\"\xb5\x03\n" +
 	"\x12UpdateEventRequest\x12\x14\n" +
 	"\x05title\x18\x01 \x01(\tR\x05title\x12\x12\n" +
 	"\x04logo\x18\x02 \x01(\tR\x04logo\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x19\n" +
-	"\bevent_id\x18\x04 \x01(\tR\aeventId\x12\x1d\n" +
+	"\bevent_id\x18\x04 \x01(\x03R\aeventId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x05 \x01(\tR\tchannelId\x12\x18\n" +
-	"\aaddress\x18\x06 \x01(\tR\aaddress\x129\n" +
-	"\n" +
-	"start_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
-	"\bend_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\x12\x17\n" +
-	"\aclan_id\x18\t \x01(\tR\x06clanId\x12\x1d\n" +
+	"channel_id\x18\x05 \x01(\x03R\tchannelId\x12\x18\n" +
+	"\aaddress\x18\x06 \x01(\tR\aaddress\x12,\n" +
+	"\x12start_time_seconds\x18\a \x01(\rR\x10startTimeSeconds\x12(\n" +
+	"\x10end_time_seconds\x18\b \x01(\rR\x0eendTimeSeconds\x12\x17\n" +
+	"\aclan_id\x18\t \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
 	"creator_id\x18\n" +
-	" \x01(\tR\tcreatorId\x12(\n" +
-	"\x10channel_voice_id\x18\v \x01(\tR\x0echannelVoiceId\x12$\n" +
-	"\x0echannel_id_old\x18\f \x01(\tR\fchannelIdOld\x12\x1f\n" +
+	" \x01(\x03R\tcreatorId\x12(\n" +
+	"\x10channel_voice_id\x18\v \x01(\x03R\x0echannelVoiceId\x12$\n" +
+	"\x0echannel_id_old\x18\f \x01(\x03R\fchannelIdOld\x12\x1f\n" +
 	"\vrepeat_type\x18\r \x01(\x05R\n" +
 	"repeatType\"\x83\x01\n" +
 	"\x11DeleteRoleRequest\x12\x17\n" +
-	"\arole_id\x18\x01 \x01(\tR\x06roleId\x12\x1d\n" +
+	"\arole_id\x18\x01 \x01(\x03R\x06roleId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x12\x17\n" +
-	"\aclan_id\x18\x03 \x01(\tR\x06clanId\x12\x1d\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12\x17\n" +
+	"\aclan_id\x18\x03 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
 	"role_label\x18\x04 \x01(\tR\troleLabel\"\xa7\x01\n" +
 	"\x12DeleteEventRequest\x12\x19\n" +
-	"\bevent_id\x18\x01 \x01(\tR\aeventId\x12\x17\n" +
-	"\aclan_id\x18\x02 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\bevent_id\x18\x01 \x01(\x03R\aeventId\x12\x17\n" +
+	"\aclan_id\x18\x02 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"creator_id\x18\x03 \x01(\tR\tcreatorId\x12\x1f\n" +
+	"creator_id\x18\x03 \x01(\x03R\tcreatorId\x12\x1f\n" +
 	"\vevent_label\x18\x04 \x01(\tR\n" +
 	"eventLabel\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x05 \x01(\tR\tchannelId\"\x8c\x05\n" +
+	"channel_id\x18\x05 \x01(\x03R\tchannelId\"\xd2\x04\n" +
 	"\x11UpdateRoleRequest\x12\x17\n" +
-	"\arole_id\x18\x01 \x01(\tR\x06roleId\x122\n" +
+	"\arole_id\x18\x01 \x01(\x03R\x06roleId\x122\n" +
 	"\x05title\x18\x02 \x01(\v2\x1c.google.protobuf.StringValueR\x05title\x122\n" +
 	"\x05color\x18\x03 \x01(\v2\x1c.google.protobuf.StringValueR\x05color\x129\n" +
 	"\trole_icon\x18\x04 \x01(\v2\x1c.google.protobuf.StringValueR\broleIcon\x12>\n" +
-	"\vdescription\x18\x05 \x01(\v2\x1c.google.protobuf.StringValueR\vdescription\x12B\n" +
-	"\x0edisplay_online\x18\x06 \x01(\v2\x1b.google.protobuf.Int32ValueR\rdisplayOnline\x12@\n" +
-	"\rallow_mention\x18\a \x01(\v2\x1b.google.protobuf.Int32ValueR\fallowMention\x12 \n" +
-	"\fadd_user_ids\x18\b \x03(\tR\n" +
+	"\vdescription\x18\x05 \x01(\v2\x1c.google.protobuf.StringValueR\vdescription\x12%\n" +
+	"\x0edisplay_online\x18\x06 \x01(\x05R\rdisplayOnline\x12#\n" +
+	"\rallow_mention\x18\a \x01(\x05R\fallowMention\x12 \n" +
+	"\fadd_user_ids\x18\b \x03(\x03R\n" +
 	"addUserIds\x122\n" +
-	"\x15active_permission_ids\x18\t \x03(\tR\x13activePermissionIds\x12&\n" +
+	"\x15active_permission_ids\x18\t \x03(\x03R\x13activePermissionIds\x12&\n" +
 	"\x0fremove_user_ids\x18\n" +
-	" \x03(\tR\rremoveUserIds\x122\n" +
-	"\x15remove_permission_ids\x18\v \x03(\tR\x13removePermissionIds\x12\x17\n" +
-	"\aclan_id\x18\f \x01(\tR\x06clanId\x12*\n" +
-	"\x11max_permission_id\x18\r \x01(\tR\x0fmaxPermissionId\"\x80\x02\n" +
+	" \x03(\x03R\rremoveUserIds\x122\n" +
+	"\x15remove_permission_ids\x18\v \x03(\x03R\x13removePermissionIds\x12\x17\n" +
+	"\aclan_id\x18\f \x01(\x03R\x06clanId\x12*\n" +
+	"\x11max_permission_id\x18\r \x01(\x03R\x0fmaxPermissionId\"\x80\x02\n" +
 	"\x18UpdateRoleChannelRequest\x12\x17\n" +
-	"\arole_id\x18\x01 \x01(\tR\x06roleId\x12H\n" +
+	"\arole_id\x18\x01 \x01(\x03R\x06roleId\x12H\n" +
 	"\x11permission_update\x18\x02 \x03(\v2\x1b.mezon.api.PermissionUpdateR\x10permissionUpdate\x12*\n" +
-	"\x11max_permission_id\x18\x03 \x01(\tR\x0fmaxPermissionId\x12\x1d\n" +
+	"\x11max_permission_id\x18\x03 \x01(\x03R\x0fmaxPermissionId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x04 \x01(\tR\tchannelId\x12\x17\n" +
-	"\auser_id\x18\x05 \x01(\tR\x06userId\x12\x1d\n" +
+	"channel_id\x18\x04 \x01(\x03R\tchannelId\x12\x17\n" +
+	"\auser_id\x18\x05 \x01(\x03R\x06userId\x12\x1d\n" +
 	"\n" +
 	"role_label\x18\x06 \x01(\tR\troleLabel\"_\n" +
 	"\x10PermissionUpdate\x12#\n" +
-	"\rpermission_id\x18\x01 \x01(\tR\fpermissionId\x12\x12\n" +
+	"\rpermission_id\x18\x01 \x01(\x03R\fpermissionId\x12\x12\n" +
 	"\x04slug\x18\x02 \x01(\tR\x04slug\x12\x12\n" +
 	"\x04type\x18\x03 \x01(\x05R\x04type\"\x93\x01\n" +
 	"\x17UploadAttachmentRequest\x12\x1a\n" +
@@ -24642,18 +24672,18 @@ const file_api_api_proto_rawDesc = "" +
 	"\bfiletype\x18\x02 \x01(\tR\bfiletype\x12\x12\n" +
 	"\x04size\x18\x03 \x01(\x05R\x04size\x12\x14\n" +
 	"\x05width\x18\x04 \x01(\x05R\x05width\x12\x16\n" +
-	"\x06height\x18\x05 \x01(\x05R\x06height\"\x9c\x01\n" +
-	"\x19ListMessageMentionRequest\x121\n" +
-	"\x05limit\x18\x01 \x01(\v2\x1b.google.protobuf.Int32ValueR\x05limit\x124\n" +
-	"\aforward\x18\x02 \x01(\v2\x1a.google.protobuf.BoolValueR\aforward\x12\x16\n" +
+	"\x06height\x18\x05 \x01(\x05R\x06height\"c\n" +
+	"\x19ListMessageMentionRequest\x12\x14\n" +
+	"\x05limit\x18\x01 \x01(\x05R\x05limit\x12\x18\n" +
+	"\aforward\x18\x02 \x01(\bR\aforward\x12\x16\n" +
 	"\x06cursor\x18\x03 \x01(\tR\x06cursor\"@\n" +
 	"\x10UploadAttachment\x12\x1a\n" +
 	"\bfilename\x18\x01 \x01(\tR\bfilename\x12\x10\n" +
-	"\x03url\x18\x02 \x01(\tR\x03url\"\xd6\x01\n" +
+	"\x03url\x18\x02 \x01(\tR\x03url\"\x9c\x01\n" +
 	"\x14SearchMessageRequest\x120\n" +
-	"\afilters\x18\x01 \x03(\v2\x16.mezon.api.FilterParamR\afilters\x12/\n" +
-	"\x04from\x18\x03 \x01(\v2\x1b.google.protobuf.Int32ValueR\x04from\x12/\n" +
-	"\x04size\x18\x04 \x01(\v2\x1b.google.protobuf.Int32ValueR\x04size\x12*\n" +
+	"\afilters\x18\x01 \x03(\v2\x16.mezon.api.FilterParamR\afilters\x12\x12\n" +
+	"\x04from\x18\x03 \x01(\x05R\x04from\x12\x12\n" +
+	"\x04size\x18\x04 \x01(\x05R\x04size\x12*\n" +
 	"\x05sorts\x18\x05 \x03(\v2\x14.mezon.api.SortParamR\x05sorts\"@\n" +
 	"\tSortParam\x12\x1d\n" +
 	"\n" +
@@ -24663,7 +24693,7 @@ const file_api_api_proto_rawDesc = "" +
 	"\n" +
 	"field_name\x18\x01 \x01(\tR\tfieldName\x12\x1f\n" +
 	"\vfield_value\x18\x02 \x01(\tR\n" +
-	"fieldValue\"\xc4\x04\n" +
+	"fieldValue\"\xa6\x04\n" +
 	"\x15SearchMessageDocument\x12\x1d\n" +
 	"\n" +
 	"message_id\x18\x01 \x01(\tR\tmessageId\x12\x1d\n" +
@@ -24673,8 +24703,8 @@ const file_api_api_proto_rawDesc = "" +
 	"\tsender_id\x18\x04 \x01(\tR\bsenderId\x12\x18\n" +
 	"\acontent\x18\x05 \x01(\tR\acontent\x12\x1a\n" +
 	"\bmentions\x18\x06 \x01(\tR\bmentions\x12\x1c\n" +
-	"\treactions\x18\a \x01(\tR\treactions\x12>\n" +
-	"\vattachments\x18\b \x03(\v2\x1c.mezon.api.MessageAttachmentR\vattachments\x12\x1e\n" +
+	"\treactions\x18\a \x01(\tR\treactions\x12 \n" +
+	"\vattachments\x18\b \x01(\tR\vattachments\x12\x1e\n" +
 	"\n" +
 	"references\x18\t \x01(\tR\n" +
 	"references\x12\x1f\n" +
@@ -24707,13 +24737,13 @@ const file_api_api_proto_rawDesc = "" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf0\x01\n" +
 	"\tClanEmoji\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x10\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x10\n" +
 	"\x03src\x18\x02 \x01(\tR\x03src\x12\x1c\n" +
 	"\tshortname\x18\x03 \x01(\tR\tshortname\x12\x1a\n" +
 	"\bcategory\x18\x04 \x01(\tR\bcategory\x12\x1d\n" +
 	"\n" +
-	"creator_id\x18\x05 \x01(\tR\tcreatorId\x12\x17\n" +
-	"\aclan_id\x18\x06 \x01(\tR\x06clanId\x12\x12\n" +
+	"creator_id\x18\x05 \x01(\x03R\tcreatorId\x12\x17\n" +
+	"\aclan_id\x18\x06 \x01(\x03R\x06clanId\x12\x12\n" +
 	"\x04logo\x18\a \x01(\tR\x04logo\x12\x1b\n" +
 	"\tclan_name\x18\b \x01(\tR\bclanName\x12\x1e\n" +
 	"\vis_for_sale\x18\t \x01(\bR\tisForSale\"J\n" +
@@ -24721,63 +24751,62 @@ const file_api_api_proto_rawDesc = "" +
 	"\n" +
 	"emoji_list\x18\x01 \x03(\v2\x14.mezon.api.ClanEmojiR\temojiList\"K\n" +
 	"\x15StickerListedResponse\x122\n" +
-	"\bstickers\x18\x01 \x03(\v2\x16.mezon.api.ClanStickerR\bstickers\"\xd4\x02\n" +
+	"\bstickers\x18\x01 \x03(\v2\x16.mezon.api.ClanStickerR\bstickers\"\xc7\x02\n" +
 	"\vClanSticker\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n" +
 	"\x06source\x18\x02 \x01(\tR\x06source\x12\x1c\n" +
 	"\tshortname\x18\x03 \x01(\tR\tshortname\x12\x1a\n" +
 	"\bcategory\x18\x04 \x01(\tR\bcategory\x12\x1d\n" +
 	"\n" +
-	"creator_id\x18\x05 \x01(\tR\tcreatorId\x12;\n" +
-	"\vcreate_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"createTime\x12\x17\n" +
-	"\aclan_id\x18\a \x01(\tR\x06clanId\x12\x12\n" +
+	"creator_id\x18\x05 \x01(\x03R\tcreatorId\x12.\n" +
+	"\x13create_time_seconds\x18\x06 \x01(\rR\x11createTimeSeconds\x12\x17\n" +
+	"\aclan_id\x18\a \x01(\x03R\x06clanId\x12\x12\n" +
 	"\x04logo\x18\b \x01(\tR\x04logo\x12\x1b\n" +
 	"\tclan_name\x18\t \x01(\tR\bclanName\x12\x1d\n" +
 	"\n" +
 	"media_type\x18\n" +
 	" \x01(\x05R\tmediaType\x12\x1e\n" +
-	"\vis_for_sale\x18\v \x01(\bR\tisForSale\"m\n" +
+	"\vis_for_sale\x18\v \x01(\bR\tisForSale\"P\n" +
 	"\x19AllUsersAddChannelRequest\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x01 \x01(\tR\tchannelId\x121\n" +
-	"\x05limit\x18\x02 \x01(\v2\x1b.google.protobuf.Int32ValueR\x05limit\"\x80\x02\n" +
+	"channel_id\x18\x01 \x01(\x03R\tchannelId\x12\x14\n" +
+	"\x05limit\x18\x02 \x01(\x05R\x05limit\"\xe3\x01\n" +
 	"\x1aAllUsersAddChannelResponse\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x01 \x01(\tR\tchannelId\x12\x19\n" +
-	"\buser_ids\x18\x02 \x03(\tR\auserIds\x121\n" +
-	"\x05limit\x18\x03 \x01(\v2\x1b.google.protobuf.Int32ValueR\x05limit\x12\x1c\n" +
+	"channel_id\x18\x01 \x01(\x03R\tchannelId\x12\x19\n" +
+	"\buser_ids\x18\x02 \x03(\x03R\auserIds\x12\x14\n" +
+	"\x05limit\x18\x03 \x01(\x05R\x05limit\x12\x1c\n" +
 	"\tusernames\x18\x04 \x03(\tR\tusernames\x12#\n" +
 	"\rdisplay_names\x18\x05 \x03(\tR\fdisplayNames\x12\x18\n" +
 	"\aavatars\x18\x06 \x03(\tR\aavatars\x12\x18\n" +
 	"\aonlines\x18\a \x03(\bR\aonlines\"\xb3\x01\n" +
 	"\x16ClanEmojiCreateRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x16\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x16\n" +
 	"\x06source\x18\x02 \x01(\tR\x06source\x12\x1c\n" +
 	"\tshortname\x18\x03 \x01(\tR\tshortname\x12\x1a\n" +
 	"\bcategory\x18\x04 \x01(\tR\bcategory\x12\x0e\n" +
-	"\x02id\x18\x05 \x01(\tR\x02id\x12\x1e\n" +
+	"\x02id\x18\x05 \x01(\x03R\x02id\x12\x1e\n" +
 	"\vis_for_sale\x18\x06 \x01(\bR\tisForSale\"6\n" +
 	"\x1bClanEmojiGetByClanIdRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\"b\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\"b\n" +
 	"\x16ClanEmojiDeleteRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
-	"\aclan_id\x18\x02 \x01(\tR\x06clanId\x12\x1f\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x17\n" +
+	"\aclan_id\x18\x02 \x01(\x03R\x06clanId\x12\x1f\n" +
 	"\vemoji_label\x18\x03 \x01(\tR\n" +
 	"emojiLabel\"_\n" +
 	"\x16ClanEmojiUpdateRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1c\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1c\n" +
 	"\tshortname\x18\x02 \x01(\tR\tshortname\x12\x17\n" +
-	"\aclan_id\x18\x03 \x01(\tR\x06clanId\"\xaf\x02\n" +
+	"\aclan_id\x18\x03 \x01(\x03R\x06clanId\"\xaf\x02\n" +
 	"\aWebhook\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12!\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12!\n" +
 	"\fwebhook_name\x18\x02 \x01(\tR\vwebhookName\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x03 \x01(\tR\tchannelId\x12\x16\n" +
+	"channel_id\x18\x03 \x01(\x03R\tchannelId\x12\x16\n" +
 	"\x06active\x18\x04 \x01(\x05R\x06active\x12\x10\n" +
 	"\x03url\x18\x05 \x01(\tR\x03url\x12\x1d\n" +
 	"\n" +
-	"creator_id\x18\x06 \x01(\tR\tcreatorId\x12\x1f\n" +
+	"creator_id\x18\x06 \x01(\x03R\tcreatorId\x12\x1f\n" +
 	"\vcreate_time\x18\a \x01(\tR\n" +
 	"createTime\x12\x1f\n" +
 	"\vupdate_time\x18\b \x01(\tR\n" +
@@ -24785,45 +24814,40 @@ const file_api_api_proto_rawDesc = "" +
 	"\x06avatar\x18\t \x01(\tR\x06avatar\x12\x16\n" +
 	"\x06status\x18\n" +
 	" \x01(\x05R\x06status\x12\x17\n" +
-	"\aclan_id\x18\v \x01(\tR\x06clanId\"\x89\x01\n" +
+	"\aclan_id\x18\v \x01(\x03R\x06clanId\"\x89\x01\n" +
 	"\x14WebhookCreateRequest\x12!\n" +
 	"\fwebhook_name\x18\x01 \x01(\tR\vwebhookName\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x12\x16\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12\x16\n" +
 	"\x06avatar\x18\x03 \x01(\tR\x06avatar\x12\x17\n" +
-	"\aclan_id\x18\x04 \x01(\tR\x06clanId\"(\n" +
+	"\aclan_id\x18\x04 \x01(\x03R\x06clanId\"(\n" +
 	"\x16WebhookListRequestById\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\xc9\x01\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\"\xc9\x01\n" +
 	"\x18WebhookUpdateRequestById\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12!\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12!\n" +
 	"\fwebhook_name\x18\x02 \x01(\tR\vwebhookName\x12*\n" +
-	"\x11channel_id_update\x18\x03 \x01(\tR\x0fchannelIdUpdate\x12\x16\n" +
+	"\x11channel_id_update\x18\x03 \x01(\x03R\x0fchannelIdUpdate\x12\x16\n" +
 	"\x06avatar\x18\x04 \x01(\tR\x06avatar\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x05 \x01(\tR\tchannelId\x12\x17\n" +
-	"\aclan_id\x18\x06 \x01(\tR\x06clanId\"b\n" +
+	"channel_id\x18\x05 \x01(\x03R\tchannelId\x12\x17\n" +
+	"\aclan_id\x18\x06 \x01(\x03R\x06clanId\"b\n" +
 	"\x18WebhookDeleteRequestById\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
-	"\aclan_id\x18\x02 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x17\n" +
+	"\aclan_id\x18\x02 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x03 \x01(\tR\tchannelId\"L\n" +
+	"channel_id\x18\x03 \x01(\x03R\tchannelId\"L\n" +
 	"\x12WebhookListRequest\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x01 \x01(\tR\tchannelId\x12\x17\n" +
-	"\aclan_id\x18\x02 \x01(\tR\x06clanId\"E\n" +
+	"channel_id\x18\x01 \x01(\x03R\tchannelId\x12\x17\n" +
+	"\aclan_id\x18\x02 \x01(\x03R\x06clanId\"E\n" +
 	"\x13WebhookListResponse\x12.\n" +
 	"\bwebhooks\x18\x01 \x03(\v2\x12.mezon.api.WebhookR\bwebhooks\"\x7f\n" +
 	"\x17WebhookGenerateResponse\x12\x10\n" +
 	"\x03url\x18\x01 \x01(\tR\x03url\x12\x1b\n" +
 	"\thook_name\x18\x02 \x01(\tR\bhookName\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x03 \x01(\tR\tchannelId\x12\x16\n" +
-	"\x06avatar\x18\x04 \x01(\tR\x06avatar\"y\n" +
-	"\x15WebhookHandlerRequest\x12+\n" +
-	"\x04body\x18\x01 \x01(\v2\x17.google.protobuf.StructR\x04body\x12\x1d\n" +
-	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x12\x14\n" +
-	"\x05token\x18\x03 \x01(\tR\x05token\"<\n" +
+	"channel_id\x18\x03 \x01(\x03R\tchannelId\x12\x16\n" +
+	"\x06avatar\x18\x04 \x01(\tR\x06avatar\"<\n" +
 	"\x1dCheckDuplicateClanNameRequest\x12\x1b\n" +
 	"\tclan_name\x18\x01 \x01(\tR\bclanName\"C\n" +
 	"\x1eCheckDuplicateClanNameResponse\x12!\n" +
@@ -24832,46 +24856,45 @@ const file_api_api_proto_rawDesc = "" +
 	"\x06source\x18\x01 \x01(\tR\x06source\x12\x1c\n" +
 	"\tshortname\x18\x02 \x01(\tR\tshortname\x12\x1a\n" +
 	"\bcategory\x18\x03 \x01(\tR\bcategory\x12\x17\n" +
-	"\aclan_id\x18\x04 \x01(\tR\x06clanId\x12\x0e\n" +
-	"\x02id\x18\x05 \x01(\tR\x02id\x12\x1d\n" +
+	"\aclan_id\x18\x04 \x01(\x03R\x06clanId\x12\x0e\n" +
+	"\x02id\x18\x05 \x01(\x03R\x02id\x12\x1d\n" +
 	"\n" +
 	"media_type\x18\x06 \x01(\x05R\tmediaType\x12\x1e\n" +
 	"\vis_for_sale\x18\a \x01(\bR\tisForSale\"9\n" +
 	"\x1eClanStickerListByClanIdRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\"\x99\x01\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\"\x99\x01\n" +
 	"\x1cClanStickerUpdateByIdRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n" +
 	"\x06source\x18\x02 \x01(\tR\x06source\x12\x1c\n" +
 	"\tshortname\x18\x03 \x01(\tR\tshortname\x12\x1a\n" +
 	"\bcategory\x18\x04 \x01(\tR\bcategory\x12\x17\n" +
-	"\aclan_id\x18\x05 \x01(\tR\x06clanId\"h\n" +
+	"\aclan_id\x18\x05 \x01(\x03R\x06clanId\"h\n" +
 	"\x18ClanStickerDeleteRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
-	"\aclan_id\x18\x02 \x01(\tR\x06clanId\x12#\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x17\n" +
+	"\aclan_id\x18\x02 \x01(\x03R\x06clanId\x12#\n" +
 	"\rsticker_label\x18\x03 \x01(\tR\fstickerLabel\"~\n" +
 	"\x1cChangeChannelCategoryRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x12&\n" +
-	"\x0fnew_category_id\x18\x03 \x01(\tR\rnewCategoryId\"\xda\x02\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12&\n" +
+	"\x0fnew_category_id\x18\x03 \x01(\x03R\rnewCategoryId\"\xc0\x02\n" +
 	"\x03App\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x18\n" +
 	"\aappname\x18\x02 \x01(\tR\aappname\x12\x1d\n" +
 	"\n" +
-	"creator_id\x18\x03 \x01(\tR\tcreatorId\x12\x18\n" +
+	"creator_id\x18\x03 \x01(\x03R\tcreatorId\x12\x18\n" +
 	"\aapplogo\x18\x04 \x01(\tR\aapplogo\x12\x1b\n" +
-	"\tis_shadow\x18\x05 \x01(\bR\bisShadow\x12=\n" +
-	"\fdisable_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\vdisableTime\x12;\n" +
-	"\vcreate_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"createTime\x12\x14\n" +
+	"\tis_shadow\x18\x05 \x01(\bR\bisShadow\x120\n" +
+	"\x14disable_time_seconds\x18\x06 \x01(\rR\x12disableTimeSeconds\x12.\n" +
+	"\x13create_time_seconds\x18\a \x01(\rR\x11createTimeSeconds\x12\x14\n" +
 	"\x05token\x18\b \x01(\tR\x05token\x12\x12\n" +
 	"\x04role\x18\t \x01(\x05R\x04role\x12\x14\n" +
 	"\x05about\x18\n" +
 	" \x01(\tR\x05about\x12\x17\n" +
-	"\aapp_url\x18\v \x01(\tR\x06appUrl\"g\n" +
+	"\aapp_url\x18\v \x01(\tR\x06appUrl\"K\n" +
 	"\x10AppDeleteRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12C\n" +
-	"\x0frecord_deletion\x18\x02 \x01(\v2\x1a.google.protobuf.BoolValueR\x0erecordDeletion\"o\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12'\n" +
+	"\x0frecord_deletion\x18\x02 \x01(\bR\x0erecordDeletion\"o\n" +
 	"\aAppList\x12\"\n" +
 	"\x04apps\x18\x01 \x03(\v2\x0e.mezon.api.AppR\x04apps\x12\x1f\n" +
 	"\vtotal_count\x18\x02 \x01(\x05R\n" +
@@ -24882,7 +24905,7 @@ const file_api_api_proto_rawDesc = "" +
 	"\aappname\x18\x01 \x01(\tR\aappname\x12\x14\n" +
 	"\x05token\x18\x02 \x01(\tR\x05token\x12\x1d\n" +
 	"\n" +
-	"creator_id\x18\x03 \x01(\tR\tcreatorId\x12\x12\n" +
+	"creator_id\x18\x03 \x01(\x03R\tcreatorId\x12\x12\n" +
 	"\x04role\x18\x04 \x01(\x05R\x04role\x12\x1b\n" +
 	"\tis_shadow\x18\x05 \x01(\bR\bisShadow\x12\x17\n" +
 	"\aapp_url\x18\x06 \x01(\tR\x06appUrl\x12\x19\n" +
@@ -24895,7 +24918,7 @@ const file_api_api_proto_rawDesc = "" +
 	"tombstones\x12\x16\n" +
 	"\x06cursor\x18\x03 \x01(\tR\x06cursor\"\xcc\x02\n" +
 	"\x10UpdateAppRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x126\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x126\n" +
 	"\aappname\x18\x02 \x01(\v2\x1c.google.protobuf.StringValueR\aappname\x128\n" +
 	"\bmetadata\x18\x03 \x01(\v2\x1c.google.protobuf.StringValueR\bmetadata\x126\n" +
 	"\aapplogo\x18\x04 \x01(\v2\x1c.google.protobuf.StringValueR\aapplogo\x122\n" +
@@ -24904,101 +24927,101 @@ const file_api_api_proto_rawDesc = "" +
 	"\aapp_url\x18\a \x01(\tR\x06appUrl\x12\x1b\n" +
 	"\tis_shadow\x18\t \x01(\tR\bisShadow\"\x17\n" +
 	"\x05AppId\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"9\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\"9\n" +
 	"\aAppClan\x12\x15\n" +
-	"\x06app_id\x18\x01 \x01(\tR\x05appId\x12\x17\n" +
-	"\aclan_id\x18\x02 \x01(\tR\x06clanId\"d\n" +
-	"\x1cDeleteChannelMessagesRequest\x122\n" +
-	"\x06before\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x06before\x12\x10\n" +
-	"\x03ids\x18\x02 \x03(\tR\x03ids\"5\n" +
+	"\x06app_id\x18\x01 \x01(\x03R\x05appId\x12\x17\n" +
+	"\aclan_id\x18\x02 \x01(\x03R\x06clanId\"W\n" +
+	"\x1cDeleteChannelMessagesRequest\x12%\n" +
+	"\x0ebefore_seconds\x18\x01 \x01(\rR\rbeforeSeconds\x12\x10\n" +
+	"\x03ids\x18\x02 \x03(\x03R\x03ids\"5\n" +
 	"\x1dDeleteChannelMessagesResponse\x12\x14\n" +
 	"\x05total\x18\x01 \x01(\x03R\x05total\"\x91\x02\n" +
 	"\rSystemMessage\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
-	"\aclan_id\x18\x02 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x17\n" +
+	"\aclan_id\x18\x02 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x03 \x01(\tR\tchannelId\x12%\n" +
+	"channel_id\x18\x03 \x01(\x03R\tchannelId\x12%\n" +
 	"\x0ewelcome_random\x18\x04 \x01(\tR\rwelcomeRandom\x12'\n" +
 	"\x0fwelcome_sticker\x18\x05 \x01(\tR\x0ewelcomeSticker\x12#\n" +
 	"\rboost_message\x18\x06 \x01(\tR\fboostMessage\x12\x1d\n" +
 	"\n" +
 	"setup_tips\x18\a \x01(\tR\tsetupTips\x12$\n" +
-	"\x0ehide_audit_log\x18\b \x01(\tR\fhideAuditLog\"`\n" +
+	"\x0ehide_audit_log\x18\b \x01(\bR\fhideAuditLog\"`\n" +
 	"\x12SystemMessagesList\x12J\n" +
 	"\x14system_messages_list\x18\x01 \x03(\v2\x18.mezon.api.SystemMessageR\x12systemMessagesList\"\x88\x02\n" +
 	"\x14SystemMessageRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x12%\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12%\n" +
 	"\x0ewelcome_random\x18\x03 \x01(\tR\rwelcomeRandom\x12'\n" +
 	"\x0fwelcome_sticker\x18\x04 \x01(\tR\x0ewelcomeSticker\x12#\n" +
 	"\rboost_message\x18\x05 \x01(\tR\fboostMessage\x12\x1d\n" +
 	"\n" +
 	"setup_tips\x18\x06 \x01(\tR\tsetupTips\x12$\n" +
-	"\x0ehide_audit_log\x18\a \x01(\tR\fhideAuditLog\".\n" +
+	"\x0ehide_audit_log\x18\a \x01(\bR\fhideAuditLog\".\n" +
 	"\x13DeleteSystemMessage\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\"+\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\"+\n" +
 	"\x10GetSystemMessage\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\"5\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\"5\n" +
 	"\x1aDeleteCategoryOrderRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\"\xea\x01\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\"\xea\x01\n" +
 	"\x19StreamHttpCallbackRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
-	"\tclient_id\x18\x02 \x01(\tR\bclientId\x12\x17\n" +
-	"\aclan_id\x18\x03 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1b\n" +
+	"\tclient_id\x18\x02 \x01(\x03R\bclientId\x12\x17\n" +
+	"\aclan_id\x18\x03 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x04 \x01(\tR\tchannelId\x12\x17\n" +
-	"\auser_id\x18\x05 \x01(\tR\x06userId\x12\x16\n" +
+	"channel_id\x18\x04 \x01(\x03R\tchannelId\x12\x17\n" +
+	"\auser_id\x18\x05 \x01(\x03R\x06userId\x12\x16\n" +
 	"\x06action\x18\x06 \x01(\x05R\x06action\x12!\n" +
 	"\fis_publisher\x18\a \x01(\bR\visPublisher\x12\x14\n" +
-	"\x05token\x18\b \x01(\tR\x05token\"_\n" +
-	"\x1aStreamHttpCallbackResponse\x12/\n" +
-	"\x04code\x18\x01 \x01(\v2\x1b.google.protobuf.Int32ValueR\x04code\x12\x10\n" +
+	"\x05token\x18\b \x01(\tR\x05token\"B\n" +
+	"\x1aStreamHttpCallbackResponse\x12\x12\n" +
+	"\x04code\x18\x01 \x01(\x05R\x04code\x12\x10\n" +
 	"\x03msg\x18\x02 \x01(\tR\x03msg\"\x80\x01\n" +
 	"\x14StreamingChannelUser\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\x03R\x06userId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x03 \x01(\tR\tchannelId\x12 \n" +
+	"channel_id\x18\x03 \x01(\x03R\tchannelId\x12 \n" +
 	"\vparticipant\x18\x04 \x01(\tR\vparticipant\"s\n" +
 	"\x18StreamingChannelUserList\x12W\n" +
 	"\x17streaming_channel_users\x18\x01 \x03(\v2\x1f.mezon.api.StreamingChannelUserR\x15streamingChannelUsers\"Y\n" +
 	"\x1fRegisterStreamingChannelRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\"\x7f\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\"\x7f\n" +
 	" RegisterStreamingChannelResponse\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x12#\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12#\n" +
 	"\rstreaming_url\x18\x03 \x01(\tR\fstreamingUrl\"\xce\x01\n" +
 	"\x0fGiveCoffeeEvent\x12\x1b\n" +
-	"\tsender_id\x18\x01 \x01(\tR\bsenderId\x12\x1f\n" +
-	"\vreceiver_id\x18\x02 \x01(\tR\n" +
+	"\tsender_id\x18\x01 \x01(\x03R\bsenderId\x12\x1f\n" +
+	"\vreceiver_id\x18\x02 \x01(\x03R\n" +
 	"receiverId\x12\x1f\n" +
 	"\vtoken_count\x18\x03 \x01(\x05R\n" +
 	"tokenCount\x12$\n" +
-	"\x0emessage_ref_id\x18\x04 \x01(\tR\fmessageRefId\x12\x1d\n" +
+	"\x0emessage_ref_id\x18\x04 \x01(\x03R\fmessageRefId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x05 \x01(\tR\tchannelId\x12\x17\n" +
-	"\aclan_id\x18\x06 \x01(\tR\x06clanId\"1\n" +
+	"channel_id\x18\x05 \x01(\x03R\tchannelId\x12\x17\n" +
+	"\aclan_id\x18\x06 \x01(\x03R\x06clanId\"1\n" +
 	"\x16ListChannelAppsRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\"[\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\"[\n" +
 	"\x17ListChannelAppsResponse\x12@\n" +
 	"\fchannel_apps\x18\x01 \x03(\v2\x1d.mezon.api.ChannelAppResponseR\vchannelApps\"\xc2\x01\n" +
 	"\x12ChannelAppResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
-	"\aclan_id\x18\x02 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x17\n" +
+	"\aclan_id\x18\x02 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x03 \x01(\tR\tchannelId\x12\x15\n" +
-	"\x06app_id\x18\x04 \x01(\tR\x05appId\x12\x17\n" +
+	"channel_id\x18\x03 \x01(\x03R\tchannelId\x12\x15\n" +
+	"\x06app_id\x18\x04 \x01(\x03R\x05appId\x12\x17\n" +
 	"\aapp_url\x18\x05 \x01(\tR\x06appUrl\x12\x19\n" +
 	"\bapp_name\x18\x06 \x01(\tR\aappName\x12\x19\n" +
 	"\bapp_logo\x18\a \x01(\tR\aappLogo\"5\n" +
 	"\fAllUserClans\x12%\n" +
 	"\x05users\x18\x01 \x03(\v2\x0f.mezon.api.UserR\x05users\"s\n" +
 	"\x14RoleListEventRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x14\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x14\n" +
 	"\x05limit\x18\x02 \x01(\x05R\x05limit\x12\x14\n" +
 	"\x05state\x18\x03 \x01(\x05R\x05state\x12\x16\n" +
 	"\x06cursor\x18\x04 \x01(\tR\x06cursor\"\x9e\x01\n" +
@@ -25006,179 +25029,175 @@ const file_api_api_proto_rawDesc = "" +
 	"\x05limit\x18\x01 \x01(\x05R\x05limit\x12\x14\n" +
 	"\x05state\x18\x02 \x01(\x05R\x05state\x12\x16\n" +
 	"\x06cursor\x18\x03 \x01(\tR\x06cursor\x12\x16\n" +
-	"\x06clanId\x18\x04 \x01(\tR\x06clanId\x12)\n" +
+	"\x06clanId\x18\x04 \x01(\x03R\x06clanId\x12)\n" +
 	"\x05roles\x18\x05 \x01(\v2\x13.mezon.api.RoleListR\x05roles\"\\\n" +
 	"\"UserPermissionInChannelListRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\"\x9a\x01\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\"\x9a\x01\n" +
 	"#UserPermissionInChannelListResponse\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x12;\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12;\n" +
 	"\vpermissions\x18\x03 \x01(\v2\x19.mezon.api.PermissionListR\vpermissions\"T\n" +
 	"\x15PermissionRoleChannel\x12#\n" +
-	"\rpermission_id\x18\x01 \x01(\tR\fpermissionId\x12\x16\n" +
+	"\rpermission_id\x18\x01 \x01(\x03R\fpermissionId\x12\x16\n" +
 	"\x06active\x18\x02 \x01(\bR\x06active\"x\n" +
 	"%PermissionRoleChannelListEventRequest\x12\x17\n" +
-	"\arole_id\x18\x01 \x01(\tR\x06roleId\x12\x1d\n" +
+	"\arole_id\x18\x01 \x01(\x03R\x06roleId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x12\x17\n" +
-	"\auser_id\x18\x04 \x01(\tR\x06userId\"\xd3\x01\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12\x17\n" +
+	"\auser_id\x18\x04 \x01(\x03R\x06userId\"\xd3\x01\n" +
 	"&PermissionRoleChannelListEventResponse\x12\x17\n" +
-	"\arole_id\x18\x01 \x01(\tR\x06roleId\x12\x1d\n" +
+	"\arole_id\x18\x01 \x01(\x03R\x06roleId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x12\x17\n" +
-	"\auser_id\x18\x03 \x01(\tR\x06userId\x12X\n" +
-	"\x17permission_role_channel\x18\x04 \x03(\v2 .mezon.api.PermissionRoleChannelR\x15permissionRoleChannel\"\xdb\x03\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12\x17\n" +
+	"\auser_id\x18\x03 \x01(\x03R\x06userId\x12X\n" +
+	"\x17permission_role_channel\x18\x04 \x03(\v2 .mezon.api.PermissionRoleChannelR\x15permissionRoleChannel\"\xae\x02\n" +
 	"\x19ChannelSettingListRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1b\n" +
-	"\tparent_id\x18\x02 \x01(\tR\bparentId\x12\x1f\n" +
-	"\vcategory_id\x18\x03 \x01(\tR\n" +
-	"categoryId\x12C\n" +
-	"\x0eprivateChannel\x18\x04 \x01(\v2\x1b.google.protobuf.Int32ValueR\x0eprivateChannel\x123\n" +
-	"\x06active\x18\x05 \x01(\v2\x1b.google.protobuf.Int32ValueR\x06active\x123\n" +
-	"\x06status\x18\x06 \x01(\v2\x1b.google.protobuf.Int32ValueR\x06status\x12/\n" +
-	"\x04type\x18\a \x01(\v2\x1b.google.protobuf.Int32ValueR\x04type\x121\n" +
-	"\x05limit\x18\b \x01(\v2\x1b.google.protobuf.Int32ValueR\x05limit\x12/\n" +
-	"\x04page\x18\t \x01(\v2\x1b.google.protobuf.Int32ValueR\x04page\x12#\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1b\n" +
+	"\tparent_id\x18\x02 \x01(\x03R\bparentId\x12\x1f\n" +
+	"\vcategory_id\x18\x03 \x01(\x03R\n" +
+	"categoryId\x12'\n" +
+	"\x0fprivate_channel\x18\x04 \x01(\x05R\x0eprivateChannel\x12\x16\n" +
+	"\x06active\x18\x05 \x01(\x05R\x06active\x12\x16\n" +
+	"\x06status\x18\x06 \x01(\x05R\x06status\x12\x12\n" +
+	"\x04type\x18\a \x01(\x05R\x04type\x12\x14\n" +
+	"\x05limit\x18\b \x01(\x05R\x05limit\x12\x12\n" +
+	"\x04page\x18\t \x01(\x05R\x04page\x12#\n" +
 	"\rchannel_label\x18\n" +
 	" \x01(\tR\fchannelLabel\"\xba\x03\n" +
 	"\x12ChannelSettingItem\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1d\n" +
 	"\n" +
-	"creator_id\x18\x02 \x01(\tR\tcreatorId\x12\x1b\n" +
-	"\tparent_id\x18\x03 \x01(\tR\bparentId\x12#\n" +
+	"creator_id\x18\x02 \x01(\x03R\tcreatorId\x12\x1b\n" +
+	"\tparent_id\x18\x03 \x01(\x03R\bparentId\x12#\n" +
 	"\rchannel_label\x18\x04 \x01(\tR\fchannelLabel\x12\x1f\n" +
-	"\vcategory_id\x18\x05 \x01(\tR\n" +
+	"\vcategory_id\x18\x05 \x01(\x03R\n" +
 	"categoryId\x12!\n" +
 	"\fmeeting_code\x18\x06 \x01(\tR\vmeetingCode\x12'\n" +
 	"\x0fchannel_private\x18\a \x01(\x05R\x0echannelPrivate\x12!\n" +
 	"\fchannel_type\x18\b \x01(\x05R\vchannelType\x12\x16\n" +
 	"\x06active\x18\t \x01(\x05R\x06active\x12\x19\n" +
 	"\buser_ids\x18\n" +
-	" \x03(\tR\auserIds\x12#\n" +
+	" \x03(\x03R\auserIds\x12#\n" +
 	"\rmessage_count\x18\v \x01(\x03R\fmessageCount\x12K\n" +
 	"\x11last_sent_message\x18\f \x01(\v2\x1f.mezon.api.ChannelMessageHeaderR\x0flastSentMessage\"\xce\x01\n" +
 	"\x1aChannelSettingListResponse\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12#\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12#\n" +
 	"\rchannel_count\x18\x02 \x01(\x05R\fchannelCount\x12!\n" +
 	"\fthread_count\x18\x03 \x01(\x05R\vthreadCount\x12O\n" +
 	"\x14channel_setting_list\x18\x04 \x03(\v2\x1d.mezon.api.ChannelSettingItemR\x12channelSettingList\"l\n" +
 	"\x11MarkAsReadRequest\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x01 \x01(\tR\tchannelId\x12\x1f\n" +
-	"\vcategory_id\x18\x02 \x01(\tR\n" +
+	"channel_id\x18\x01 \x01(\x03R\tchannelId\x12\x1f\n" +
+	"\vcategory_id\x18\x02 \x01(\x03R\n" +
 	"categoryId\x12\x17\n" +
-	"\aclan_id\x18\x03 \x01(\tR\x06clanId\"\xe7\x01\n" +
-	"\x18EditChannelCanvasRequest\x12,\n" +
-	"\x02id\x18\x01 \x01(\v2\x1c.google.protobuf.StringValueR\x02id\x12\x1d\n" +
+	"\aclan_id\x18\x03 \x01(\x03R\x06clanId\"\xc9\x01\n" +
+	"\x18EditChannelCanvasRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x12\x17\n" +
-	"\aclan_id\x18\x03 \x01(\tR\x06clanId\x12\x14\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12\x17\n" +
+	"\aclan_id\x18\x03 \x01(\x03R\x06clanId\x12\x14\n" +
 	"\x05title\x18\x04 \x01(\tR\x05title\x12\x18\n" +
 	"\acontent\x18\x05 \x01(\tR\acontent\x12\x1d\n" +
 	"\n" +
 	"is_default\x18\x06 \x01(\bR\tisDefault\x12\x16\n" +
 	"\x06status\x18\a \x01(\x05R\x06status\"+\n" +
 	"\x19EditChannelCanvasResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"q\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\"q\n" +
 	"\x1aDeleteChannelCanvasRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x12\x1b\n" +
-	"\tcanvas_id\x18\x03 \x01(\tR\bcanvasId\"\xce\x01\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12\x1b\n" +
+	"\tcanvas_id\x18\x03 \x01(\x03R\bcanvasId\"\x94\x01\n" +
 	"\x18ChannelCanvasListRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x121\n" +
-	"\x05limit\x18\x03 \x01(\v2\x1b.google.protobuf.Int32ValueR\x05limit\x12/\n" +
-	"\x04page\x18\x04 \x01(\v2\x1b.google.protobuf.Int32ValueR\x04page\x12\x16\n" +
-	"\x06cursor\x18\x05 \x01(\tR\x06cursor\"\x8b\x02\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12\x14\n" +
+	"\x05limit\x18\x03 \x01(\x05R\x05limit\x12\x12\n" +
+	"\x04page\x18\x04 \x01(\x05R\x04page\x12\x16\n" +
+	"\x06cursor\x18\x05 \x01(\tR\x06cursor\"\xf1\x01\n" +
 	"\x11ChannelCanvasItem\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12\x1d\n" +
 	"\n" +
 	"is_default\x18\x03 \x01(\bR\tisDefault\x12\x18\n" +
 	"\acontent\x18\x04 \x01(\tR\acontent\x12\x1d\n" +
 	"\n" +
-	"creator_id\x18\x05 \x01(\tR\tcreatorId\x12;\n" +
-	"\vupdate_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"updateTime\x12;\n" +
-	"\vcreate_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"createTime\"\xb2\x01\n" +
+	"creator_id\x18\x05 \x01(\x03R\tcreatorId\x12.\n" +
+	"\x13update_time_seconds\x18\x06 \x01(\rR\x11updateTimeSeconds\x12.\n" +
+	"\x13create_time_seconds\x18\a \x01(\rR\x11createTimeSeconds\"\xb2\x01\n" +
 	"\x19ChannelCanvasListResponse\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x12G\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12G\n" +
 	"\x10channel_canvases\x18\x03 \x03(\v2\x1c.mezon.api.ChannelCanvasItemR\x0fchannelCanvases\x12\x14\n" +
-	"\x05count\x18\x04 \x01(\x03R\x05count\"d\n" +
+	"\x05count\x18\x04 \x01(\x05R\x05count\"d\n" +
 	"\x1aChannelCanvasDetailRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
-	"\aclan_id\x18\x02 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x17\n" +
+	"\aclan_id\x18\x02 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x03 \x01(\tR\tchannelId\"\xb8\x01\n" +
+	"channel_id\x18\x03 \x01(\x03R\tchannelId\"\xb8\x01\n" +
 	"\x1bChannelCanvasDetailResponse\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12\x18\n" +
 	"\acontent\x18\x03 \x01(\tR\acontent\x12\x1d\n" +
 	"\n" +
-	"creator_id\x18\x04 \x01(\tR\tcreatorId\x12\x1b\n" +
-	"\teditor_id\x18\x05 \x01(\tR\beditorId\x12\x1d\n" +
+	"creator_id\x18\x04 \x01(\x03R\tcreatorId\x12\x1b\n" +
+	"\teditor_id\x18\x05 \x01(\x03R\beditorId\x12\x1d\n" +
 	"\n" +
 	"is_default\x18\x06 \x01(\bR\tisDefault\"S\n" +
 	"\x19AddFavoriteChannelRequest\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x01 \x01(\tR\tchannelId\x12\x17\n" +
-	"\aclan_id\x18\x02 \x01(\tR\x06clanId\"V\n" +
+	"channel_id\x18\x01 \x01(\x03R\tchannelId\x12\x17\n" +
+	"\aclan_id\x18\x02 \x01(\x03R\x06clanId\"V\n" +
 	"\x1cRemoveFavoriteChannelRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\";\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\";\n" +
 	"\x1aAddFavoriteChannelResponse\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x01 \x01(\tR\tchannelId\"5\n" +
+	"channel_id\x18\x01 \x01(\x03R\tchannelId\"5\n" +
 	"\x1aListFavoriteChannelRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\">\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\">\n" +
 	"\x1bListFavoriteChannelResponse\x12\x1f\n" +
-	"\vchannel_ids\x18\x01 \x03(\tR\n" +
-	"channelIds\"\xd5\x02\n" +
+	"\vchannel_ids\x18\x01 \x03(\x03R\n" +
+	"channelIds\"\xbb\x02\n" +
 	"\fUserActivity\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12#\n" +
+	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12#\n" +
 	"\ractivity_name\x18\x02 \x01(\tR\factivityName\x12#\n" +
 	"\ractivity_type\x18\x03 \x01(\x05R\factivityType\x121\n" +
-	"\x14activity_description\x18\x04 \x01(\tR\x13activityDescription\x129\n" +
-	"\n" +
-	"start_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
-	"\bend_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\x12%\n" +
-	"\x0eapplication_id\x18\a \x01(\tR\rapplicationId\x12\x16\n" +
+	"\x14activity_description\x18\x04 \x01(\tR\x13activityDescription\x12,\n" +
+	"\x12start_time_seconds\x18\x05 \x01(\rR\x10startTimeSeconds\x12(\n" +
+	"\x10end_time_seconds\x18\x06 \x01(\rR\x0eendTimeSeconds\x12%\n" +
+	"\x0eapplication_id\x18\a \x01(\x03R\rapplicationId\x12\x16\n" +
 	"\x06status\x18\b \x01(\x05R\x06status\"K\n" +
 	"\x10ListUserActivity\x127\n" +
 	"\n" +
 	"activities\x18\x01 \x03(\v2\x17.mezon.api.UserActivityR\n" +
-	"activities\"\x8e\x02\n" +
+	"activities\"\x81\x02\n" +
 	"\x15CreateActivityRequest\x12#\n" +
 	"\ractivity_name\x18\x01 \x01(\tR\factivityName\x12#\n" +
 	"\ractivity_type\x18\x02 \x01(\x05R\factivityType\x121\n" +
-	"\x14activity_description\x18\x03 \x01(\tR\x13activityDescription\x129\n" +
-	"\n" +
-	"start_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x12%\n" +
-	"\x0eapplication_id\x18\x05 \x01(\tR\rapplicationId\x12\x16\n" +
-	"\x06status\x18\x06 \x01(\x05R\x06status\"\xdd\x01\n" +
+	"\x14activity_description\x18\x03 \x01(\tR\x13activityDescription\x12,\n" +
+	"\x12start_time_seconds\x18\x04 \x01(\rR\x10startTimeSeconds\x12%\n" +
+	"\x0eapplication_id\x18\x05 \x01(\x03R\rapplicationId\x12\x16\n" +
+	"\x06status\x18\x06 \x01(\x05R\x06status\"\xdf\x01\n" +
 	"\x0fLoginIDResponse\x12\x19\n" +
-	"\blogin_id\x18\x01 \x01(\tR\aloginId\x12\x16\n" +
-	"\x06status\x18\x02 \x01(\x05R\x06status\x12,\n" +
-	"\x12create_time_second\x18\x03 \x01(\x03R\x10createTimeSecond\x12\x1a\n" +
+	"\blogin_id\x18\x01 \x01(\x03R\aloginId\x12\x16\n" +
+	"\x06status\x18\x02 \x01(\x05R\x06status\x12.\n" +
+	"\x13create_time_seconds\x18\x03 \x01(\x03R\x11createTimeSeconds\x12\x1a\n" +
 	"\bplatform\x18\x04 \x01(\tR\bplatform\x12\x17\n" +
 	"\auser_id\x18\x05 \x01(\x03R\x06userId\x12\x1a\n" +
 	"\busername\x18\x06 \x01(\tR\busername\x12\x18\n" +
 	"\aaddress\x18\a \x01(\tR\aaddress\"D\n" +
 	"\fLoginRequest\x12\x1a\n" +
 	"\bplatform\x18\x01 \x01(\tR\bplatform\x12\x18\n" +
-	"\aaddress\x18\x02 \x01(\tR\aaddress\"m\n" +
+	"\aaddress\x18\x02 \x01(\tR\aaddress\"Q\n" +
 	"\x13ConfirmLoginRequest\x12\x19\n" +
-	"\blogin_id\x18\x01 \x01(\tR\aloginId\x12;\n" +
-	"\vis_remember\x18\x02 \x01(\v2\x1a.google.protobuf.BoolValueR\n" +
+	"\blogin_id\x18\x01 \x01(\x03R\aloginId\x12\x1f\n" +
+	"\vis_remember\x18\x02 \x01(\bR\n" +
 	"isRemember\"0\n" +
 	"\x06PubKey\x12\x12\n" +
 	"\x04encr\x18\x01 \x01(\fR\x04encr\x12\x12\n" +
@@ -25186,32 +25205,32 @@ const file_api_api_proto_rawDesc = "" +
 	"\x11PushPubKeyRequest\x12!\n" +
 	"\x02PK\x18\x01 \x01(\v2\x11.mezon.api.PubKeyR\x02PK\".\n" +
 	"\x11GetPubKeysRequest\x12\x19\n" +
-	"\buser_ids\x18\x01 \x03(\tR\auserIds\"\xa3\x01\n" +
+	"\buser_ids\x18\x01 \x03(\x03R\auserIds\"\xa3\x01\n" +
 	"\x12GetPubKeysResponse\x12C\n" +
 	"\bpub_keys\x18\x01 \x03(\v2(.mezon.api.GetPubKeysResponse.UserPubKeyR\apubKeys\x1aH\n" +
 	"\n" +
 	"UserPubKey\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12!\n" +
+	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12!\n" +
 	"\x02PK\x18\x02 \x01(\v2\x11.mezon.api.PubKeyR\x02PK\"M\n" +
 	"\x14ChanEncryptionMethod\x12\x16\n" +
 	"\x06method\x18\x01 \x01(\tR\x06method\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\"$\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\"$\n" +
 	"\x10GetKeyServerResp\x12\x10\n" +
-	"\x03url\x18\x01 \x01(\tR\x03url\"\xbe\x02\n" +
+	"\x03url\x18\x01 \x01(\tR\x03url\"\xb1\x02\n" +
 	"\bAuditLog\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x17\n" +
-	"\aclan_id\x18\x03 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\x03R\x06userId\x12\x17\n" +
+	"\aclan_id\x18\x03 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
 	"action_log\x18\x04 \x01(\tR\tactionLog\x12\x1f\n" +
 	"\ventity_name\x18\x05 \x01(\tR\n" +
 	"entityName\x12\x1b\n" +
-	"\tentity_id\x18\x06 \x01(\tR\bentityId\x12\x18\n" +
-	"\adetails\x18\a \x01(\tR\adetails\x125\n" +
-	"\btime_log\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\atimeLog\x12\x1d\n" +
+	"\tentity_id\x18\x06 \x01(\x03R\bentityId\x12\x18\n" +
+	"\adetails\x18\a \x01(\tR\adetails\x12(\n" +
+	"\x10time_log_seconds\x18\b \x01(\rR\x0etimeLogSeconds\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\t \x01(\tR\tchannelId\x12#\n" +
+	"channel_id\x18\t \x01(\x03R\tchannelId\x12#\n" +
 	"\rchannel_label\x18\n" +
 	" \x01(\tR\fchannelLabel\"s\n" +
 	"\fListAuditLog\x12\x1f\n" +
@@ -25222,49 +25241,47 @@ const file_api_api_proto_rawDesc = "" +
 	"\x13ListAuditLogRequest\x12\x1d\n" +
 	"\n" +
 	"action_log\x18\x01 \x01(\tR\tactionLog\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x17\n" +
-	"\aclan_id\x18\x03 \x01(\tR\x06clanId\x12\x19\n" +
+	"\auser_id\x18\x02 \x01(\x03R\x06userId\x12\x17\n" +
+	"\aclan_id\x18\x03 \x01(\x03R\x06clanId\x12\x19\n" +
 	"\bdate_log\x18\x04 \x01(\tR\adateLog\"\xeb\x01\n" +
 	"\x0eTokenSentEvent\x12\x1b\n" +
-	"\tsender_id\x18\x01 \x01(\tR\bsenderId\x12\x1f\n" +
+	"\tsender_id\x18\x01 \x01(\x03R\bsenderId\x12\x1f\n" +
 	"\vsender_name\x18\x02 \x01(\tR\n" +
 	"senderName\x12\x1f\n" +
-	"\vreceiver_id\x18\x03 \x01(\tR\n" +
+	"\vreceiver_id\x18\x03 \x01(\x03R\n" +
 	"receiverId\x12\x16\n" +
 	"\x06amount\x18\x04 \x01(\x05R\x06amount\x12\x12\n" +
 	"\x04note\x18\x05 \x01(\tR\x04note\x12'\n" +
 	"\x0fextra_attribute\x18\x06 \x01(\tR\x0eextraAttribute\x12%\n" +
 	"\x0etransaction_id\x18\a \x01(\tR\rtransactionId\"I\n" +
 	"\x11UnlockItemRequest\x12\x17\n" +
-	"\aitem_id\x18\x01 \x01(\tR\x06itemId\x12\x1b\n" +
+	"\aitem_id\x18\x01 \x01(\x03R\x06itemId\x12\x1b\n" +
 	"\titem_type\x18\x02 \x01(\x05R\bitemType\".\n" +
 	"\x14UnlockedItemResponse\x12\x16\n" +
-	"\x06source\x18\x01 \x01(\tR\x06source\"\xd0\x01\n" +
+	"\x06source\x18\x01 \x01(\tR\x06source\"y\n" +
 	"\x15ListOnboardingRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12:\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"guide_type\x18\x02 \x01(\v2\x1b.google.protobuf.Int32ValueR\tguideType\x121\n" +
-	"\x05limit\x18\x03 \x01(\v2\x1b.google.protobuf.Int32ValueR\x05limit\x12/\n" +
-	"\x04page\x18\x04 \x01(\v2\x1b.google.protobuf.Int32ValueR\x04page\"\\\n" +
+	"guide_type\x18\x02 \x01(\x05R\tguideType\x12\x14\n" +
+	"\x05limit\x18\x03 \x01(\x05R\x05limit\x12\x12\n" +
+	"\x04page\x18\x04 \x01(\x05R\x04page\"\\\n" +
 	"\x16ListOnboardingResponse\x12B\n" +
-	"\x0flist_onboarding\x18\x01 \x03(\v2\x19.mezon.api.OnboardingItemR\x0elistOnboarding\"\x92\x03\n" +
+	"\x0flist_onboarding\x18\x01 \x03(\v2\x19.mezon.api.OnboardingItemR\x0elistOnboarding\"\xf8\x02\n" +
 	"\x0eOnboardingItem\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
-	"\aclan_id\x18\x02 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x17\n" +
+	"\aclan_id\x18\x02 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
 	"guide_type\x18\x03 \x01(\x05R\tguideType\x12\x1b\n" +
 	"\ttask_type\x18\x04 \x01(\x05R\btaskType\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x05 \x01(\tR\tchannelId\x12\x14\n" +
+	"channel_id\x18\x05 \x01(\x03R\tchannelId\x12\x14\n" +
 	"\x05title\x18\x06 \x01(\tR\x05title\x12\x18\n" +
 	"\acontent\x18\a \x01(\tR\acontent\x12\x1b\n" +
 	"\timage_url\x18\b \x01(\tR\bimageUrl\x125\n" +
-	"\aanswers\x18\t \x03(\v2\x1b.mezon.api.OnboardingAnswerR\aanswers\x12;\n" +
-	"\vcreate_time\x18\n" +
-	" \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"createTime\x12;\n" +
-	"\vupdate_time\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"updateTime\"}\n" +
+	"\aanswers\x18\t \x03(\v2\x1b.mezon.api.OnboardingAnswerR\aanswers\x12.\n" +
+	"\x13create_time_seconds\x18\n" +
+	" \x01(\rR\x11createTimeSeconds\x12.\n" +
+	"\x13update_time_seconds\x18\v \x01(\rR\x11updateTimeSeconds\"}\n" +
 	"\x10OnboardingAnswer\x12\x14\n" +
 	"\x05title\x18\x01 \x01(\tR\x05title\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x12\x14\n" +
@@ -25275,61 +25292,61 @@ const file_api_api_proto_rawDesc = "" +
 	"guide_type\x18\x01 \x01(\x05R\tguideType\x12\x1b\n" +
 	"\ttask_type\x18\x02 \x01(\x05R\btaskType\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x03 \x01(\tR\tchannelId\x12\x14\n" +
+	"channel_id\x18\x03 \x01(\x03R\tchannelId\x12\x14\n" +
 	"\x05title\x18\x04 \x01(\tR\x05title\x12\x18\n" +
 	"\acontent\x18\x05 \x01(\tR\acontent\x12\x1b\n" +
 	"\timage_url\x18\x06 \x01(\tR\bimageUrl\x125\n" +
 	"\aanswers\x18\a \x03(\v2\x1b.mezon.api.OnboardingAnswerR\aanswers\"l\n" +
 	"\x17CreateOnboardingRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x128\n" +
-	"\bcontents\x18\x02 \x03(\v2\x1c.mezon.api.OnboardingContentR\bcontents\"\x9f\x02\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x128\n" +
+	"\bcontents\x18\x02 \x03(\v2\x1c.mezon.api.OnboardingContentR\bcontents\"\x82\x02\n" +
 	"\x17UpdateOnboardingRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
-	"\aclan_id\x18\x02 \x01(\tR\x06clanId\x128\n" +
-	"\ttask_type\x18\x03 \x01(\v2\x1b.google.protobuf.Int32ValueR\btaskType\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x17\n" +
+	"\aclan_id\x18\x02 \x01(\x03R\x06clanId\x12\x1b\n" +
+	"\ttask_type\x18\x03 \x01(\x05R\btaskType\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x04 \x01(\tR\tchannelId\x12\x14\n" +
+	"channel_id\x18\x04 \x01(\x03R\tchannelId\x12\x14\n" +
 	"\x05title\x18\x05 \x01(\tR\x05title\x12\x18\n" +
 	"\acontent\x18\x06 \x01(\tR\acontent\x12\x1b\n" +
 	"\timage_url\x18\a \x01(\tR\bimageUrl\x125\n" +
 	"\aanswers\x18\b \x03(\v2\x1b.mezon.api.OnboardingAnswerR\aanswers\"<\n" +
 	"\x11OnboardingRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
-	"\aclan_id\x18\x02 \x01(\tR\x06clanId\"\xfc\x01\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x17\n" +
+	"\aclan_id\x18\x02 \x01(\x03R\x06clanId\"\xfc\x01\n" +
 	"\vClanWebhook\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12!\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12!\n" +
 	"\fwebhook_name\x18\x02 \x01(\tR\vwebhookName\x12\x17\n" +
-	"\aclan_id\x18\x03 \x01(\tR\x06clanId\x12\x16\n" +
+	"\aclan_id\x18\x03 \x01(\x03R\x06clanId\x12\x16\n" +
 	"\x06active\x18\x04 \x01(\x05R\x06active\x12\x10\n" +
 	"\x03url\x18\x05 \x01(\tR\x03url\x12\x1d\n" +
 	"\n" +
-	"creator_id\x18\x06 \x01(\tR\tcreatorId\x12\x16\n" +
+	"creator_id\x18\x06 \x01(\x03R\tcreatorId\x12\x16\n" +
 	"\x06avatar\x18\a \x01(\tR\x06avatar\x12\x1f\n" +
 	"\vcreate_time\x18\b \x01(\tR\n" +
 	"createTime\x12\x1f\n" +
 	"\vupdate_time\x18\t \x01(\tR\n" +
 	"updateTime\"p\n" +
 	"\x1aGenerateClanWebhookRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12!\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12!\n" +
 	"\fwebhook_name\x18\x02 \x01(\tR\vwebhookName\x12\x16\n" +
 	"\x06avatar\x18\x03 \x01(\tR\x06avatar\"\x83\x01\n" +
 	"\x1bGenerateClanWebhookResponse\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x10\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x10\n" +
 	"\x03url\x18\x02 \x01(\tR\x03url\x12!\n" +
 	"\fwebhook_name\x18\x03 \x01(\tR\vwebhookName\x12\x16\n" +
 	"\x06avatar\x18\x04 \x01(\tR\x06avatar\"=\n" +
 	"\x12ClanWebhookRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
-	"\aclan_id\x18\x02 \x01(\tR\x06clanId\"\x9f\x01\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x17\n" +
+	"\aclan_id\x18\x02 \x01(\x03R\x06clanId\"\x9f\x01\n" +
 	"\x18UpdateClanWebhookRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
-	"\aclan_id\x18\x02 \x01(\tR\x06clanId\x12!\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x17\n" +
+	"\aclan_id\x18\x02 \x01(\x03R\x06clanId\x12!\n" +
 	"\fwebhook_name\x18\x03 \x01(\tR\vwebhookName\x12\x16\n" +
 	"\x06avatar\x18\x04 \x01(\tR\x06avatar\x12\x1f\n" +
 	"\vreset_token\x18\x05 \x01(\bR\n" +
 	"resetToken\"1\n" +
 	"\x16ListClanWebhookRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\"_\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\"_\n" +
 	"\x17ListClanWebhookResponse\x12D\n" +
 	"\x12list_clan_webhooks\x18\x01 \x03(\v2\x16.mezon.api.ClanWebhookR\x10listClanWebhooks\"r\n" +
 	"\x16ClanWebhookHandlerBody\x12\x18\n" +
@@ -25341,85 +25358,83 @@ const file_api_api_proto_rawDesc = "" +
 	"\busername\x18\x03 \x01(\tR\busername\"=\n" +
 	"\n" +
 	"UserStatus\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\tR\x06userId\x12\x16\n" +
+	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x16\n" +
 	"\x06status\x18\x02 \x01(\tR\x06status\"h\n" +
 	"\x10UserStatusUpdate\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\x12\x18\n" +
 	"\aminutes\x18\x02 \x01(\x05R\aminutes\x12\"\n" +
 	"\runtil_turn_on\x18\x03 \x01(\bR\vuntilTurnOn\"|\n" +
 	"\x0fOnboardingSteps\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
-	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x17\n" +
-	"\aclan_id\x18\x03 \x01(\tR\x06clanId\x12'\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\x03R\x06userId\x12\x17\n" +
+	"\aclan_id\x18\x03 \x01(\x03R\x06clanId\x12'\n" +
 	"\x0fonboarding_step\x18\x04 \x01(\x05R\x0eonboardingStep\"j\n" +
 	"\x1aListOnboardingStepResponse\x12L\n" +
-	"\x14list_onboarding_step\x18\x01 \x03(\v2\x1a.mezon.api.OnboardingStepsR\x12listOnboardingStep\"\x98\x01\n" +
+	"\x14list_onboarding_step\x18\x01 \x03(\v2\x1a.mezon.api.OnboardingStepsR\x12listOnboardingStep\"^\n" +
 	"\x19ListOnboardingStepRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x121\n" +
-	"\x05limit\x18\x02 \x01(\v2\x1b.google.protobuf.Int32ValueR\x05limit\x12/\n" +
-	"\x04page\x18\x03 \x01(\v2\x1b.google.protobuf.Int32ValueR\x04page\"|\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x14\n" +
+	"\x05limit\x18\x02 \x01(\x05R\x05limit\x12\x12\n" +
+	"\x04page\x18\x03 \x01(\x05R\x04page\"_\n" +
 	"\x1bUpdateOnboardingStepRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12D\n" +
-	"\x0fonboarding_step\x18\x02 \x01(\v2\x1b.google.protobuf.Int32ValueR\x0eonboardingStep\"\xa3\x03\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12'\n" +
+	"\x0fonboarding_step\x18\x02 \x01(\x05R\x0eonboardingStep\"\xee\x02\n" +
 	"\aSdTopic\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1d\n" +
 	"\n" +
-	"creator_id\x18\x02 \x01(\tR\tcreatorId\x12\x1d\n" +
+	"creator_id\x18\x02 \x01(\x03R\tcreatorId\x12\x1d\n" +
 	"\n" +
-	"message_id\x18\x03 \x01(\tR\tmessageId\x12\x17\n" +
-	"\aclan_id\x18\x04 \x01(\tR\x06clanId\x12\x1d\n" +
+	"message_id\x18\x03 \x01(\x03R\tmessageId\x12\x17\n" +
+	"\aclan_id\x18\x04 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x05 \x01(\tR\tchannelId\x12\x16\n" +
-	"\x06status\x18\x06 \x01(\x05R\x06status\x12;\n" +
-	"\vcreate_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"createTime\x12;\n" +
-	"\vupdate_time\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"updateTime\x123\n" +
-	"\amessage\x18\t \x01(\v2\x19.mezon.api.ChannelMessageR\amessage\x12K\n" +
+	"channel_id\x18\x05 \x01(\x03R\tchannelId\x12\x16\n" +
+	"\x06status\x18\x06 \x01(\x05R\x06status\x12.\n" +
+	"\x13create_time_seconds\x18\a \x01(\rR\x11createTimeSeconds\x12.\n" +
+	"\x13update_time_seconds\x18\b \x01(\rR\x11updateTimeSeconds\x12\x18\n" +
+	"\acontent\x18\t \x01(\tR\acontent\x12K\n" +
 	"\x11last_sent_message\x18\n" +
 	" \x01(\v2\x1f.mezon.api.ChannelMessageHeaderR\x0flastSentMessage\"g\n" +
 	"\x0eSdTopicRequest\x12\x1d\n" +
 	"\n" +
-	"message_id\x18\x01 \x01(\tR\tmessageId\x12\x17\n" +
-	"\aclan_id\x18\x02 \x01(\tR\x06clanId\x12\x1d\n" +
+	"message_id\x18\x01 \x01(\x03R\tmessageId\x12\x17\n" +
+	"\aclan_id\x18\x02 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x03 \x01(\tR\tchannelId\"O\n" +
+	"channel_id\x18\x03 \x01(\x03R\tchannelId\"O\n" +
 	"\vSdTopicList\x12\x14\n" +
 	"\x05count\x18\x01 \x01(\x05R\x05count\x12*\n" +
 	"\x06topics\x18\x02 \x03(\v2\x12.mezon.api.SdTopicR\x06topics\"C\n" +
 	"\x12ListSdTopicRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x14\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x14\n" +
 	"\x05limit\x18\x02 \x01(\x05R\x05limit\"1\n" +
 	"\x14SdTopicDetailRequest\x12\x19\n" +
-	"\btopic_id\x18\x01 \x01(\tR\atopicId\"^\n" +
+	"\btopic_id\x18\x01 \x01(\x03R\atopicId\"^\n" +
 	"\x14DeleteSdTopicRequest\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x01 \x01(\tR\tchannelId\x12\x0e\n" +
-	"\x02id\x18\x02 \x01(\tR\x02id\x12\x17\n" +
-	"\aclan_id\x18\x03 \x01(\tR\x06clanId\"V\n" +
+	"channel_id\x18\x01 \x01(\x03R\tchannelId\x12\x0e\n" +
+	"\x02id\x18\x02 \x01(\x03R\x02id\x12\x17\n" +
+	"\aclan_id\x18\x03 \x01(\x03R\x06clanId\"V\n" +
 	"\x18GenerateMeetTokenRequest\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x01 \x01(\tR\tchannelId\x12\x1b\n" +
+	"channel_id\x18\x01 \x01(\x03R\tchannelId\x12\x1b\n" +
 	"\troom_name\x18\x02 \x01(\tR\broomName\"\x89\x01\n" +
 	"\x16MeetParticipantRequest\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x1b\n" +
 	"\troom_name\x18\x02 \x01(\tR\broomName\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x03 \x01(\tR\tchannelId\x12\x17\n" +
-	"\aclan_id\x18\x04 \x01(\tR\x06clanId\"1\n" +
+	"channel_id\x18\x03 \x01(\x03R\tchannelId\x12\x17\n" +
+	"\aclan_id\x18\x04 \x01(\x03R\x06clanId\"1\n" +
 	"\x19GenerateMeetTokenResponse\x12\x14\n" +
 	"\x05token\x18\x01 \x01(\tR\x05token\"\xb0\x01\n" +
 	"\x19GenerateMezonMeetResponse\x12\x17\n" +
-	"\ameet_id\x18\x01 \x01(\tR\x06meetId\x12\x1b\n" +
+	"\ameet_id\x18\x01 \x01(\x03R\x06meetId\x12\x1b\n" +
 	"\troom_name\x18\x02 \x01(\tR\broomName\x12#\n" +
 	"\rexternal_link\x18\x03 \x01(\tR\fexternalLink\x12\x1d\n" +
 	"\n" +
-	"creator_id\x18\x04 \x01(\tR\tcreatorId\x12\x19\n" +
-	"\bevent_id\x18\x05 \x01(\tR\aeventId\"S\n" +
+	"creator_id\x18\x04 \x01(\x03R\tcreatorId\x12\x19\n" +
+	"\bevent_id\x18\x05 \x01(\x03R\aeventId\"S\n" +
 	"\x15CreateRoomChannelApps\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x01 \x01(\tR\tchannelId\x12\x1b\n" +
-	"\troom_name\x18\x02 \x01(\tR\broomName\"\xfd\x13\n" +
+	"channel_id\x18\x01 \x01(\x03R\tchannelId\x12\x1b\n" +
+	"\troom_name\x18\x02 \x01(\tR\broomName\"\xe3\x13\n" +
 	"\x10MezonOauthClient\x122\n" +
 	"\x15access_token_strategy\x18\x01 \x01(\tR\x13accessTokenStrategy\x120\n" +
 	"\x14allowed_cors_origins\x18\x02 \x03(\tR\x12allowedCorsOrigins\x12\x1a\n" +
@@ -25438,9 +25453,8 @@ const file_api_api_proto_rawDesc = "" +
 	"\x18client_secret_expires_at\x18\r \x01(\x05R\x15clientSecretExpiresAt\x12\x1d\n" +
 	"\n" +
 	"client_uri\x18\x0e \x01(\tR\tclientUri\x12\x1a\n" +
-	"\bcontacts\x18\x0f \x03(\tR\bcontacts\x129\n" +
-	"\n" +
-	"created_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12O\n" +
+	"\bcontacts\x18\x0f \x03(\tR\bcontacts\x12,\n" +
+	"\x12created_at_seconds\x18\x10 \x01(\rR\x10createdAtSeconds\x12O\n" +
 	"$frontchannel_logout_session_required\x18\x11 \x01(\bR!frontchannelLogoutSessionRequired\x126\n" +
 	"\x17frontchannel_logout_uri\x18\x12 \x01(\tR\x15frontchannelLogoutUri\x12\x1f\n" +
 	"\vgrant_types\x18\x13 \x03(\tR\n" +
@@ -25471,9 +25485,8 @@ const file_api_api_proto_rawDesc = "" +
 	"\fsubject_type\x18* \x01(\tR\vsubjectType\x12;\n" +
 	"\x1atoken_endpoint_auth_method\x18+ \x01(\tR\x17tokenEndpointAuthMethod\x12D\n" +
 	"\x1ftoken_endpoint_auth_signing_alg\x18, \x01(\tR\x1btokenEndpointAuthSigningAlg\x12\x17\n" +
-	"\atos_uri\x18- \x01(\tR\x06tosUri\x129\n" +
-	"\n" +
-	"updated_at\x18. \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12?\n" +
+	"\atos_uri\x18- \x01(\tR\x06tosUri\x12,\n" +
+	"\x12updated_at_seconds\x18. \x01(\rR\x10updatedAtSeconds\x12?\n" +
 	"\x1cuserinfo_signed_response_alg\x18/ \x01(\tR\x19userinfoSignedResponseAlg\"j\n" +
 	"\x14MezonOauthClientList\x12R\n" +
 	"\x17list_mezon_oauth_client\x18\x01 \x03(\v2\x1b.mezon.api.MezonOauthClientR\x14listMezonOauthClient\"Z\n" +
@@ -25482,28 +25495,28 @@ const file_api_api_proto_rawDesc = "" +
 	"\vclient_name\x18\x02 \x01(\tR\n" +
 	"clientName\"c\n" +
 	"\x13SearchThreadRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x12\x14\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12\x14\n" +
 	"\x05label\x18\x03 \x01(\tR\x05label\"7\n" +
 	"\x1eGenerateHashChannelAppsRequest\x12\x15\n" +
-	"\x06app_id\x18\x01 \x01(\tR\x05appId\"C\n" +
+	"\x06app_id\x18\x01 \x01(\x03R\x05appId\"C\n" +
 	"\x1fGenerateHashChannelAppsResponse\x12 \n" +
 	"\fweb_app_data\x18\x01 \x01(\tR\n" +
-	"webAppData\"\x9b\x02\n" +
+	"webAppData\"\x87\x03\n" +
 	"\x14Message2InboxRequest\x12\x1d\n" +
 	"\n" +
-	"message_id\x18\x01 \x01(\tR\tmessageId\x12\x1d\n" +
+	"message_id\x18\x01 \x01(\x03R\tmessageId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x12\x17\n" +
-	"\aclan_id\x18\x03 \x01(\tR\x06clanId\x12\x16\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12\x17\n" +
+	"\aclan_id\x18\x03 \x01(\x03R\x06clanId\x12\x16\n" +
 	"\x06avatar\x18\x04 \x01(\tR\x06avatar\x12\x18\n" +
-	"\acontent\x18\x05 \x01(\tR\acontent\x12\x1a\n" +
-	"\bmentions\x18\x06 \x01(\tR\bmentions\x12 \n" +
-	"\vattachments\x18\a \x01(\tR\vattachments\x12\x1c\n" +
-	"\treactions\x18\b \x01(\tR\treactions\x12\x1e\n" +
+	"\acontent\x18\x05 \x01(\tR\acontent\x125\n" +
+	"\bmentions\x18\x06 \x03(\v2\x19.mezon.api.MessageMentionR\bmentions\x12>\n" +
+	"\vattachments\x18\a \x03(\v2\x1c.mezon.api.MessageAttachmentR\vattachments\x128\n" +
+	"\treactions\x18\b \x03(\v2\x1a.mezon.api.MessageReactionR\treactions\x125\n" +
 	"\n" +
-	"references\x18\t \x01(\tR\n" +
+	"references\x18\t \x03(\v2\x15.mezon.api.MessageRefR\n" +
 	"references\"\xcf\x01\n" +
 	"\fAccountEmail\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
@@ -25525,11 +25538,11 @@ const file_api_api_proto_rawDesc = "" +
 	"\x06status\x18\x02 \x01(\x05R\x06status\x12\x19\n" +
 	"\botp_code\x18\x03 \x01(\tR\aotpCode\"\xe9\x01\n" +
 	"\x0fQuickMenuAccess\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
-	"\x06bot_id\x18\x02 \x01(\tR\x05botId\x12\x17\n" +
-	"\aclan_id\x18\x03 \x01(\tR\x06clanId\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x15\n" +
+	"\x06bot_id\x18\x02 \x01(\x03R\x05botId\x12\x17\n" +
+	"\aclan_id\x18\x03 \x01(\x03R\x06clanId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x04 \x01(\tR\tchannelId\x12\x1b\n" +
+	"channel_id\x18\x04 \x01(\x03R\tchannelId\x12\x1b\n" +
 	"\tmenu_name\x18\x05 \x01(\tR\bmenuName\x12\x1e\n" +
 	"\n" +
 	"background\x18\x06 \x01(\tR\n" +
@@ -25538,9 +25551,9 @@ const file_api_api_proto_rawDesc = "" +
 	"action_msg\x18\a \x01(\tR\tactionMsg\x12\x1b\n" +
 	"\tmenu_type\x18\b \x01(\x05R\bmenuType\"o\n" +
 	"\x1aListQuickMenuAccessRequest\x12\x15\n" +
-	"\x06bot_id\x18\x01 \x01(\tR\x05botId\x12\x1d\n" +
+	"\x06bot_id\x18\x01 \x01(\x03R\x05botId\x12\x1d\n" +
 	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x12\x1b\n" +
+	"channel_id\x18\x02 \x01(\x03R\tchannelId\x12\x1b\n" +
 	"\tmenu_type\x18\x03 \x01(\x05R\bmenuType\"P\n" +
 	"\x13QuickMenuAccessList\x129\n" +
 	"\n" +
@@ -25554,37 +25567,99 @@ const file_api_api_proto_rawDesc = "" +
 	"\x0fForSaleItemList\x12<\n" +
 	"\x0efor_sale_items\x18\x01 \x03(\v2\x16.mezon.api.ForSaleItemR\fforSaleItems\"0\n" +
 	"\x11IsFollowerRequest\x12\x1b\n" +
-	"\tfollow_id\x18\x01 \x01(\tR\bfollowId\"R\n" +
+	"\tfollow_id\x18\x01 \x01(\x03R\bfollowId\"R\n" +
 	"\x12IsFollowerResponse\x12\x1b\n" +
-	"\tfollow_id\x18\x01 \x01(\tR\bfollowId\x12\x1f\n" +
+	"\tfollow_id\x18\x01 \x01(\x03R\bfollowId\x12\x1f\n" +
 	"\vis_follower\x18\x02 \x01(\bR\n" +
 	"isFollower\"U\n" +
 	"\x18TransferOwnershipRequest\x12\x17\n" +
-	"\aclan_id\x18\x01 \x01(\tR\x06clanId\x12 \n" +
-	"\fnew_owner_id\x18\x02 \x01(\tR\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12 \n" +
+	"\fnew_owner_id\x18\x02 \x01(\x03R\n" +
 	"newOwnerId\"$\n" +
 	"\aUserIds\x12\x19\n" +
-	"\buser_ids\x18\x01 \x03(\tR\auserIds\"X\n" +
+	"\buser_ids\x18\x01 \x03(\x03R\auserIds\"X\n" +
 	"\x18ReportMessageAbuseReqest\x12\x1d\n" +
 	"\n" +
-	"message_id\x18\x01 \x01(\tR\tmessageId\x12\x1d\n" +
+	"message_id\x18\x01 \x01(\x03R\tmessageId\x12\x1d\n" +
 	"\n" +
 	"abuse_type\x18\x02 \x01(\tR\tabuseType\"C\n" +
 	"\x0fLogedDeviceList\x120\n" +
-	"\adevices\x18\x01 \x03(\v2\x16.mezon.api.LogedDeviceR\adevices\"\xbe\x02\n" +
+	"\adevices\x18\x01 \x03(\v2\x16.mezon.api.LogedDeviceR\adevices\"\xa4\x02\n" +
 	"\vLogedDevice\x12\x1b\n" +
 	"\tdevice_id\x18\x01 \x01(\tR\bdeviceId\x12\x1f\n" +
 	"\vdevice_name\x18\x02 \x01(\tR\n" +
-	"deviceName\x125\n" +
-	"\blogin_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\aloginAt\x12\x16\n" +
+	"deviceName\x12(\n" +
+	"\x10login_at_seconds\x18\x03 \x01(\rR\x0eloginAtSeconds\x12\x16\n" +
 	"\x06status\x18\x04 \x01(\x05R\x06status\x12\x1a\n" +
 	"\bplatform\x18\x05 \x01(\tR\bplatform\x12\x0e\n" +
-	"\x02ip\x18\x06 \x01(\tR\x02ip\x12;\n" +
-	"\vlast_active\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"lastActive\x12\x1a\n" +
+	"\x02ip\x18\x06 \x01(\tR\x02ip\x12.\n" +
+	"\x13last_active_seconds\x18\a \x01(\rR\x11lastActiveSeconds\x12\x1a\n" +
 	"\blocation\x18\b \x01(\tR\blocation\x12\x1d\n" +
 	"\n" +
-	"is_current\x18\t \x01(\bR\tisCurrent*o\n" +
+	"is_current\x18\t \x01(\bR\tisCurrent\"\x88\x05\n" +
+	"\x0eDirectFcmProto\x12\x14\n" +
+	"\x05title\x18\x01 \x01(\tR\x05title\x12\x12\n" +
+	"\x04link\x18\x02 \x01(\tR\x04link\x12\x18\n" +
+	"\acontent\x18\x03 \x01(\tR\acontent\x12\x1d\n" +
+	"\n" +
+	"channel_id\x18\x04 \x01(\x03R\tchannelId\x12\x1b\n" +
+	"\tsender_id\x18\x05 \x01(\x03R\bsenderId\x12\x16\n" +
+	"\x06avatar\x18\x06 \x01(\tR\x06avatar\x12\x17\n" +
+	"\aclan_id\x18\a \x01(\x03R\x06clanId\x12'\n" +
+	"\x0fattachment_link\x18\b \x01(\tR\x0eattachmentLink\x12!\n" +
+	"\fdisplay_name\x18\t \x01(\tR\vdisplayName\x12.\n" +
+	"\x13create_time_seconds\x18\n" +
+	" \x01(\x05R\x11createTimeSeconds\x12.\n" +
+	"\x13update_time_seconds\x18\v \x01(\x05R\x11updateTimeSeconds\x12\x1a\n" +
+	"\busername\x18\f \x01(\tR\busername\x12\x1f\n" +
+	"\vmention_ids\x18\r \x03(\x03R\n" +
+	"mentionIds\x12\x1d\n" +
+	"\n" +
+	"position_s\x18\x0e \x03(\x05R\tpositionS\x12\x1d\n" +
+	"\n" +
+	"position_e\x18\x0f \x03(\x05R\tpositionE\x12'\n" +
+	"\x0fattachment_type\x18\x10 \x01(\tR\x0eattachmentType\x12.\n" +
+	"\x13has_more_attachment\x18\x11 \x01(\bR\x11hasMoreAttachment\x12&\n" +
+	"\x0fis_mention_role\x18\x12 \x03(\bR\risMentionRole\x12\x1d\n" +
+	"\n" +
+	"message_id\x18\x13 \x01(\x03R\tmessageId\"K\n" +
+	"\x12MessageMentionList\x125\n" +
+	"\bmentions\x18\x01 \x03(\v2\x19.mezon.api.MessageMentionR\bmentions\"W\n" +
+	"\x15MessageAttachmentList\x12>\n" +
+	"\vattachments\x18\x01 \x03(\v2\x1c.mezon.api.MessageAttachmentR\vattachments\";\n" +
+	"\x0eMessageRefList\x12)\n" +
+	"\x04refs\x18\x01 \x03(\v2\x15.mezon.api.MessageRefR\x04refs\"O\n" +
+	"\x13MessageReactionList\x128\n" +
+	"\treactions\x18\x01 \x03(\v2\x1a.mezon.api.MessageReactionR\treactions\"4\n" +
+	"\x19ListClanBadgeCountRequest\x12\x17\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\"=\n" +
+	"\x1aListClanBadgeCountResponse\x12\x1f\n" +
+	"\vbadge_count\x18\x01 \x01(\x05R\n" +
+	"badgeCount\"\x83\x03\n" +
+	"\fClanDiscover\x12\x17\n" +
+	"\aclan_id\x18\x01 \x01(\x03R\x06clanId\x12\x1b\n" +
+	"\tclan_name\x18\x02 \x01(\tR\bclanName\x12\x1b\n" +
+	"\tinvite_id\x18\x03 \x01(\x03R\binviteId\x12\x1b\n" +
+	"\tclan_logo\x18\x04 \x01(\tR\bclanLogo\x12%\n" +
+	"\x0eonline_members\x18\x05 \x01(\x05R\ronlineMembers\x12#\n" +
+	"\rtotal_members\x18\x06 \x01(\x05R\ftotalMembers\x12\x1a\n" +
+	"\bverified\x18\a \x01(\bR\bverified\x12 \n" +
+	"\vdescription\x18\b \x01(\tR\vdescription\x12\x16\n" +
+	"\x06banner\x18\t \x01(\tR\x06banner\x12\x14\n" +
+	"\x05about\x18\n" +
+	" \x01(\tR\x05about\x12\x1b\n" +
+	"\tshort_url\x18\v \x01(\tR\bshortUrl\x12.\n" +
+	"\x13create_time_seconds\x18\f \x01(\rR\x11createTimeSeconds\"\x90\x01\n" +
+	"\x10ListClanDiscover\x12<\n" +
+	"\rclan_discover\x18\x01 \x03(\v2\x17.mezon.api.ClanDiscoverR\fclanDiscover\x12\x1f\n" +
+	"\vpage_number\x18\x02 \x01(\x05R\n" +
+	"pageNumber\x12\x1d\n" +
+	"\n" +
+	"page_count\x18\x03 \x01(\x05R\tpageCount\"\x8b\x01\n" +
+	"!GenerateMeetTokenExternalResponse\x12\x14\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\x12\"\n" +
+	"\rguest_user_id\x18\x02 \x01(\x03R\vguestUserId\x12,\n" +
+	"\x12guest_access_token\x18\x03 \x01(\tR\x10guestAccessToken*o\n" +
 	"\rStoreProvider\x12\x13\n" +
 	"\x0fAPPLE_APP_STORE\x10\x00\x12\x15\n" +
 	"\x11GOOGLE_PLAY_STORE\x10\x01\x12\x16\n" +
@@ -25616,7 +25691,7 @@ func file_api_api_proto_rawDescGZIP() []byte {
 }
 
 var file_api_api_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_api_api_proto_msgTypes = make([]protoimpl.MessageInfo, 319)
+var file_api_api_proto_msgTypes = make([]protoimpl.MessageInfo, 325)
 var file_api_api_proto_goTypes = []any{
 	(StoreProvider)(0),                             // 0: mezon.api.StoreProvider
 	(StoreEnvironment)(0),                          // 1: mezon.api.StoreEnvironment
@@ -25710,9 +25785,9 @@ var file_api_api_proto_goTypes = []any{
 	(*CategoryDescList)(nil),                       // 89: mezon.api.CategoryDescList
 	(*ListCategoryDescsRequest)(nil),               // 90: mezon.api.ListCategoryDescsRequest
 	(*ChannelMessageHeader)(nil),                   // 91: mezon.api.ChannelMessageHeader
-	(*ChannelDescriptionOld)(nil),                  // 92: mezon.api.ChannelDescriptionOld
-	(*ChannelDescription)(nil),                     // 93: mezon.api.ChannelDescription
-	(*ChannelDescList)(nil),                        // 94: mezon.api.ChannelDescList
+	(*ChannelDescription)(nil),                     // 92: mezon.api.ChannelDescription
+	(*ChannelDescList)(nil),                        // 93: mezon.api.ChannelDescList
+	(*ChannelDescListNoPool)(nil),                  // 94: mezon.api.ChannelDescListNoPool
 	(*ListThreadRequest)(nil),                      // 95: mezon.api.ListThreadRequest
 	(*ListChannelDescsRequest)(nil),                // 96: mezon.api.ListChannelDescsRequest
 	(*ListChannelDetailRequest)(nil),               // 97: mezon.api.ListChannelDetailRequest
@@ -25746,440 +25821,341 @@ var file_api_api_proto_goTypes = []any{
 	(*SetNotificationRequest)(nil),                 // 125: mezon.api.SetNotificationRequest
 	(*PinMessageRequest)(nil),                      // 126: mezon.api.PinMessageRequest
 	(*SetMuteRequest)(nil),                         // 127: mezon.api.SetMuteRequest
-	(*HashtagDmListRequest)(nil),                   // 128: mezon.api.HashtagDmListRequest
-	(*HashtagDmList)(nil),                          // 129: mezon.api.HashtagDmList
-	(*HashtagDm)(nil),                              // 130: mezon.api.HashtagDm
-	(*NotificationChannelCategorySettingList)(nil), // 131: mezon.api.NotificationChannelCategorySettingList
-	(*NotificationChannelCategorySetting)(nil),     // 132: mezon.api.NotificationChannelCategorySetting
-	(*SetDefaultNotificationRequest)(nil),          // 133: mezon.api.SetDefaultNotificationRequest
-	(*RoleList)(nil),                               // 134: mezon.api.RoleList
-	(*EventList)(nil),                              // 135: mezon.api.EventList
-	(*PermissionList)(nil),                         // 136: mezon.api.PermissionList
-	(*ListPermissionsRequest)(nil),                 // 137: mezon.api.ListPermissionsRequest
-	(*ListRoleUsersRequest)(nil),                   // 138: mezon.api.ListRoleUsersRequest
-	(*ListPermissionOfUsersRequest)(nil),           // 139: mezon.api.ListPermissionOfUsersRequest
-	(*RoleUserList)(nil),                           // 140: mezon.api.RoleUserList
-	(*UserEventRequest)(nil),                       // 141: mezon.api.UserEventRequest
-	(*ListEventsRequest)(nil),                      // 142: mezon.api.ListEventsRequest
-	(*CreateRoleRequest)(nil),                      // 143: mezon.api.CreateRoleRequest
-	(*CreateEventRequest)(nil),                     // 144: mezon.api.CreateEventRequest
-	(*UpdateEventRequest)(nil),                     // 145: mezon.api.UpdateEventRequest
-	(*DeleteRoleRequest)(nil),                      // 146: mezon.api.DeleteRoleRequest
-	(*DeleteEventRequest)(nil),                     // 147: mezon.api.DeleteEventRequest
-	(*UpdateRoleRequest)(nil),                      // 148: mezon.api.UpdateRoleRequest
-	(*UpdateRoleChannelRequest)(nil),               // 149: mezon.api.UpdateRoleChannelRequest
-	(*PermissionUpdate)(nil),                       // 150: mezon.api.PermissionUpdate
-	(*UploadAttachmentRequest)(nil),                // 151: mezon.api.UploadAttachmentRequest
-	(*ListMessageMentionRequest)(nil),              // 152: mezon.api.ListMessageMentionRequest
-	(*UploadAttachment)(nil),                       // 153: mezon.api.UploadAttachment
-	(*SearchMessageRequest)(nil),                   // 154: mezon.api.SearchMessageRequest
-	(*SortParam)(nil),                              // 155: mezon.api.SortParam
-	(*FilterParam)(nil),                            // 156: mezon.api.FilterParam
-	(*SearchMessageDocument)(nil),                  // 157: mezon.api.SearchMessageDocument
-	(*SearchMessageResponse)(nil),                  // 158: mezon.api.SearchMessageResponse
-	(*RegistrationEmailRequest)(nil),               // 159: mezon.api.RegistrationEmailRequest
-	(*ClanEmoji)(nil),                              // 160: mezon.api.ClanEmoji
-	(*EmojiListedResponse)(nil),                    // 161: mezon.api.EmojiListedResponse
-	(*StickerListedResponse)(nil),                  // 162: mezon.api.StickerListedResponse
-	(*ClanSticker)(nil),                            // 163: mezon.api.ClanSticker
-	(*AllUsersAddChannelRequest)(nil),              // 164: mezon.api.AllUsersAddChannelRequest
-	(*AllUsersAddChannelResponse)(nil),             // 165: mezon.api.AllUsersAddChannelResponse
-	(*ClanEmojiCreateRequest)(nil),                 // 166: mezon.api.ClanEmojiCreateRequest
-	(*ClanEmojiGetByClanIdRequest)(nil),            // 167: mezon.api.ClanEmojiGetByClanIdRequest
-	(*ClanEmojiDeleteRequest)(nil),                 // 168: mezon.api.ClanEmojiDeleteRequest
-	(*ClanEmojiUpdateRequest)(nil),                 // 169: mezon.api.ClanEmojiUpdateRequest
-	(*Webhook)(nil),                                // 170: mezon.api.Webhook
-	(*WebhookCreateRequest)(nil),                   // 171: mezon.api.WebhookCreateRequest
-	(*WebhookListRequestById)(nil),                 // 172: mezon.api.WebhookListRequestById
-	(*WebhookUpdateRequestById)(nil),               // 173: mezon.api.WebhookUpdateRequestById
-	(*WebhookDeleteRequestById)(nil),               // 174: mezon.api.WebhookDeleteRequestById
-	(*WebhookListRequest)(nil),                     // 175: mezon.api.WebhookListRequest
-	(*WebhookListResponse)(nil),                    // 176: mezon.api.WebhookListResponse
-	(*WebhookGenerateResponse)(nil),                // 177: mezon.api.WebhookGenerateResponse
-	(*WebhookHandlerRequest)(nil),                  // 178: mezon.api.WebhookHandlerRequest
-	(*CheckDuplicateClanNameRequest)(nil),          // 179: mezon.api.CheckDuplicateClanNameRequest
-	(*CheckDuplicateClanNameResponse)(nil),         // 180: mezon.api.CheckDuplicateClanNameResponse
-	(*ClanStickerAddRequest)(nil),                  // 181: mezon.api.ClanStickerAddRequest
-	(*ClanStickerListByClanIdRequest)(nil),         // 182: mezon.api.ClanStickerListByClanIdRequest
-	(*ClanStickerUpdateByIdRequest)(nil),           // 183: mezon.api.ClanStickerUpdateByIdRequest
-	(*ClanStickerDeleteRequest)(nil),               // 184: mezon.api.ClanStickerDeleteRequest
-	(*ChangeChannelCategoryRequest)(nil),           // 185: mezon.api.ChangeChannelCategoryRequest
-	(*App)(nil),                                    // 186: mezon.api.App
-	(*AppDeleteRequest)(nil),                       // 187: mezon.api.AppDeleteRequest
-	(*AppList)(nil),                                // 188: mezon.api.AppList
-	(*AddAppRequest)(nil),                          // 189: mezon.api.AddAppRequest
-	(*ListAppsRequest)(nil),                        // 190: mezon.api.ListAppsRequest
-	(*UpdateAppRequest)(nil),                       // 191: mezon.api.UpdateAppRequest
-	(*AppId)(nil),                                  // 192: mezon.api.AppId
-	(*AppClan)(nil),                                // 193: mezon.api.AppClan
-	(*DeleteChannelMessagesRequest)(nil),           // 194: mezon.api.DeleteChannelMessagesRequest
-	(*DeleteChannelMessagesResponse)(nil),          // 195: mezon.api.DeleteChannelMessagesResponse
-	(*SystemMessage)(nil),                          // 196: mezon.api.SystemMessage
-	(*SystemMessagesList)(nil),                     // 197: mezon.api.SystemMessagesList
-	(*SystemMessageRequest)(nil),                   // 198: mezon.api.SystemMessageRequest
-	(*DeleteSystemMessage)(nil),                    // 199: mezon.api.DeleteSystemMessage
-	(*GetSystemMessage)(nil),                       // 200: mezon.api.GetSystemMessage
-	(*DeleteCategoryOrderRequest)(nil),             // 201: mezon.api.DeleteCategoryOrderRequest
-	(*StreamHttpCallbackRequest)(nil),              // 202: mezon.api.StreamHttpCallbackRequest
-	(*StreamHttpCallbackResponse)(nil),             // 203: mezon.api.StreamHttpCallbackResponse
-	(*StreamingChannelUser)(nil),                   // 204: mezon.api.StreamingChannelUser
-	(*StreamingChannelUserList)(nil),               // 205: mezon.api.StreamingChannelUserList
-	(*RegisterStreamingChannelRequest)(nil),        // 206: mezon.api.RegisterStreamingChannelRequest
-	(*RegisterStreamingChannelResponse)(nil),       // 207: mezon.api.RegisterStreamingChannelResponse
-	(*GiveCoffeeEvent)(nil),                        // 208: mezon.api.GiveCoffeeEvent
-	(*ListChannelAppsRequest)(nil),                 // 209: mezon.api.ListChannelAppsRequest
-	(*ListChannelAppsResponse)(nil),                // 210: mezon.api.ListChannelAppsResponse
-	(*ChannelAppResponse)(nil),                     // 211: mezon.api.ChannelAppResponse
-	(*AllUserClans)(nil),                           // 212: mezon.api.AllUserClans
-	(*RoleListEventRequest)(nil),                   // 213: mezon.api.RoleListEventRequest
-	(*RoleListEventResponse)(nil),                  // 214: mezon.api.RoleListEventResponse
-	(*UserPermissionInChannelListRequest)(nil),     // 215: mezon.api.UserPermissionInChannelListRequest
-	(*UserPermissionInChannelListResponse)(nil),    // 216: mezon.api.UserPermissionInChannelListResponse
-	(*PermissionRoleChannel)(nil),                  // 217: mezon.api.PermissionRoleChannel
-	(*PermissionRoleChannelListEventRequest)(nil),  // 218: mezon.api.PermissionRoleChannelListEventRequest
-	(*PermissionRoleChannelListEventResponse)(nil), // 219: mezon.api.PermissionRoleChannelListEventResponse
-	(*ChannelSettingListRequest)(nil),              // 220: mezon.api.ChannelSettingListRequest
-	(*ChannelSettingItem)(nil),                     // 221: mezon.api.ChannelSettingItem
-	(*ChannelSettingListResponse)(nil),             // 222: mezon.api.ChannelSettingListResponse
-	(*MarkAsReadRequest)(nil),                      // 223: mezon.api.MarkAsReadRequest
-	(*EditChannelCanvasRequest)(nil),               // 224: mezon.api.EditChannelCanvasRequest
-	(*EditChannelCanvasResponse)(nil),              // 225: mezon.api.EditChannelCanvasResponse
-	(*DeleteChannelCanvasRequest)(nil),             // 226: mezon.api.DeleteChannelCanvasRequest
-	(*ChannelCanvasListRequest)(nil),               // 227: mezon.api.ChannelCanvasListRequest
-	(*ChannelCanvasItem)(nil),                      // 228: mezon.api.ChannelCanvasItem
-	(*ChannelCanvasListResponse)(nil),              // 229: mezon.api.ChannelCanvasListResponse
-	(*ChannelCanvasDetailRequest)(nil),             // 230: mezon.api.ChannelCanvasDetailRequest
-	(*ChannelCanvasDetailResponse)(nil),            // 231: mezon.api.ChannelCanvasDetailResponse
-	(*AddFavoriteChannelRequest)(nil),              // 232: mezon.api.AddFavoriteChannelRequest
-	(*RemoveFavoriteChannelRequest)(nil),           // 233: mezon.api.RemoveFavoriteChannelRequest
-	(*AddFavoriteChannelResponse)(nil),             // 234: mezon.api.AddFavoriteChannelResponse
-	(*ListFavoriteChannelRequest)(nil),             // 235: mezon.api.ListFavoriteChannelRequest
-	(*ListFavoriteChannelResponse)(nil),            // 236: mezon.api.ListFavoriteChannelResponse
-	(*UserActivity)(nil),                           // 237: mezon.api.UserActivity
-	(*ListUserActivity)(nil),                       // 238: mezon.api.ListUserActivity
-	(*CreateActivityRequest)(nil),                  // 239: mezon.api.CreateActivityRequest
-	(*LoginIDResponse)(nil),                        // 240: mezon.api.LoginIDResponse
-	(*LoginRequest)(nil),                           // 241: mezon.api.LoginRequest
-	(*ConfirmLoginRequest)(nil),                    // 242: mezon.api.ConfirmLoginRequest
-	(*PubKey)(nil),                                 // 243: mezon.api.PubKey
-	(*PushPubKeyRequest)(nil),                      // 244: mezon.api.PushPubKeyRequest
-	(*GetPubKeysRequest)(nil),                      // 245: mezon.api.GetPubKeysRequest
-	(*GetPubKeysResponse)(nil),                     // 246: mezon.api.GetPubKeysResponse
-	(*ChanEncryptionMethod)(nil),                   // 247: mezon.api.ChanEncryptionMethod
-	(*GetKeyServerResp)(nil),                       // 248: mezon.api.GetKeyServerResp
-	(*AuditLog)(nil),                               // 249: mezon.api.AuditLog
-	(*ListAuditLog)(nil),                           // 250: mezon.api.ListAuditLog
-	(*ListAuditLogRequest)(nil),                    // 251: mezon.api.ListAuditLogRequest
-	(*TokenSentEvent)(nil),                         // 252: mezon.api.TokenSentEvent
-	(*UnlockItemRequest)(nil),                      // 253: mezon.api.UnlockItemRequest
-	(*UnlockedItemResponse)(nil),                   // 254: mezon.api.UnlockedItemResponse
-	(*ListOnboardingRequest)(nil),                  // 255: mezon.api.ListOnboardingRequest
-	(*ListOnboardingResponse)(nil),                 // 256: mezon.api.ListOnboardingResponse
-	(*OnboardingItem)(nil),                         // 257: mezon.api.OnboardingItem
-	(*OnboardingAnswer)(nil),                       // 258: mezon.api.OnboardingAnswer
-	(*OnboardingContent)(nil),                      // 259: mezon.api.OnboardingContent
-	(*CreateOnboardingRequest)(nil),                // 260: mezon.api.CreateOnboardingRequest
-	(*UpdateOnboardingRequest)(nil),                // 261: mezon.api.UpdateOnboardingRequest
-	(*OnboardingRequest)(nil),                      // 262: mezon.api.OnboardingRequest
-	(*ClanWebhook)(nil),                            // 263: mezon.api.ClanWebhook
-	(*GenerateClanWebhookRequest)(nil),             // 264: mezon.api.GenerateClanWebhookRequest
-	(*GenerateClanWebhookResponse)(nil),            // 265: mezon.api.GenerateClanWebhookResponse
-	(*ClanWebhookRequest)(nil),                     // 266: mezon.api.ClanWebhookRequest
-	(*UpdateClanWebhookRequest)(nil),               // 267: mezon.api.UpdateClanWebhookRequest
-	(*ListClanWebhookRequest)(nil),                 // 268: mezon.api.ListClanWebhookRequest
-	(*ListClanWebhookResponse)(nil),                // 269: mezon.api.ListClanWebhookResponse
-	(*ClanWebhookHandlerBody)(nil),                 // 270: mezon.api.ClanWebhookHandlerBody
-	(*ClanWebhookHandlerRequest)(nil),              // 271: mezon.api.ClanWebhookHandlerRequest
-	(*UserStatus)(nil),                             // 272: mezon.api.UserStatus
-	(*UserStatusUpdate)(nil),                       // 273: mezon.api.UserStatusUpdate
-	(*OnboardingSteps)(nil),                        // 274: mezon.api.OnboardingSteps
-	(*ListOnboardingStepResponse)(nil),             // 275: mezon.api.ListOnboardingStepResponse
-	(*ListOnboardingStepRequest)(nil),              // 276: mezon.api.ListOnboardingStepRequest
-	(*UpdateOnboardingStepRequest)(nil),            // 277: mezon.api.UpdateOnboardingStepRequest
-	(*SdTopic)(nil),                                // 278: mezon.api.SdTopic
-	(*SdTopicRequest)(nil),                         // 279: mezon.api.SdTopicRequest
-	(*SdTopicList)(nil),                            // 280: mezon.api.SdTopicList
-	(*ListSdTopicRequest)(nil),                     // 281: mezon.api.ListSdTopicRequest
-	(*SdTopicDetailRequest)(nil),                   // 282: mezon.api.SdTopicDetailRequest
-	(*DeleteSdTopicRequest)(nil),                   // 283: mezon.api.DeleteSdTopicRequest
-	(*GenerateMeetTokenRequest)(nil),               // 284: mezon.api.GenerateMeetTokenRequest
-	(*MeetParticipantRequest)(nil),                 // 285: mezon.api.MeetParticipantRequest
-	(*GenerateMeetTokenResponse)(nil),              // 286: mezon.api.GenerateMeetTokenResponse
-	(*GenerateMezonMeetResponse)(nil),              // 287: mezon.api.GenerateMezonMeetResponse
-	(*CreateRoomChannelApps)(nil),                  // 288: mezon.api.CreateRoomChannelApps
-	(*MezonOauthClient)(nil),                       // 289: mezon.api.MezonOauthClient
-	(*MezonOauthClientList)(nil),                   // 290: mezon.api.MezonOauthClientList
-	(*GetMezonOauthClientRequest)(nil),             // 291: mezon.api.GetMezonOauthClientRequest
-	(*SearchThreadRequest)(nil),                    // 292: mezon.api.SearchThreadRequest
-	(*GenerateHashChannelAppsRequest)(nil),         // 293: mezon.api.GenerateHashChannelAppsRequest
-	(*GenerateHashChannelAppsResponse)(nil),        // 294: mezon.api.GenerateHashChannelAppsResponse
-	(*Message2InboxRequest)(nil),                   // 295: mezon.api.Message2InboxRequest
-	(*AccountEmail)(nil),                           // 296: mezon.api.AccountEmail
-	(*AccountMezon)(nil),                           // 297: mezon.api.AccountMezon
-	(*LinkAccountConfirmRequest)(nil),              // 298: mezon.api.LinkAccountConfirmRequest
-	(*QuickMenuAccess)(nil),                        // 299: mezon.api.QuickMenuAccess
-	(*ListQuickMenuAccessRequest)(nil),             // 300: mezon.api.ListQuickMenuAccessRequest
-	(*QuickMenuAccessList)(nil),                    // 301: mezon.api.QuickMenuAccessList
-	(*ListForSaleItemsRequest)(nil),                // 302: mezon.api.ListForSaleItemsRequest
-	(*ForSaleItem)(nil),                            // 303: mezon.api.ForSaleItem
-	(*ForSaleItemList)(nil),                        // 304: mezon.api.ForSaleItemList
-	(*IsFollowerRequest)(nil),                      // 305: mezon.api.IsFollowerRequest
-	(*IsFollowerResponse)(nil),                     // 306: mezon.api.IsFollowerResponse
-	(*TransferOwnershipRequest)(nil),               // 307: mezon.api.TransferOwnershipRequest
-	(*UserIds)(nil),                                // 308: mezon.api.UserIds
-	(*ReportMessageAbuseReqest)(nil),               // 309: mezon.api.ReportMessageAbuseReqest
-	(*LogedDeviceList)(nil),                        // 310: mezon.api.LogedDeviceList
-	(*LogedDevice)(nil),                            // 311: mezon.api.LogedDevice
-	nil,                                            // 312: mezon.api.AccountRefresh.VarsEntry
-	nil,                                            // 313: mezon.api.SessionRefreshRequest.VarsEntry
-	nil,                                            // 314: mezon.api.Event.PropertiesEntry
-	(*ChannelUserList_ChannelUser)(nil),            // 315: mezon.api.ChannelUserList.ChannelUser
-	(*ClanUserList_ClanUser)(nil),                  // 316: mezon.api.ClanUserList.ClanUser
-	(*UpdateClanOrderRequest_ClanOrder)(nil),       // 317: mezon.api.UpdateClanOrderRequest.ClanOrder
-	(*RoleUserList_RoleUser)(nil),                  // 318: mezon.api.RoleUserList.RoleUser
-	nil,                                            // 319: mezon.api.RegistrationEmailRequest.VarsEntry
-	(*GetPubKeysResponse_UserPubKey)(nil),          // 320: mezon.api.GetPubKeysResponse.UserPubKey
-	nil,                                            // 321: mezon.api.AccountEmail.VarsEntry
-	nil,                                            // 322: mezon.api.AccountMezon.VarsEntry
-	(*timestamppb.Timestamp)(nil),                  // 323: google.protobuf.Timestamp
-	(*wrapperspb.BoolValue)(nil),                   // 324: google.protobuf.BoolValue
-	(*wrapperspb.Int32Value)(nil),                  // 325: google.protobuf.Int32Value
-	(*wrapperspb.StringValue)(nil),                 // 326: google.protobuf.StringValue
-	(*structpb.Struct)(nil),                        // 327: google.protobuf.Struct
+	(*NotificationChannelCategorySettingList)(nil), // 128: mezon.api.NotificationChannelCategorySettingList
+	(*NotificationChannelCategorySetting)(nil),     // 129: mezon.api.NotificationChannelCategorySetting
+	(*SetDefaultNotificationRequest)(nil),          // 130: mezon.api.SetDefaultNotificationRequest
+	(*RoleList)(nil),                               // 131: mezon.api.RoleList
+	(*EventList)(nil),                              // 132: mezon.api.EventList
+	(*PermissionList)(nil),                         // 133: mezon.api.PermissionList
+	(*ListPermissionsRequest)(nil),                 // 134: mezon.api.ListPermissionsRequest
+	(*ListRoleUsersRequest)(nil),                   // 135: mezon.api.ListRoleUsersRequest
+	(*ListPermissionOfUsersRequest)(nil),           // 136: mezon.api.ListPermissionOfUsersRequest
+	(*RoleUserList)(nil),                           // 137: mezon.api.RoleUserList
+	(*UserEventRequest)(nil),                       // 138: mezon.api.UserEventRequest
+	(*ListEventsRequest)(nil),                      // 139: mezon.api.ListEventsRequest
+	(*CreateRoleRequest)(nil),                      // 140: mezon.api.CreateRoleRequest
+	(*CreateEventRequest)(nil),                     // 141: mezon.api.CreateEventRequest
+	(*UpdateEventRequest)(nil),                     // 142: mezon.api.UpdateEventRequest
+	(*DeleteRoleRequest)(nil),                      // 143: mezon.api.DeleteRoleRequest
+	(*DeleteEventRequest)(nil),                     // 144: mezon.api.DeleteEventRequest
+	(*UpdateRoleRequest)(nil),                      // 145: mezon.api.UpdateRoleRequest
+	(*UpdateRoleChannelRequest)(nil),               // 146: mezon.api.UpdateRoleChannelRequest
+	(*PermissionUpdate)(nil),                       // 147: mezon.api.PermissionUpdate
+	(*UploadAttachmentRequest)(nil),                // 148: mezon.api.UploadAttachmentRequest
+	(*ListMessageMentionRequest)(nil),              // 149: mezon.api.ListMessageMentionRequest
+	(*UploadAttachment)(nil),                       // 150: mezon.api.UploadAttachment
+	(*SearchMessageRequest)(nil),                   // 151: mezon.api.SearchMessageRequest
+	(*SortParam)(nil),                              // 152: mezon.api.SortParam
+	(*FilterParam)(nil),                            // 153: mezon.api.FilterParam
+	(*SearchMessageDocument)(nil),                  // 154: mezon.api.SearchMessageDocument
+	(*SearchMessageResponse)(nil),                  // 155: mezon.api.SearchMessageResponse
+	(*RegistrationEmailRequest)(nil),               // 156: mezon.api.RegistrationEmailRequest
+	(*ClanEmoji)(nil),                              // 157: mezon.api.ClanEmoji
+	(*EmojiListedResponse)(nil),                    // 158: mezon.api.EmojiListedResponse
+	(*StickerListedResponse)(nil),                  // 159: mezon.api.StickerListedResponse
+	(*ClanSticker)(nil),                            // 160: mezon.api.ClanSticker
+	(*AllUsersAddChannelRequest)(nil),              // 161: mezon.api.AllUsersAddChannelRequest
+	(*AllUsersAddChannelResponse)(nil),             // 162: mezon.api.AllUsersAddChannelResponse
+	(*ClanEmojiCreateRequest)(nil),                 // 163: mezon.api.ClanEmojiCreateRequest
+	(*ClanEmojiGetByClanIdRequest)(nil),            // 164: mezon.api.ClanEmojiGetByClanIdRequest
+	(*ClanEmojiDeleteRequest)(nil),                 // 165: mezon.api.ClanEmojiDeleteRequest
+	(*ClanEmojiUpdateRequest)(nil),                 // 166: mezon.api.ClanEmojiUpdateRequest
+	(*Webhook)(nil),                                // 167: mezon.api.Webhook
+	(*WebhookCreateRequest)(nil),                   // 168: mezon.api.WebhookCreateRequest
+	(*WebhookListRequestById)(nil),                 // 169: mezon.api.WebhookListRequestById
+	(*WebhookUpdateRequestById)(nil),               // 170: mezon.api.WebhookUpdateRequestById
+	(*WebhookDeleteRequestById)(nil),               // 171: mezon.api.WebhookDeleteRequestById
+	(*WebhookListRequest)(nil),                     // 172: mezon.api.WebhookListRequest
+	(*WebhookListResponse)(nil),                    // 173: mezon.api.WebhookListResponse
+	(*WebhookGenerateResponse)(nil),                // 174: mezon.api.WebhookGenerateResponse
+	(*CheckDuplicateClanNameRequest)(nil),          // 175: mezon.api.CheckDuplicateClanNameRequest
+	(*CheckDuplicateClanNameResponse)(nil),         // 176: mezon.api.CheckDuplicateClanNameResponse
+	(*ClanStickerAddRequest)(nil),                  // 177: mezon.api.ClanStickerAddRequest
+	(*ClanStickerListByClanIdRequest)(nil),         // 178: mezon.api.ClanStickerListByClanIdRequest
+	(*ClanStickerUpdateByIdRequest)(nil),           // 179: mezon.api.ClanStickerUpdateByIdRequest
+	(*ClanStickerDeleteRequest)(nil),               // 180: mezon.api.ClanStickerDeleteRequest
+	(*ChangeChannelCategoryRequest)(nil),           // 181: mezon.api.ChangeChannelCategoryRequest
+	(*App)(nil),                                    // 182: mezon.api.App
+	(*AppDeleteRequest)(nil),                       // 183: mezon.api.AppDeleteRequest
+	(*AppList)(nil),                                // 184: mezon.api.AppList
+	(*AddAppRequest)(nil),                          // 185: mezon.api.AddAppRequest
+	(*ListAppsRequest)(nil),                        // 186: mezon.api.ListAppsRequest
+	(*UpdateAppRequest)(nil),                       // 187: mezon.api.UpdateAppRequest
+	(*AppId)(nil),                                  // 188: mezon.api.AppId
+	(*AppClan)(nil),                                // 189: mezon.api.AppClan
+	(*DeleteChannelMessagesRequest)(nil),           // 190: mezon.api.DeleteChannelMessagesRequest
+	(*DeleteChannelMessagesResponse)(nil),          // 191: mezon.api.DeleteChannelMessagesResponse
+	(*SystemMessage)(nil),                          // 192: mezon.api.SystemMessage
+	(*SystemMessagesList)(nil),                     // 193: mezon.api.SystemMessagesList
+	(*SystemMessageRequest)(nil),                   // 194: mezon.api.SystemMessageRequest
+	(*DeleteSystemMessage)(nil),                    // 195: mezon.api.DeleteSystemMessage
+	(*GetSystemMessage)(nil),                       // 196: mezon.api.GetSystemMessage
+	(*DeleteCategoryOrderRequest)(nil),             // 197: mezon.api.DeleteCategoryOrderRequest
+	(*StreamHttpCallbackRequest)(nil),              // 198: mezon.api.StreamHttpCallbackRequest
+	(*StreamHttpCallbackResponse)(nil),             // 199: mezon.api.StreamHttpCallbackResponse
+	(*StreamingChannelUser)(nil),                   // 200: mezon.api.StreamingChannelUser
+	(*StreamingChannelUserList)(nil),               // 201: mezon.api.StreamingChannelUserList
+	(*RegisterStreamingChannelRequest)(nil),        // 202: mezon.api.RegisterStreamingChannelRequest
+	(*RegisterStreamingChannelResponse)(nil),       // 203: mezon.api.RegisterStreamingChannelResponse
+	(*GiveCoffeeEvent)(nil),                        // 204: mezon.api.GiveCoffeeEvent
+	(*ListChannelAppsRequest)(nil),                 // 205: mezon.api.ListChannelAppsRequest
+	(*ListChannelAppsResponse)(nil),                // 206: mezon.api.ListChannelAppsResponse
+	(*ChannelAppResponse)(nil),                     // 207: mezon.api.ChannelAppResponse
+	(*AllUserClans)(nil),                           // 208: mezon.api.AllUserClans
+	(*RoleListEventRequest)(nil),                   // 209: mezon.api.RoleListEventRequest
+	(*RoleListEventResponse)(nil),                  // 210: mezon.api.RoleListEventResponse
+	(*UserPermissionInChannelListRequest)(nil),     // 211: mezon.api.UserPermissionInChannelListRequest
+	(*UserPermissionInChannelListResponse)(nil),    // 212: mezon.api.UserPermissionInChannelListResponse
+	(*PermissionRoleChannel)(nil),                  // 213: mezon.api.PermissionRoleChannel
+	(*PermissionRoleChannelListEventRequest)(nil),  // 214: mezon.api.PermissionRoleChannelListEventRequest
+	(*PermissionRoleChannelListEventResponse)(nil), // 215: mezon.api.PermissionRoleChannelListEventResponse
+	(*ChannelSettingListRequest)(nil),              // 216: mezon.api.ChannelSettingListRequest
+	(*ChannelSettingItem)(nil),                     // 217: mezon.api.ChannelSettingItem
+	(*ChannelSettingListResponse)(nil),             // 218: mezon.api.ChannelSettingListResponse
+	(*MarkAsReadRequest)(nil),                      // 219: mezon.api.MarkAsReadRequest
+	(*EditChannelCanvasRequest)(nil),               // 220: mezon.api.EditChannelCanvasRequest
+	(*EditChannelCanvasResponse)(nil),              // 221: mezon.api.EditChannelCanvasResponse
+	(*DeleteChannelCanvasRequest)(nil),             // 222: mezon.api.DeleteChannelCanvasRequest
+	(*ChannelCanvasListRequest)(nil),               // 223: mezon.api.ChannelCanvasListRequest
+	(*ChannelCanvasItem)(nil),                      // 224: mezon.api.ChannelCanvasItem
+	(*ChannelCanvasListResponse)(nil),              // 225: mezon.api.ChannelCanvasListResponse
+	(*ChannelCanvasDetailRequest)(nil),             // 226: mezon.api.ChannelCanvasDetailRequest
+	(*ChannelCanvasDetailResponse)(nil),            // 227: mezon.api.ChannelCanvasDetailResponse
+	(*AddFavoriteChannelRequest)(nil),              // 228: mezon.api.AddFavoriteChannelRequest
+	(*RemoveFavoriteChannelRequest)(nil),           // 229: mezon.api.RemoveFavoriteChannelRequest
+	(*AddFavoriteChannelResponse)(nil),             // 230: mezon.api.AddFavoriteChannelResponse
+	(*ListFavoriteChannelRequest)(nil),             // 231: mezon.api.ListFavoriteChannelRequest
+	(*ListFavoriteChannelResponse)(nil),            // 232: mezon.api.ListFavoriteChannelResponse
+	(*UserActivity)(nil),                           // 233: mezon.api.UserActivity
+	(*ListUserActivity)(nil),                       // 234: mezon.api.ListUserActivity
+	(*CreateActivityRequest)(nil),                  // 235: mezon.api.CreateActivityRequest
+	(*LoginIDResponse)(nil),                        // 236: mezon.api.LoginIDResponse
+	(*LoginRequest)(nil),                           // 237: mezon.api.LoginRequest
+	(*ConfirmLoginRequest)(nil),                    // 238: mezon.api.ConfirmLoginRequest
+	(*PubKey)(nil),                                 // 239: mezon.api.PubKey
+	(*PushPubKeyRequest)(nil),                      // 240: mezon.api.PushPubKeyRequest
+	(*GetPubKeysRequest)(nil),                      // 241: mezon.api.GetPubKeysRequest
+	(*GetPubKeysResponse)(nil),                     // 242: mezon.api.GetPubKeysResponse
+	(*ChanEncryptionMethod)(nil),                   // 243: mezon.api.ChanEncryptionMethod
+	(*GetKeyServerResp)(nil),                       // 244: mezon.api.GetKeyServerResp
+	(*AuditLog)(nil),                               // 245: mezon.api.AuditLog
+	(*ListAuditLog)(nil),                           // 246: mezon.api.ListAuditLog
+	(*ListAuditLogRequest)(nil),                    // 247: mezon.api.ListAuditLogRequest
+	(*TokenSentEvent)(nil),                         // 248: mezon.api.TokenSentEvent
+	(*UnlockItemRequest)(nil),                      // 249: mezon.api.UnlockItemRequest
+	(*UnlockedItemResponse)(nil),                   // 250: mezon.api.UnlockedItemResponse
+	(*ListOnboardingRequest)(nil),                  // 251: mezon.api.ListOnboardingRequest
+	(*ListOnboardingResponse)(nil),                 // 252: mezon.api.ListOnboardingResponse
+	(*OnboardingItem)(nil),                         // 253: mezon.api.OnboardingItem
+	(*OnboardingAnswer)(nil),                       // 254: mezon.api.OnboardingAnswer
+	(*OnboardingContent)(nil),                      // 255: mezon.api.OnboardingContent
+	(*CreateOnboardingRequest)(nil),                // 256: mezon.api.CreateOnboardingRequest
+	(*UpdateOnboardingRequest)(nil),                // 257: mezon.api.UpdateOnboardingRequest
+	(*OnboardingRequest)(nil),                      // 258: mezon.api.OnboardingRequest
+	(*ClanWebhook)(nil),                            // 259: mezon.api.ClanWebhook
+	(*GenerateClanWebhookRequest)(nil),             // 260: mezon.api.GenerateClanWebhookRequest
+	(*GenerateClanWebhookResponse)(nil),            // 261: mezon.api.GenerateClanWebhookResponse
+	(*ClanWebhookRequest)(nil),                     // 262: mezon.api.ClanWebhookRequest
+	(*UpdateClanWebhookRequest)(nil),               // 263: mezon.api.UpdateClanWebhookRequest
+	(*ListClanWebhookRequest)(nil),                 // 264: mezon.api.ListClanWebhookRequest
+	(*ListClanWebhookResponse)(nil),                // 265: mezon.api.ListClanWebhookResponse
+	(*ClanWebhookHandlerBody)(nil),                 // 266: mezon.api.ClanWebhookHandlerBody
+	(*ClanWebhookHandlerRequest)(nil),              // 267: mezon.api.ClanWebhookHandlerRequest
+	(*UserStatus)(nil),                             // 268: mezon.api.UserStatus
+	(*UserStatusUpdate)(nil),                       // 269: mezon.api.UserStatusUpdate
+	(*OnboardingSteps)(nil),                        // 270: mezon.api.OnboardingSteps
+	(*ListOnboardingStepResponse)(nil),             // 271: mezon.api.ListOnboardingStepResponse
+	(*ListOnboardingStepRequest)(nil),              // 272: mezon.api.ListOnboardingStepRequest
+	(*UpdateOnboardingStepRequest)(nil),            // 273: mezon.api.UpdateOnboardingStepRequest
+	(*SdTopic)(nil),                                // 274: mezon.api.SdTopic
+	(*SdTopicRequest)(nil),                         // 275: mezon.api.SdTopicRequest
+	(*SdTopicList)(nil),                            // 276: mezon.api.SdTopicList
+	(*ListSdTopicRequest)(nil),                     // 277: mezon.api.ListSdTopicRequest
+	(*SdTopicDetailRequest)(nil),                   // 278: mezon.api.SdTopicDetailRequest
+	(*DeleteSdTopicRequest)(nil),                   // 279: mezon.api.DeleteSdTopicRequest
+	(*GenerateMeetTokenRequest)(nil),               // 280: mezon.api.GenerateMeetTokenRequest
+	(*MeetParticipantRequest)(nil),                 // 281: mezon.api.MeetParticipantRequest
+	(*GenerateMeetTokenResponse)(nil),              // 282: mezon.api.GenerateMeetTokenResponse
+	(*GenerateMezonMeetResponse)(nil),              // 283: mezon.api.GenerateMezonMeetResponse
+	(*CreateRoomChannelApps)(nil),                  // 284: mezon.api.CreateRoomChannelApps
+	(*MezonOauthClient)(nil),                       // 285: mezon.api.MezonOauthClient
+	(*MezonOauthClientList)(nil),                   // 286: mezon.api.MezonOauthClientList
+	(*GetMezonOauthClientRequest)(nil),             // 287: mezon.api.GetMezonOauthClientRequest
+	(*SearchThreadRequest)(nil),                    // 288: mezon.api.SearchThreadRequest
+	(*GenerateHashChannelAppsRequest)(nil),         // 289: mezon.api.GenerateHashChannelAppsRequest
+	(*GenerateHashChannelAppsResponse)(nil),        // 290: mezon.api.GenerateHashChannelAppsResponse
+	(*Message2InboxRequest)(nil),                   // 291: mezon.api.Message2InboxRequest
+	(*AccountEmail)(nil),                           // 292: mezon.api.AccountEmail
+	(*AccountMezon)(nil),                           // 293: mezon.api.AccountMezon
+	(*LinkAccountConfirmRequest)(nil),              // 294: mezon.api.LinkAccountConfirmRequest
+	(*QuickMenuAccess)(nil),                        // 295: mezon.api.QuickMenuAccess
+	(*ListQuickMenuAccessRequest)(nil),             // 296: mezon.api.ListQuickMenuAccessRequest
+	(*QuickMenuAccessList)(nil),                    // 297: mezon.api.QuickMenuAccessList
+	(*ListForSaleItemsRequest)(nil),                // 298: mezon.api.ListForSaleItemsRequest
+	(*ForSaleItem)(nil),                            // 299: mezon.api.ForSaleItem
+	(*ForSaleItemList)(nil),                        // 300: mezon.api.ForSaleItemList
+	(*IsFollowerRequest)(nil),                      // 301: mezon.api.IsFollowerRequest
+	(*IsFollowerResponse)(nil),                     // 302: mezon.api.IsFollowerResponse
+	(*TransferOwnershipRequest)(nil),               // 303: mezon.api.TransferOwnershipRequest
+	(*UserIds)(nil),                                // 304: mezon.api.UserIds
+	(*ReportMessageAbuseReqest)(nil),               // 305: mezon.api.ReportMessageAbuseReqest
+	(*LogedDeviceList)(nil),                        // 306: mezon.api.LogedDeviceList
+	(*LogedDevice)(nil),                            // 307: mezon.api.LogedDevice
+	(*DirectFcmProto)(nil),                         // 308: mezon.api.DirectFcmProto
+	(*MessageMentionList)(nil),                     // 309: mezon.api.MessageMentionList
+	(*MessageAttachmentList)(nil),                  // 310: mezon.api.MessageAttachmentList
+	(*MessageRefList)(nil),                         // 311: mezon.api.MessageRefList
+	(*MessageReactionList)(nil),                    // 312: mezon.api.MessageReactionList
+	(*ListClanBadgeCountRequest)(nil),              // 313: mezon.api.ListClanBadgeCountRequest
+	(*ListClanBadgeCountResponse)(nil),             // 314: mezon.api.ListClanBadgeCountResponse
+	(*ClanDiscover)(nil),                           // 315: mezon.api.ClanDiscover
+	(*ListClanDiscover)(nil),                       // 316: mezon.api.ListClanDiscover
+	(*GenerateMeetTokenExternalResponse)(nil),      // 317: mezon.api.GenerateMeetTokenExternalResponse
+	nil,                                      // 318: mezon.api.AccountRefresh.VarsEntry
+	nil,                                      // 319: mezon.api.SessionRefreshRequest.VarsEntry
+	nil,                                      // 320: mezon.api.Event.PropertiesEntry
+	(*ChannelUserList_ChannelUser)(nil),      // 321: mezon.api.ChannelUserList.ChannelUser
+	(*ClanUserList_ClanUser)(nil),            // 322: mezon.api.ClanUserList.ClanUser
+	(*UpdateClanOrderRequest_ClanOrder)(nil), // 323: mezon.api.UpdateClanOrderRequest.ClanOrder
+	(*RoleUserList_RoleUser)(nil),            // 324: mezon.api.RoleUserList.RoleUser
+	nil,                                      // 325: mezon.api.RegistrationEmailRequest.VarsEntry
+	(*GetPubKeysResponse_UserPubKey)(nil),    // 326: mezon.api.GetPubKeysResponse.UserPubKey
+	nil,                                      // 327: mezon.api.AccountEmail.VarsEntry
+	nil,                                      // 328: mezon.api.AccountMezon.VarsEntry
+	(*wrapperspb.StringValue)(nil),           // 329: google.protobuf.StringValue
+	(*wrapperspb.BoolValue)(nil),             // 330: google.protobuf.BoolValue
 }
 var file_api_api_proto_depIdxs = []int32{
 	60,  // 0: mezon.api.Account.user:type_name -> mezon.api.User
-	323, // 1: mezon.api.Account.verify_time:type_name -> google.protobuf.Timestamp
-	323, // 2: mezon.api.Account.disable_time:type_name -> google.protobuf.Timestamp
-	312, // 3: mezon.api.AccountRefresh.vars:type_name -> mezon.api.AccountRefresh.VarsEntry
-	313, // 4: mezon.api.SessionRefreshRequest.vars:type_name -> mezon.api.SessionRefreshRequest.VarsEntry
-	324, // 5: mezon.api.SessionRefreshRequest.is_remember:type_name -> google.protobuf.BoolValue
-	323, // 6: mezon.api.ChannelMessage.create_time:type_name -> google.protobuf.Timestamp
-	323, // 7: mezon.api.ChannelMessage.update_time:type_name -> google.protobuf.Timestamp
-	323, // 8: mezon.api.MessageMention.create_time:type_name -> google.protobuf.Timestamp
-	93,  // 9: mezon.api.NotificationInfo.channel:type_name -> mezon.api.ChannelDescription
-	15,  // 10: mezon.api.ChannelMessageList.messages:type_name -> mezon.api.ChannelMessage
-	91,  // 11: mezon.api.ChannelMessageList.last_seen_message:type_name -> mezon.api.ChannelMessageHeader
-	91,  // 12: mezon.api.ChannelMessageList.last_sent_message:type_name -> mezon.api.ChannelMessageHeader
-	314, // 13: mezon.api.Event.properties:type_name -> mezon.api.Event.PropertiesEntry
-	323, // 14: mezon.api.Event.timestamp:type_name -> google.protobuf.Timestamp
-	60,  // 15: mezon.api.Friend.user:type_name -> mezon.api.User
-	323, // 16: mezon.api.Friend.update_time:type_name -> google.protobuf.Timestamp
-	28,  // 17: mezon.api.FriendList.friends:type_name -> mezon.api.Friend
-	315, // 18: mezon.api.ChannelUserList.channel_users:type_name -> mezon.api.ChannelUserList.ChannelUser
-	32,  // 19: mezon.api.VoiceChannelUserList.voice_channel_users:type_name -> mezon.api.VoiceChannelUser
-	323, // 20: mezon.api.ChannelAttachment.create_time:type_name -> google.protobuf.Timestamp
-	34,  // 21: mezon.api.ChannelAttachmentList.attachments:type_name -> mezon.api.ChannelAttachment
-	316, // 22: mezon.api.ClanUserList.clan_users:type_name -> mezon.api.ClanUserList.ClanUser
-	325, // 23: mezon.api.ListChannelMessagesRequest.limit:type_name -> google.protobuf.Int32Value
-	325, // 24: mezon.api.ListChannelMessagesRequest.direction:type_name -> google.protobuf.Int32Value
-	325, // 25: mezon.api.ListFriendsRequest.limit:type_name -> google.protobuf.Int32Value
-	325, // 26: mezon.api.ListFriendsRequest.state:type_name -> google.protobuf.Int32Value
-	325, // 27: mezon.api.ListGroupsRequest.limit:type_name -> google.protobuf.Int32Value
-	325, // 28: mezon.api.ListGroupsRequest.members:type_name -> google.protobuf.Int32Value
-	324, // 29: mezon.api.ListGroupsRequest.open:type_name -> google.protobuf.BoolValue
-	325, // 30: mezon.api.ListGroupUsersRequest.limit:type_name -> google.protobuf.Int32Value
-	325, // 31: mezon.api.ListGroupUsersRequest.state:type_name -> google.protobuf.Int32Value
-	325, // 32: mezon.api.ListChannelUsersRequest.limit:type_name -> google.protobuf.Int32Value
-	325, // 33: mezon.api.ListChannelUsersRequest.state:type_name -> google.protobuf.Int32Value
-	325, // 34: mezon.api.ListChannelAttachmentRequest.limit:type_name -> google.protobuf.Int32Value
-	325, // 35: mezon.api.ListChannelAttachmentRequest.state:type_name -> google.protobuf.Int32Value
-	325, // 36: mezon.api.ListNotificationsRequest.limit:type_name -> google.protobuf.Int32Value
-	325, // 37: mezon.api.ListNotificationsRequest.direction:type_name -> google.protobuf.Int32Value
-	325, // 38: mezon.api.ListUserGroupsRequest.limit:type_name -> google.protobuf.Int32Value
-	325, // 39: mezon.api.ListUserGroupsRequest.state:type_name -> google.protobuf.Int32Value
-	323, // 40: mezon.api.Notification.create_time:type_name -> google.protobuf.Timestamp
-	93,  // 41: mezon.api.Notification.channel:type_name -> mezon.api.ChannelDescription
-	323, // 42: mezon.api.EmojiRecent.update_time:type_name -> google.protobuf.Timestamp
-	49,  // 43: mezon.api.EmojiRecentList.emoji_recents:type_name -> mezon.api.EmojiRecent
-	48,  // 44: mezon.api.NotificationList.notifications:type_name -> mezon.api.Notification
-	326, // 45: mezon.api.UpdateAccountRequest.display_name:type_name -> google.protobuf.StringValue
-	326, // 46: mezon.api.UpdateAccountRequest.avatar_url:type_name -> google.protobuf.StringValue
-	326, // 47: mezon.api.UpdateAccountRequest.lang_tag:type_name -> google.protobuf.StringValue
-	326, // 48: mezon.api.UpdateAccountRequest.location:type_name -> google.protobuf.StringValue
-	326, // 49: mezon.api.UpdateAccountRequest.timezone:type_name -> google.protobuf.StringValue
-	326, // 50: mezon.api.UpdateAccountRequest.about_me:type_name -> google.protobuf.StringValue
-	323, // 51: mezon.api.UpdateAccountRequest.dob:type_name -> google.protobuf.Timestamp
-	326, // 52: mezon.api.UpdateAccountRequest.logo:type_name -> google.protobuf.StringValue
-	326, // 53: mezon.api.UpdateAccountRequest.splash_screen:type_name -> google.protobuf.StringValue
-	326, // 54: mezon.api.UpdateAccountRequest.email:type_name -> google.protobuf.StringValue
-	326, // 55: mezon.api.UpdateGroupRequest.name:type_name -> google.protobuf.StringValue
-	326, // 56: mezon.api.UpdateGroupRequest.description:type_name -> google.protobuf.StringValue
-	326, // 57: mezon.api.UpdateGroupRequest.lang_tag:type_name -> google.protobuf.StringValue
-	326, // 58: mezon.api.UpdateGroupRequest.avatar_url:type_name -> google.protobuf.StringValue
-	324, // 59: mezon.api.UpdateGroupRequest.open:type_name -> google.protobuf.BoolValue
-	323, // 60: mezon.api.User.create_time:type_name -> google.protobuf.Timestamp
-	323, // 61: mezon.api.User.update_time:type_name -> google.protobuf.Timestamp
-	323, // 62: mezon.api.User.join_time:type_name -> google.protobuf.Timestamp
-	323, // 63: mezon.api.User.dob:type_name -> google.protobuf.Timestamp
-	60,  // 64: mezon.api.Users.users:type_name -> mezon.api.User
-	326, // 65: mezon.api.UpdateClanDescRequest.logo:type_name -> google.protobuf.StringValue
-	326, // 66: mezon.api.UpdateClanDescRequest.banner:type_name -> google.protobuf.StringValue
-	324, // 67: mezon.api.UpdateClanDescRequest.is_onboarding:type_name -> google.protobuf.BoolValue
-	326, // 68: mezon.api.UpdateClanDescRequest.onboarding_banner:type_name -> google.protobuf.StringValue
-	324, // 69: mezon.api.UpdateClanDescRequest.is_community:type_name -> google.protobuf.BoolValue
-	326, // 70: mezon.api.UpdateClanDescRequest.community_banner:type_name -> google.protobuf.StringValue
-	326, // 71: mezon.api.UpdateClanDescRequest.description:type_name -> google.protobuf.StringValue
-	326, // 72: mezon.api.UpdateClanDescRequest.about:type_name -> google.protobuf.StringValue
-	326, // 73: mezon.api.UpdateClanDescRequest.short_url:type_name -> google.protobuf.StringValue
-	325, // 74: mezon.api.ListClanDescRequest.limit:type_name -> google.protobuf.Int32Value
-	325, // 75: mezon.api.ListClanDescRequest.state:type_name -> google.protobuf.Int32Value
-	65,  // 76: mezon.api.ClanDescList.clandesc:type_name -> mezon.api.ClanDesc
-	323, // 77: mezon.api.InviteUserRes.expiry_time:type_name -> google.protobuf.Timestamp
-	93,  // 78: mezon.api.InviteUserRes.channel_desc:type_name -> mezon.api.ChannelDescription
-	323, // 79: mezon.api.LinkInviteUser.create_time:type_name -> google.protobuf.Timestamp
-	323, // 80: mezon.api.LinkInviteUser.expiry_time:type_name -> google.protobuf.Timestamp
-	326, // 81: mezon.api.UpdateClanProfileRequest.nick_name:type_name -> google.protobuf.StringValue
-	326, // 82: mezon.api.UpdateClanProfileRequest.avatar:type_name -> google.protobuf.StringValue
-	317, // 83: mezon.api.UpdateClanOrderRequest.clans_order:type_name -> mezon.api.UpdateClanOrderRequest.ClanOrder
-	86,  // 84: mezon.api.UpdateCategoryOrderRequest.categories:type_name -> mezon.api.CategoryOrderUpdate
-	85,  // 85: mezon.api.UpdateRoleOrderRequest.roles:type_name -> mezon.api.RoleOrderUpdate
-	82,  // 86: mezon.api.CategoryDescList.categorydesc:type_name -> mezon.api.CategoryDesc
-	325, // 87: mezon.api.ListCategoryDescsRequest.limit:type_name -> google.protobuf.Int32Value
-	325, // 88: mezon.api.ListCategoryDescsRequest.state:type_name -> google.protobuf.Int32Value
-	325, // 89: mezon.api.ChannelDescriptionOld.type:type_name -> google.protobuf.Int32Value
-	91,  // 90: mezon.api.ChannelDescriptionOld.last_sent_message:type_name -> mezon.api.ChannelMessageHeader
-	91,  // 91: mezon.api.ChannelDescriptionOld.last_seen_message:type_name -> mezon.api.ChannelMessageHeader
-	91,  // 92: mezon.api.ChannelDescription.last_sent_message:type_name -> mezon.api.ChannelMessageHeader
-	91,  // 93: mezon.api.ChannelDescription.last_seen_message:type_name -> mezon.api.ChannelMessageHeader
-	93,  // 94: mezon.api.ChannelDescList.channeldesc:type_name -> mezon.api.ChannelDescription
-	325, // 95: mezon.api.ListThreadRequest.limit:type_name -> google.protobuf.Int32Value
-	325, // 96: mezon.api.ListThreadRequest.state:type_name -> google.protobuf.Int32Value
-	325, // 97: mezon.api.ListThreadRequest.page:type_name -> google.protobuf.Int32Value
-	325, // 98: mezon.api.ListChannelDescsRequest.limit:type_name -> google.protobuf.Int32Value
-	325, // 99: mezon.api.ListChannelDescsRequest.state:type_name -> google.protobuf.Int32Value
-	325, // 100: mezon.api.CreateChannelDescRequest.type:type_name -> google.protobuf.Int32Value
-	326, // 101: mezon.api.UpdateChannelDescRequest.channel_label:type_name -> google.protobuf.StringValue
-	326, // 102: mezon.api.UpdateChannelDescRequest.category_id:type_name -> google.protobuf.StringValue
-	326, // 103: mezon.api.UpdateChannelDescRequest.channel_avatar:type_name -> google.protobuf.StringValue
-	107, // 104: mezon.api.BannedUserList.banned_users:type_name -> mezon.api.BannedUser
-	140, // 105: mezon.api.Role.role_user_list:type_name -> mezon.api.RoleUserList
-	136, // 106: mezon.api.Role.permission_list:type_name -> mezon.api.PermissionList
-	323, // 107: mezon.api.EventManagement.start_time:type_name -> google.protobuf.Timestamp
-	323, // 108: mezon.api.EventManagement.end_time:type_name -> google.protobuf.Timestamp
-	323, // 109: mezon.api.EventManagement.create_time:type_name -> google.protobuf.Timestamp
-	287, // 110: mezon.api.EventManagement.meet_room:type_name -> mezon.api.GenerateMezonMeetResponse
-	323, // 111: mezon.api.PinMessage.create_time:type_name -> google.protobuf.Timestamp
-	116, // 112: mezon.api.PinMessagesList.pin_messages_list:type_name -> mezon.api.PinMessage
-	323, // 113: mezon.api.NotificationUserChannel.time_mute:type_name -> google.protobuf.Timestamp
-	114, // 114: mezon.api.NotificationSettingList.notification_setting:type_name -> mezon.api.NotificationSetting
-	325, // 115: mezon.api.HashtagDmListRequest.limit:type_name -> google.protobuf.Int32Value
-	130, // 116: mezon.api.HashtagDmList.hashtag_dm:type_name -> mezon.api.HashtagDm
-	132, // 117: mezon.api.NotificationChannelCategorySettingList.notification_channel_category_settings_list:type_name -> mezon.api.NotificationChannelCategorySetting
-	111, // 118: mezon.api.RoleList.roles:type_name -> mezon.api.Role
-	112, // 119: mezon.api.EventList.events:type_name -> mezon.api.EventManagement
-	113, // 120: mezon.api.PermissionList.permissions:type_name -> mezon.api.Permission
-	325, // 121: mezon.api.ListRoleUsersRequest.limit:type_name -> google.protobuf.Int32Value
-	318, // 122: mezon.api.RoleUserList.role_users:type_name -> mezon.api.RoleUserList.RoleUser
-	323, // 123: mezon.api.CreateEventRequest.start_time:type_name -> google.protobuf.Timestamp
-	323, // 124: mezon.api.CreateEventRequest.end_time:type_name -> google.protobuf.Timestamp
-	324, // 125: mezon.api.CreateEventRequest.is_private:type_name -> google.protobuf.BoolValue
-	287, // 126: mezon.api.CreateEventRequest.meet_room:type_name -> mezon.api.GenerateMezonMeetResponse
-	323, // 127: mezon.api.UpdateEventRequest.start_time:type_name -> google.protobuf.Timestamp
-	323, // 128: mezon.api.UpdateEventRequest.end_time:type_name -> google.protobuf.Timestamp
-	326, // 129: mezon.api.UpdateRoleRequest.title:type_name -> google.protobuf.StringValue
-	326, // 130: mezon.api.UpdateRoleRequest.color:type_name -> google.protobuf.StringValue
-	326, // 131: mezon.api.UpdateRoleRequest.role_icon:type_name -> google.protobuf.StringValue
-	326, // 132: mezon.api.UpdateRoleRequest.description:type_name -> google.protobuf.StringValue
-	325, // 133: mezon.api.UpdateRoleRequest.display_online:type_name -> google.protobuf.Int32Value
-	325, // 134: mezon.api.UpdateRoleRequest.allow_mention:type_name -> google.protobuf.Int32Value
-	150, // 135: mezon.api.UpdateRoleChannelRequest.permission_update:type_name -> mezon.api.PermissionUpdate
-	325, // 136: mezon.api.ListMessageMentionRequest.limit:type_name -> google.protobuf.Int32Value
-	324, // 137: mezon.api.ListMessageMentionRequest.forward:type_name -> google.protobuf.BoolValue
-	156, // 138: mezon.api.SearchMessageRequest.filters:type_name -> mezon.api.FilterParam
-	325, // 139: mezon.api.SearchMessageRequest.from:type_name -> google.protobuf.Int32Value
-	325, // 140: mezon.api.SearchMessageRequest.size:type_name -> google.protobuf.Int32Value
-	155, // 141: mezon.api.SearchMessageRequest.sorts:type_name -> mezon.api.SortParam
-	19,  // 142: mezon.api.SearchMessageDocument.attachments:type_name -> mezon.api.MessageAttachment
-	157, // 143: mezon.api.SearchMessageResponse.messages:type_name -> mezon.api.SearchMessageDocument
-	319, // 144: mezon.api.RegistrationEmailRequest.vars:type_name -> mezon.api.RegistrationEmailRequest.VarsEntry
-	160, // 145: mezon.api.EmojiListedResponse.emoji_list:type_name -> mezon.api.ClanEmoji
-	163, // 146: mezon.api.StickerListedResponse.stickers:type_name -> mezon.api.ClanSticker
-	323, // 147: mezon.api.ClanSticker.create_time:type_name -> google.protobuf.Timestamp
-	325, // 148: mezon.api.AllUsersAddChannelRequest.limit:type_name -> google.protobuf.Int32Value
-	325, // 149: mezon.api.AllUsersAddChannelResponse.limit:type_name -> google.protobuf.Int32Value
-	170, // 150: mezon.api.WebhookListResponse.webhooks:type_name -> mezon.api.Webhook
-	327, // 151: mezon.api.WebhookHandlerRequest.body:type_name -> google.protobuf.Struct
-	323, // 152: mezon.api.App.disable_time:type_name -> google.protobuf.Timestamp
-	323, // 153: mezon.api.App.create_time:type_name -> google.protobuf.Timestamp
-	324, // 154: mezon.api.AppDeleteRequest.record_deletion:type_name -> google.protobuf.BoolValue
-	186, // 155: mezon.api.AppList.apps:type_name -> mezon.api.App
-	326, // 156: mezon.api.UpdateAppRequest.appname:type_name -> google.protobuf.StringValue
-	326, // 157: mezon.api.UpdateAppRequest.metadata:type_name -> google.protobuf.StringValue
-	326, // 158: mezon.api.UpdateAppRequest.applogo:type_name -> google.protobuf.StringValue
-	326, // 159: mezon.api.UpdateAppRequest.token:type_name -> google.protobuf.StringValue
-	323, // 160: mezon.api.DeleteChannelMessagesRequest.before:type_name -> google.protobuf.Timestamp
-	196, // 161: mezon.api.SystemMessagesList.system_messages_list:type_name -> mezon.api.SystemMessage
-	325, // 162: mezon.api.StreamHttpCallbackResponse.code:type_name -> google.protobuf.Int32Value
-	204, // 163: mezon.api.StreamingChannelUserList.streaming_channel_users:type_name -> mezon.api.StreamingChannelUser
-	211, // 164: mezon.api.ListChannelAppsResponse.channel_apps:type_name -> mezon.api.ChannelAppResponse
-	60,  // 165: mezon.api.AllUserClans.users:type_name -> mezon.api.User
-	134, // 166: mezon.api.RoleListEventResponse.roles:type_name -> mezon.api.RoleList
-	136, // 167: mezon.api.UserPermissionInChannelListResponse.permissions:type_name -> mezon.api.PermissionList
-	217, // 168: mezon.api.PermissionRoleChannelListEventResponse.permission_role_channel:type_name -> mezon.api.PermissionRoleChannel
-	325, // 169: mezon.api.ChannelSettingListRequest.privateChannel:type_name -> google.protobuf.Int32Value
-	325, // 170: mezon.api.ChannelSettingListRequest.active:type_name -> google.protobuf.Int32Value
-	325, // 171: mezon.api.ChannelSettingListRequest.status:type_name -> google.protobuf.Int32Value
-	325, // 172: mezon.api.ChannelSettingListRequest.type:type_name -> google.protobuf.Int32Value
-	325, // 173: mezon.api.ChannelSettingListRequest.limit:type_name -> google.protobuf.Int32Value
-	325, // 174: mezon.api.ChannelSettingListRequest.page:type_name -> google.protobuf.Int32Value
-	91,  // 175: mezon.api.ChannelSettingItem.last_sent_message:type_name -> mezon.api.ChannelMessageHeader
-	221, // 176: mezon.api.ChannelSettingListResponse.channel_setting_list:type_name -> mezon.api.ChannelSettingItem
-	326, // 177: mezon.api.EditChannelCanvasRequest.id:type_name -> google.protobuf.StringValue
-	325, // 178: mezon.api.ChannelCanvasListRequest.limit:type_name -> google.protobuf.Int32Value
-	325, // 179: mezon.api.ChannelCanvasListRequest.page:type_name -> google.protobuf.Int32Value
-	323, // 180: mezon.api.ChannelCanvasItem.update_time:type_name -> google.protobuf.Timestamp
-	323, // 181: mezon.api.ChannelCanvasItem.create_time:type_name -> google.protobuf.Timestamp
-	228, // 182: mezon.api.ChannelCanvasListResponse.channel_canvases:type_name -> mezon.api.ChannelCanvasItem
-	323, // 183: mezon.api.UserActivity.start_time:type_name -> google.protobuf.Timestamp
-	323, // 184: mezon.api.UserActivity.end_time:type_name -> google.protobuf.Timestamp
-	237, // 185: mezon.api.ListUserActivity.activities:type_name -> mezon.api.UserActivity
-	323, // 186: mezon.api.CreateActivityRequest.start_time:type_name -> google.protobuf.Timestamp
-	324, // 187: mezon.api.ConfirmLoginRequest.is_remember:type_name -> google.protobuf.BoolValue
-	243, // 188: mezon.api.PushPubKeyRequest.PK:type_name -> mezon.api.PubKey
-	320, // 189: mezon.api.GetPubKeysResponse.pub_keys:type_name -> mezon.api.GetPubKeysResponse.UserPubKey
-	323, // 190: mezon.api.AuditLog.time_log:type_name -> google.protobuf.Timestamp
-	249, // 191: mezon.api.ListAuditLog.logs:type_name -> mezon.api.AuditLog
-	325, // 192: mezon.api.ListOnboardingRequest.guide_type:type_name -> google.protobuf.Int32Value
-	325, // 193: mezon.api.ListOnboardingRequest.limit:type_name -> google.protobuf.Int32Value
-	325, // 194: mezon.api.ListOnboardingRequest.page:type_name -> google.protobuf.Int32Value
-	257, // 195: mezon.api.ListOnboardingResponse.list_onboarding:type_name -> mezon.api.OnboardingItem
-	258, // 196: mezon.api.OnboardingItem.answers:type_name -> mezon.api.OnboardingAnswer
-	323, // 197: mezon.api.OnboardingItem.create_time:type_name -> google.protobuf.Timestamp
-	323, // 198: mezon.api.OnboardingItem.update_time:type_name -> google.protobuf.Timestamp
-	258, // 199: mezon.api.OnboardingContent.answers:type_name -> mezon.api.OnboardingAnswer
-	259, // 200: mezon.api.CreateOnboardingRequest.contents:type_name -> mezon.api.OnboardingContent
-	325, // 201: mezon.api.UpdateOnboardingRequest.task_type:type_name -> google.protobuf.Int32Value
-	258, // 202: mezon.api.UpdateOnboardingRequest.answers:type_name -> mezon.api.OnboardingAnswer
-	263, // 203: mezon.api.ListClanWebhookResponse.list_clan_webhooks:type_name -> mezon.api.ClanWebhook
-	19,  // 204: mezon.api.ClanWebhookHandlerBody.attachments:type_name -> mezon.api.MessageAttachment
-	270, // 205: mezon.api.ClanWebhookHandlerRequest.body:type_name -> mezon.api.ClanWebhookHandlerBody
-	274, // 206: mezon.api.ListOnboardingStepResponse.list_onboarding_step:type_name -> mezon.api.OnboardingSteps
-	325, // 207: mezon.api.ListOnboardingStepRequest.limit:type_name -> google.protobuf.Int32Value
-	325, // 208: mezon.api.ListOnboardingStepRequest.page:type_name -> google.protobuf.Int32Value
-	325, // 209: mezon.api.UpdateOnboardingStepRequest.onboarding_step:type_name -> google.protobuf.Int32Value
-	323, // 210: mezon.api.SdTopic.create_time:type_name -> google.protobuf.Timestamp
-	323, // 211: mezon.api.SdTopic.update_time:type_name -> google.protobuf.Timestamp
-	15,  // 212: mezon.api.SdTopic.message:type_name -> mezon.api.ChannelMessage
-	91,  // 213: mezon.api.SdTopic.last_sent_message:type_name -> mezon.api.ChannelMessageHeader
-	278, // 214: mezon.api.SdTopicList.topics:type_name -> mezon.api.SdTopic
-	323, // 215: mezon.api.MezonOauthClient.created_at:type_name -> google.protobuf.Timestamp
-	323, // 216: mezon.api.MezonOauthClient.updated_at:type_name -> google.protobuf.Timestamp
-	289, // 217: mezon.api.MezonOauthClientList.list_mezon_oauth_client:type_name -> mezon.api.MezonOauthClient
-	321, // 218: mezon.api.AccountEmail.vars:type_name -> mezon.api.AccountEmail.VarsEntry
-	322, // 219: mezon.api.AccountMezon.vars:type_name -> mezon.api.AccountMezon.VarsEntry
-	299, // 220: mezon.api.QuickMenuAccessList.list_menus:type_name -> mezon.api.QuickMenuAccess
-	303, // 221: mezon.api.ForSaleItemList.for_sale_items:type_name -> mezon.api.ForSaleItem
-	311, // 222: mezon.api.LogedDeviceList.devices:type_name -> mezon.api.LogedDevice
-	323, // 223: mezon.api.LogedDevice.login_at:type_name -> google.protobuf.Timestamp
-	323, // 224: mezon.api.LogedDevice.last_active:type_name -> google.protobuf.Timestamp
-	60,  // 225: mezon.api.ClanUserList.ClanUser.user:type_name -> mezon.api.User
-	243, // 226: mezon.api.GetPubKeysResponse.UserPubKey.PK:type_name -> mezon.api.PubKey
-	227, // [227:227] is the sub-list for method output_type
-	227, // [227:227] is the sub-list for method input_type
-	227, // [227:227] is the sub-list for extension type_name
-	227, // [227:227] is the sub-list for extension extendee
-	0,   // [0:227] is the sub-list for field type_name
+	318, // 1: mezon.api.AccountRefresh.vars:type_name -> mezon.api.AccountRefresh.VarsEntry
+	319, // 2: mezon.api.SessionRefreshRequest.vars:type_name -> mezon.api.SessionRefreshRequest.VarsEntry
+	92,  // 3: mezon.api.NotificationInfo.channel:type_name -> mezon.api.ChannelDescription
+	15,  // 4: mezon.api.ChannelMessageList.messages:type_name -> mezon.api.ChannelMessage
+	91,  // 5: mezon.api.ChannelMessageList.last_seen_message:type_name -> mezon.api.ChannelMessageHeader
+	91,  // 6: mezon.api.ChannelMessageList.last_sent_message:type_name -> mezon.api.ChannelMessageHeader
+	320, // 7: mezon.api.Event.properties:type_name -> mezon.api.Event.PropertiesEntry
+	60,  // 8: mezon.api.Friend.user:type_name -> mezon.api.User
+	28,  // 9: mezon.api.FriendList.friends:type_name -> mezon.api.Friend
+	321, // 10: mezon.api.ChannelUserList.channel_users:type_name -> mezon.api.ChannelUserList.ChannelUser
+	32,  // 11: mezon.api.VoiceChannelUserList.voice_channel_users:type_name -> mezon.api.VoiceChannelUser
+	34,  // 12: mezon.api.ChannelAttachmentList.attachments:type_name -> mezon.api.ChannelAttachment
+	322, // 13: mezon.api.ClanUserList.clan_users:type_name -> mezon.api.ClanUserList.ClanUser
+	92,  // 14: mezon.api.Notification.channel:type_name -> mezon.api.ChannelDescription
+	49,  // 15: mezon.api.EmojiRecentList.emoji_recents:type_name -> mezon.api.EmojiRecent
+	48,  // 16: mezon.api.NotificationList.notifications:type_name -> mezon.api.Notification
+	329, // 17: mezon.api.UpdateAccountRequest.display_name:type_name -> google.protobuf.StringValue
+	329, // 18: mezon.api.UpdateAccountRequest.avatar_url:type_name -> google.protobuf.StringValue
+	329, // 19: mezon.api.UpdateAccountRequest.lang_tag:type_name -> google.protobuf.StringValue
+	329, // 20: mezon.api.UpdateAccountRequest.location:type_name -> google.protobuf.StringValue
+	329, // 21: mezon.api.UpdateAccountRequest.timezone:type_name -> google.protobuf.StringValue
+	329, // 22: mezon.api.UpdateAccountRequest.about_me:type_name -> google.protobuf.StringValue
+	329, // 23: mezon.api.UpdateAccountRequest.logo:type_name -> google.protobuf.StringValue
+	329, // 24: mezon.api.UpdateAccountRequest.splash_screen:type_name -> google.protobuf.StringValue
+	329, // 25: mezon.api.UpdateAccountRequest.email:type_name -> google.protobuf.StringValue
+	329, // 26: mezon.api.UpdateGroupRequest.name:type_name -> google.protobuf.StringValue
+	329, // 27: mezon.api.UpdateGroupRequest.description:type_name -> google.protobuf.StringValue
+	329, // 28: mezon.api.UpdateGroupRequest.lang_tag:type_name -> google.protobuf.StringValue
+	329, // 29: mezon.api.UpdateGroupRequest.avatar_url:type_name -> google.protobuf.StringValue
+	60,  // 30: mezon.api.Users.users:type_name -> mezon.api.User
+	329, // 31: mezon.api.UpdateClanDescRequest.logo:type_name -> google.protobuf.StringValue
+	329, // 32: mezon.api.UpdateClanDescRequest.banner:type_name -> google.protobuf.StringValue
+	330, // 33: mezon.api.UpdateClanDescRequest.is_onboarding:type_name -> google.protobuf.BoolValue
+	329, // 34: mezon.api.UpdateClanDescRequest.onboarding_banner:type_name -> google.protobuf.StringValue
+	330, // 35: mezon.api.UpdateClanDescRequest.is_community:type_name -> google.protobuf.BoolValue
+	329, // 36: mezon.api.UpdateClanDescRequest.community_banner:type_name -> google.protobuf.StringValue
+	329, // 37: mezon.api.UpdateClanDescRequest.description:type_name -> google.protobuf.StringValue
+	329, // 38: mezon.api.UpdateClanDescRequest.about:type_name -> google.protobuf.StringValue
+	329, // 39: mezon.api.UpdateClanDescRequest.short_url:type_name -> google.protobuf.StringValue
+	65,  // 40: mezon.api.ClanDescList.clandesc:type_name -> mezon.api.ClanDesc
+	92,  // 41: mezon.api.InviteUserRes.channel_desc:type_name -> mezon.api.ChannelDescription
+	329, // 42: mezon.api.UpdateClanProfileRequest.nick_name:type_name -> google.protobuf.StringValue
+	329, // 43: mezon.api.UpdateClanProfileRequest.avatar:type_name -> google.protobuf.StringValue
+	323, // 44: mezon.api.UpdateClanOrderRequest.clans_order:type_name -> mezon.api.UpdateClanOrderRequest.ClanOrder
+	86,  // 45: mezon.api.UpdateCategoryOrderRequest.categories:type_name -> mezon.api.CategoryOrderUpdate
+	85,  // 46: mezon.api.UpdateRoleOrderRequest.roles:type_name -> mezon.api.RoleOrderUpdate
+	82,  // 47: mezon.api.CategoryDescList.categorydesc:type_name -> mezon.api.CategoryDesc
+	91,  // 48: mezon.api.ChannelDescription.last_sent_message:type_name -> mezon.api.ChannelMessageHeader
+	91,  // 49: mezon.api.ChannelDescription.last_seen_message:type_name -> mezon.api.ChannelMessageHeader
+	92,  // 50: mezon.api.ChannelDescList.channeldesc:type_name -> mezon.api.ChannelDescription
+	92,  // 51: mezon.api.ChannelDescListNoPool.channeldesc:type_name -> mezon.api.ChannelDescription
+	329, // 52: mezon.api.UpdateChannelDescRequest.channel_label:type_name -> google.protobuf.StringValue
+	329, // 53: mezon.api.UpdateChannelDescRequest.channel_avatar:type_name -> google.protobuf.StringValue
+	107, // 54: mezon.api.BannedUserList.banned_users:type_name -> mezon.api.BannedUser
+	137, // 55: mezon.api.Role.role_user_list:type_name -> mezon.api.RoleUserList
+	133, // 56: mezon.api.Role.permission_list:type_name -> mezon.api.PermissionList
+	283, // 57: mezon.api.EventManagement.meet_room:type_name -> mezon.api.GenerateMezonMeetResponse
+	116, // 58: mezon.api.PinMessagesList.pin_messages_list:type_name -> mezon.api.PinMessage
+	114, // 59: mezon.api.NotificationSettingList.notification_setting:type_name -> mezon.api.NotificationSetting
+	129, // 60: mezon.api.NotificationChannelCategorySettingList.notification_channel_category_settings_list:type_name -> mezon.api.NotificationChannelCategorySetting
+	111, // 61: mezon.api.RoleList.roles:type_name -> mezon.api.Role
+	112, // 62: mezon.api.EventList.events:type_name -> mezon.api.EventManagement
+	113, // 63: mezon.api.PermissionList.permissions:type_name -> mezon.api.Permission
+	324, // 64: mezon.api.RoleUserList.role_users:type_name -> mezon.api.RoleUserList.RoleUser
+	283, // 65: mezon.api.CreateEventRequest.meet_room:type_name -> mezon.api.GenerateMezonMeetResponse
+	329, // 66: mezon.api.UpdateRoleRequest.title:type_name -> google.protobuf.StringValue
+	329, // 67: mezon.api.UpdateRoleRequest.color:type_name -> google.protobuf.StringValue
+	329, // 68: mezon.api.UpdateRoleRequest.role_icon:type_name -> google.protobuf.StringValue
+	329, // 69: mezon.api.UpdateRoleRequest.description:type_name -> google.protobuf.StringValue
+	147, // 70: mezon.api.UpdateRoleChannelRequest.permission_update:type_name -> mezon.api.PermissionUpdate
+	153, // 71: mezon.api.SearchMessageRequest.filters:type_name -> mezon.api.FilterParam
+	152, // 72: mezon.api.SearchMessageRequest.sorts:type_name -> mezon.api.SortParam
+	154, // 73: mezon.api.SearchMessageResponse.messages:type_name -> mezon.api.SearchMessageDocument
+	325, // 74: mezon.api.RegistrationEmailRequest.vars:type_name -> mezon.api.RegistrationEmailRequest.VarsEntry
+	157, // 75: mezon.api.EmojiListedResponse.emoji_list:type_name -> mezon.api.ClanEmoji
+	160, // 76: mezon.api.StickerListedResponse.stickers:type_name -> mezon.api.ClanSticker
+	167, // 77: mezon.api.WebhookListResponse.webhooks:type_name -> mezon.api.Webhook
+	182, // 78: mezon.api.AppList.apps:type_name -> mezon.api.App
+	329, // 79: mezon.api.UpdateAppRequest.appname:type_name -> google.protobuf.StringValue
+	329, // 80: mezon.api.UpdateAppRequest.metadata:type_name -> google.protobuf.StringValue
+	329, // 81: mezon.api.UpdateAppRequest.applogo:type_name -> google.protobuf.StringValue
+	329, // 82: mezon.api.UpdateAppRequest.token:type_name -> google.protobuf.StringValue
+	192, // 83: mezon.api.SystemMessagesList.system_messages_list:type_name -> mezon.api.SystemMessage
+	200, // 84: mezon.api.StreamingChannelUserList.streaming_channel_users:type_name -> mezon.api.StreamingChannelUser
+	207, // 85: mezon.api.ListChannelAppsResponse.channel_apps:type_name -> mezon.api.ChannelAppResponse
+	60,  // 86: mezon.api.AllUserClans.users:type_name -> mezon.api.User
+	131, // 87: mezon.api.RoleListEventResponse.roles:type_name -> mezon.api.RoleList
+	133, // 88: mezon.api.UserPermissionInChannelListResponse.permissions:type_name -> mezon.api.PermissionList
+	213, // 89: mezon.api.PermissionRoleChannelListEventResponse.permission_role_channel:type_name -> mezon.api.PermissionRoleChannel
+	91,  // 90: mezon.api.ChannelSettingItem.last_sent_message:type_name -> mezon.api.ChannelMessageHeader
+	217, // 91: mezon.api.ChannelSettingListResponse.channel_setting_list:type_name -> mezon.api.ChannelSettingItem
+	224, // 92: mezon.api.ChannelCanvasListResponse.channel_canvases:type_name -> mezon.api.ChannelCanvasItem
+	233, // 93: mezon.api.ListUserActivity.activities:type_name -> mezon.api.UserActivity
+	239, // 94: mezon.api.PushPubKeyRequest.PK:type_name -> mezon.api.PubKey
+	326, // 95: mezon.api.GetPubKeysResponse.pub_keys:type_name -> mezon.api.GetPubKeysResponse.UserPubKey
+	245, // 96: mezon.api.ListAuditLog.logs:type_name -> mezon.api.AuditLog
+	253, // 97: mezon.api.ListOnboardingResponse.list_onboarding:type_name -> mezon.api.OnboardingItem
+	254, // 98: mezon.api.OnboardingItem.answers:type_name -> mezon.api.OnboardingAnswer
+	254, // 99: mezon.api.OnboardingContent.answers:type_name -> mezon.api.OnboardingAnswer
+	255, // 100: mezon.api.CreateOnboardingRequest.contents:type_name -> mezon.api.OnboardingContent
+	254, // 101: mezon.api.UpdateOnboardingRequest.answers:type_name -> mezon.api.OnboardingAnswer
+	259, // 102: mezon.api.ListClanWebhookResponse.list_clan_webhooks:type_name -> mezon.api.ClanWebhook
+	19,  // 103: mezon.api.ClanWebhookHandlerBody.attachments:type_name -> mezon.api.MessageAttachment
+	266, // 104: mezon.api.ClanWebhookHandlerRequest.body:type_name -> mezon.api.ClanWebhookHandlerBody
+	270, // 105: mezon.api.ListOnboardingStepResponse.list_onboarding_step:type_name -> mezon.api.OnboardingSteps
+	91,  // 106: mezon.api.SdTopic.last_sent_message:type_name -> mezon.api.ChannelMessageHeader
+	274, // 107: mezon.api.SdTopicList.topics:type_name -> mezon.api.SdTopic
+	285, // 108: mezon.api.MezonOauthClientList.list_mezon_oauth_client:type_name -> mezon.api.MezonOauthClient
+	16,  // 109: mezon.api.Message2InboxRequest.mentions:type_name -> mezon.api.MessageMention
+	19,  // 110: mezon.api.Message2InboxRequest.attachments:type_name -> mezon.api.MessageAttachment
+	18,  // 111: mezon.api.Message2InboxRequest.reactions:type_name -> mezon.api.MessageReaction
+	20,  // 112: mezon.api.Message2InboxRequest.references:type_name -> mezon.api.MessageRef
+	327, // 113: mezon.api.AccountEmail.vars:type_name -> mezon.api.AccountEmail.VarsEntry
+	328, // 114: mezon.api.AccountMezon.vars:type_name -> mezon.api.AccountMezon.VarsEntry
+	295, // 115: mezon.api.QuickMenuAccessList.list_menus:type_name -> mezon.api.QuickMenuAccess
+	299, // 116: mezon.api.ForSaleItemList.for_sale_items:type_name -> mezon.api.ForSaleItem
+	307, // 117: mezon.api.LogedDeviceList.devices:type_name -> mezon.api.LogedDevice
+	16,  // 118: mezon.api.MessageMentionList.mentions:type_name -> mezon.api.MessageMention
+	19,  // 119: mezon.api.MessageAttachmentList.attachments:type_name -> mezon.api.MessageAttachment
+	20,  // 120: mezon.api.MessageRefList.refs:type_name -> mezon.api.MessageRef
+	18,  // 121: mezon.api.MessageReactionList.reactions:type_name -> mezon.api.MessageReaction
+	315, // 122: mezon.api.ListClanDiscover.clan_discover:type_name -> mezon.api.ClanDiscover
+	60,  // 123: mezon.api.ClanUserList.ClanUser.user:type_name -> mezon.api.User
+	239, // 124: mezon.api.GetPubKeysResponse.UserPubKey.PK:type_name -> mezon.api.PubKey
+	125, // [125:125] is the sub-list for method output_type
+	125, // [125:125] is the sub-list for method input_type
+	125, // [125:125] is the sub-list for extension type_name
+	125, // [125:125] is the sub-list for extension extendee
+	0,   // [0:125] is the sub-list for field type_name
 }
 
 func init() { file_api_api_proto_init() }
@@ -26193,7 +26169,7 @@ func file_api_api_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_api_proto_rawDesc), len(file_api_api_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   319,
+			NumMessages:   325,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

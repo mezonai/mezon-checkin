@@ -20,7 +20,7 @@ type FaceRecognitionService struct {
 	apiClient *api.APIClient
 }
 type FaceRecognitionRequest struct {
-	UserId string   `json:"userId"`
+	UserId int64    `json:"userId"`
 	Imgs   []string `json:"imgs"`
 }
 
