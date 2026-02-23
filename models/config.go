@@ -37,6 +37,7 @@ type AuthResponse struct {
 	RefreshToken string `json:"refresh_token"`
 	Created      bool   `json:"created"`
 	ApiURL       string `json:"api_url"`
+	SockerURL    string `json:"ws_url"`
 	IDToken      string `json:"id_token"`
 	IsRemember   bool   `json:"is_remember"`
 }

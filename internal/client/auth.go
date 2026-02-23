@@ -11,7 +11,6 @@ import (
 	"mezon-checkin-bot/models"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -115,6 +114,7 @@ func (c *MezonClient) processAuthResponse(resp *http.Response) error {
 	}
 
 	var authResp models.AuthResponse
+
 	if err := json.Unmarshal(body, &authResp); err != nil {
 		return fmt.Errorf("parse auth response failed: %w", err)
 	}
@@ -123,18 +123,18 @@ func (c *MezonClient) processAuthResponse(resp *http.Response) error {
 		return fmt.Errorf("no session token received")
 	}
 
-	c.handleAPIURLSwitch(authResp.ApiURL)
+	c.handleAPIURLSwitch(authResp.SockerURL)
 	c.createSession(authResp)
 
 	return nil
 }
 
-func (c *MezonClient) handleAPIURLSwitch(apiURL string) {
-	if apiURL == "" {
+func (c *MezonClient) handleAPIURLSwitch(socketURL string) {
+	if socketURL == "" {
 		return
 	}
 
-	newHost, newPort, newSSL, err := parseAPIURL(apiURL)
+	newHost, newPort, newSSL, err := parseAPIURL(socketURL)
 	if err == nil {
 		log.Printf("   🔄 Switching to API server: %s:%s (SSL: %v)", newHost, newPort, newSSL)
 		c.config.SocketHost = newHost
@@ -152,24 +152,10 @@ func (c *MezonClient) createSession(authResp models.AuthResponse) {
 	c.ClientID = c.config.BotID
 }
 
-func parseAPIURL(apiURL string) (host string, port string, useSSL bool, err error) {
-	useSSL = strings.HasPrefix(apiURL, "https://")
-	apiURL = strings.TrimPrefix(apiURL, "https://")
-	apiURL = strings.TrimPrefix(apiURL, "http://")
-
-	parts := strings.Split(apiURL, ":")
-	if len(parts) >= 1 {
-		host = parts[0]
-	}
-	if len(parts) >= 2 {
-		port = strings.TrimSuffix(parts[1], "/")
-	} else {
-		if useSSL {
-			port = "443"
-		} else {
-			port = "80"
-		}
-	}
+func parseAPIURL(socketURL string) (host string, port string, useSSL bool, err error) {
+	useSSL = true
+	host = socketURL
+	port = "443"
 
 	if host == "" {
 		return "", "", false, fmt.Errorf("invalid api_url format")
