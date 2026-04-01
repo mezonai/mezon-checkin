@@ -16,6 +16,7 @@ services:
       - MEZON_USE_SSL=${MEZON_USE_SSL:-true}
       - BASE_URL=${BASE_URL:-https://xxxxxxxx}
       - SECRET_KEY=${SECRET_KEY:-xxxxxxxx}
+      - APP_ENV=${APP_ENV:-dev}
       - VERBOSE=${VERBOSE:-true}
       - TZ=Asia/Ho_Chi_Minh
     

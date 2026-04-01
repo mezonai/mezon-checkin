@@ -10,6 +10,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"mezon-checkin-bot/internal/api"
 	"mezon-checkin-bot/internal/audio"
@@ -37,6 +38,12 @@ func main() {
 	fmt.Println("║     - Faster capture interval (1s)                ║")
 	fmt.Println("║     - Controlled JPEG quality (90)                ║")
 	fmt.Println("╚════════════════════════════════════════════════════╝")
+
+	env := os.Getenv("APP_ENV") // hoặc "MODE", "ENV"
+	fmt.Println("⚙️  Running in environment:", env)
+	if env == "prod" || env == "production" {
+		log.SetOutput(io.Discard)
+	}
 
 	botID := os.Getenv("BOT_ID")
 	botToken := os.Getenv("BOT_TOKEN")

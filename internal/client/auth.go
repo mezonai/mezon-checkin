@@ -123,7 +123,7 @@ func (c *MezonClient) processAuthResponse(resp *http.Response) error {
 		return fmt.Errorf("no session token received")
 	}
 
-	c.handleAPIURLSwitch(authResp.SockerURL)
+	c.handleAPIURLSwitch(authResp.SocketURL)
 	c.createSession(authResp)
 
 	return nil
