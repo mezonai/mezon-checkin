@@ -25,10 +25,8 @@ services:
       - ./image-captures:/app/image-captures
       - ./logs:/app/logs
     
-    # Network settings for WebRTC
     network_mode: host
     
-    # Resource limits
     deploy:
       resources:
         limits:
@@ -38,14 +36,14 @@ services:
           cpus: '1.0'
           memory: 512M
     
-    # Logging
     logging:
       driver: "json-file"
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: "10m"   # Mỗi file log tối đa 10MB
+        max-file: "3"     # Giữ tối đa 3 file → tổng tối đa ~30MB
+        compress: "true"  # Nén các file log cũ (.gz) để tiết kiệm dung lượng
+        labels: "mezon-bot"
 
-  # Optional: Watchtower for auto-updates
   watchtower:
     image: containrrr/watchtower
     container_name: mezon-bot-watchtower
@@ -59,3 +57,11 @@ services:
       - WATCHTOWER_REVIVE_STOPPED=false
       - TZ=Asia/Ho_Chi_Minh
     command: mezon-webrtc-bot
+    
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"    # Watchtower ít log hơn, chỉ cần 5MB
+        max-file: "2"     # Tổng tối đa ~10MB
+        compress: "true"
+        labels: "watchtower"
