@@ -104,19 +104,21 @@ func (w *WebRTCManager) SetupProtobufHandler() {
 			JsonData:   pbMsg.GetJsonData(),
 		}
 
-		// Determine user ID
 		var userID int64
 
-		// If Bot is receiver → signal from User to bot
 		if event.ReceiverId == w.client.ClientID {
+			// Signal từ user gửi đến bot
 			userID = event.CallerId
 			log.Printf("📞 Signal FROM user %d TO bot", userID)
 		} else if event.CallerId == w.client.ClientID {
-			// If Bot is caller → echo back of signal bot sent
-			userID = event.ReceiverId
-			log.Printf("📞 Signal FROM bot TO user %d (echo)", userID)
+			// FIX: Server echo lại signal bot đã gửi — bỏ qua hoàn toàn.
+			// Trước đây code vẫn gọi HandleSignal với signal này, khiến bot
+			// tự add ICE candidate của chính mình vào peer connection → pion
+			// báo lỗi "dropping candidate: ufrag doesn't match".
+			log.Printf("📞 Echo của signal bot → user %d — bỏ qua", event.ReceiverId)
+			return
 		} else {
-			// Signal not related to bot
+			// Signal không liên quan đến bot
 			log.Printf("⚠️  Signal không liên quan đến bot (Caller: %d, Receiver: %d)",
 				event.CallerId, event.ReceiverId)
 			return

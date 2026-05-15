@@ -16,6 +16,12 @@ const (
 	WebrtcSDPNotAvailable      = 6
 	WebrtcSDPJoinedOtherCall   = 7
 	WebrtcSDPStatusRemoteMedia = 8
+
+	// WebrtcSDPCallRequest - tín hiệu user gọi vào bot (incoming call).
+	// Bot phải phản hồi bằng WebrtcSDPInit (type 0) thì user mới
+	// tiếp tục gửi SDP offer (type 1). Nếu không phản hồi, user sẽ
+	// timeout và call không bao giờ bắt đầu.
+	WebrtcSDPCallRequest = 50
 )
 
 // ============================================================

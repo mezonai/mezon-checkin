@@ -80,7 +80,8 @@ func (w *WebRTCManager) setupPeerConnectionHandlers(userID int64, pc *webrtc.Pee
 				w.mu.RLock()
 				state, exists := w.connections[userID]
 				w.mu.RUnlock()
-				if exists {
+				// Only send if this PC is still the active one
+				if exists && state.pc == pc {
 					go w.sendICECandidatesFromSDP(userID, state.channelID, pc.LocalDescription().SDP)
 				}
 			}
@@ -90,16 +91,26 @@ func (w *WebRTCManager) setupPeerConnectionHandlers(userID int64, pc *webrtc.Pee
 	})
 
 	// Connection state handler
-	pc.OnConnectionStateChange(func(state webrtc.PeerConnectionState) {
-		log.Printf("🔗 Connection: %s", state.String())
-		switch state {
+	// IMPORTANT: capture `pc` so we can verify this callback belongs to the
+	// currently-active peer connection before cleaning up. Without this check,
+	// a stale PC that closes after being replaced by a re-offer would call
+	// cleanupConnection and destroy the new, active connection.
+	pc.OnConnectionStateChange(func(connState webrtc.PeerConnectionState) {
+		log.Printf("🔗 Connection: %s", connState.String())
+		switch connState {
 		case webrtc.PeerConnectionStateConnected:
 			log.Println("🎉 WebRTC CONNECTED!")
 			w.startWelcomeAudio(userID)
 
 		case webrtc.PeerConnectionStateClosed, webrtc.PeerConnectionStateFailed:
-			log.Printf("🔴 Connection closed/failed: %s", state.String())
-			w.cleanupConnection(userID)
+			log.Printf("🔴 Connection closed/failed: %s", connState.String())
+			// Only cleanup if this PC is still the active one for this user.
+			w.mu.RLock()
+			current, exists := w.connections[userID]
+			w.mu.RUnlock()
+			if exists && current.pc == pc {
+				w.cleanupConnection(userID)
+			}
 		}
 	})
 

@@ -45,7 +45,9 @@ services:
         labels: "mezon-bot"
 
   watchtower:
-    image: containrrr/watchtower
+    # v1.7.1 bundles Docker client API ≥1.44, compatible with current Docker daemons.
+    # The untagged "latest" image bundled client 1.25 which is too old.
+    image: containrrr/watchtower:1.7.1
     container_name: mezon-bot-watchtower
     restart: unless-stopped
     volumes:

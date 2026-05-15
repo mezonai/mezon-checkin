@@ -194,7 +194,7 @@ func (c *MezonClient) processProtobufMessage(message []byte) {
 	}
 
 	// Handle CID response
-	if envelope.Cid != "" {
+	if envelope.Cid != 0 {
 		c.resolveCID(envelope.Cid, &envelope)
 		return
 	}
@@ -256,7 +256,7 @@ func (c *MezonClient) sendMessage(envelope *rtapi.Envelope) error {
 
 func (c *MezonClient) sendMessageWithTimeout(envelope *rtapi.Envelope, timeout time.Duration) error {
 	// KHÔNG set CID cho message thông thường
-	envelope.Cid = ""
+	envelope.Cid = 0
 
 	// Marshal envelope thành binary protobuf
 	data, err := proto.Marshal(envelope)
@@ -324,7 +324,7 @@ func (c *MezonClient) sendWithResponse(envelope *rtapi.Envelope, timeout time.Du
 	}
 
 	if c.verbose {
-		log.Printf("📤 Sending CID=%s (%d bytes protobuf)", cid, len(data))
+		log.Printf("📤 Sending CID=%d (%d bytes protobuf)", cid, len(data))
 	}
 
 	// Set write deadline

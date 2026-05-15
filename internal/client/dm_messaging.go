@@ -42,6 +42,12 @@ func (dm *DMManager) SendDMWithContext(ctx context.Context, channelID int64, use
 		}
 	}
 
+	// Join channel trước khi gửi tin nhắn (server yêu cầu phải join trước)
+	if err := dm.client.JoinChat(DMClanID, channelID, DMChannelType, false); err != nil {
+		log.Printf("   ⚠️  Failed to join channel %d before sending DM: %v", channelID, err)
+		// Không return lỗi ở đây — có thể bot đã join rồi, cứ thử gửi tiếp
+	}
+
 	// Build protobuf envelope
 	envelope, err := dm.buildDMEnvelope(channelID, content)
 	if err != nil {

@@ -50,9 +50,9 @@ type MezonClient struct {
 	handlersMu sync.RWMutex
 
 	// CID management for protobuf responses
-	cidHandlers map[string]chan *rtapi.Envelope
+	cidHandlers map[int32]chan *rtapi.Envelope
 	cidMu       sync.RWMutex
-	nextCID     int
+	nextCID     int32
 
 	// State management
 	verbose          bool
@@ -81,7 +81,7 @@ func NewMezonClient(config models.Config) *MezonClient {
 	client := &MezonClient{
 		config:           config,
 		handlers:         make(map[string][]MessageHandler),
-		cidHandlers:      make(map[string]chan *rtapi.Envelope),
+		cidHandlers:      make(map[int32]chan *rtapi.Envelope),
 		nextCID:          1,
 		verbose:          verbose,
 		isHardDisconnect: false,
@@ -191,22 +191,22 @@ func (c *MezonClient) emit(event string, data interface{}) {
 // CID MANAGEMENT (PROTOBUF)
 // ============================================================
 
-func (c *MezonClient) generateCID() string {
+func (c *MezonClient) generateCID() int32 {
 	c.cidMu.Lock()
 	defer c.cidMu.Unlock()
-	cid := fmt.Sprintf("%d", c.nextCID)
+	cid := c.nextCID
 	c.nextCID++
 	return cid
 }
 
-func (c *MezonClient) resolveCID(cid string, envelope *rtapi.Envelope) {
+func (c *MezonClient) resolveCID(cid int32, envelope *rtapi.Envelope) {
 	c.cidMu.RLock()
 	ch, exists := c.cidHandlers[cid]
 	c.cidMu.RUnlock()
 
 	if !exists {
 		if c.verbose {
-			fmt.Printf("⚠️  No handler found for CID=%s\n", cid)
+			fmt.Printf("⚠️  No handler found for CID=%d\n", cid)
 		}
 		return
 	}
@@ -214,10 +214,10 @@ func (c *MezonClient) resolveCID(cid string, envelope *rtapi.Envelope) {
 	select {
 	case ch <- envelope:
 		if c.verbose {
-			fmt.Printf("✅ Response delivered to CID=%s\n", cid)
+			fmt.Printf("✅ Response delivered to CID=%d\n", cid)
 		}
 	case <-time.After(100 * time.Millisecond):
-		fmt.Printf("⚠️  Response channel timeout for CID=%s\n", cid)
+		fmt.Printf("⚠️  Response channel timeout for CID=%d\n", cid)
 	}
 }
 
