@@ -65,6 +65,8 @@ func (c *MezonClient) reconnectWithBackoff() error {
 }
 
 func (c *MezonClient) attemptReconnect() error {
+	c.clearAPIState()
+
 	// Close old connection if exists
 	c.connMu.Lock()
 	if c.conn != nil {

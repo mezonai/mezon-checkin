@@ -12,24 +12,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libwebp-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Download OpenCV 4.12 and contrib
+# Download OpenCV 4.12
 ARG OPENCV_VERSION="4.12.0"
 WORKDIR /tmp
 
 RUN wget -q -O opencv.zip https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip && \
     unzip -q opencv.zip && \
-    wget -q -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/${OPENCV_VERSION}.zip && \
-    unzip -q opencv_contrib.zip && \
-    rm opencv.zip opencv_contrib.zip
+    rm opencv.zip
 
-# Build OpenCV (headless but with highgui for GoCV compatibility)
+# Build minimal OpenCV for GoCV (core, imgproc, imgcodecs, objdetect, highgui)
 WORKDIR /tmp/opencv-${OPENCV_VERSION}/build
 
 RUN cmake \
     -D CMAKE_BUILD_TYPE=RELEASE \
     -D CMAKE_INSTALL_PREFIX=/usr/local \
-    -D OPENCV_EXTRA_MODULES_PATH=/tmp/opencv_contrib-${OPENCV_VERSION}/modules \
-    -D OPENCV_ENABLE_NONFREE=ON \
     -D WITH_TBB=ON \
     -D WITH_FFMPEG=ON \
     -D WITH_WEBP=ON \
@@ -44,13 +40,17 @@ RUN cmake \
     -D BUILD_opencv_python3=OFF \
     -D BUILD_opencv_java=OFF \
     -D BUILD_opencv_apps=OFF \
+    -D BUILD_opencv_gapi=OFF \
+    -D BUILD_opencv_ml=OFF \
+    -D BUILD_opencv_stitching=OFF \
     -D BUILD_DOCS=OFF \
     -D OPENCV_GENERATE_PKGCONFIG=ON \
     -D ENABLE_FAST_MATH=ON \
     -D WITH_EIGEN=ON \
     -D BUILD_opencv_highgui=ON \
+    -D CPU_DISPATCH="" \
     .. && \
-    make -j$(nproc) && \
+    make -j4 && \
     make install && \
     ldconfig
 

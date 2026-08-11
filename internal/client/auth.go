@@ -123,24 +123,46 @@ func (c *MezonClient) processAuthResponse(resp *http.Response) error {
 		return fmt.Errorf("no session token received")
 	}
 
-	c.handleAPIURLSwitch(authResp.SocketURL)
+	c.handleSessionURLs(authResp)
 	c.createSession(authResp)
 
 	return nil
 }
 
-func (c *MezonClient) handleAPIURLSwitch(socketURL string) {
-	if socketURL == "" {
-		return
+func (c *MezonClient) handleSessionURLs(authResp models.AuthResponse) {
+	if authResp.ApiURL != "" {
+		host, port, useSSL, err := parseServiceURL(authResp.ApiURL)
+		if err == nil {
+			log.Printf("   🔄 API server: %s:%s (SSL: %v)", host, port, useSSL)
+			c.config.APIHost = host
+			c.config.APIPort = port
+			c.config.APIUseSSL = useSSL
+		} else {
+			log.Printf("   ⚠️  Invalid api_url %q: %v", authResp.ApiURL, err)
+		}
 	}
 
-	newHost, newPort, newSSL, err := parseAPIURL(socketURL)
-	if err == nil {
-		log.Printf("   🔄 Switching to API server: %s:%s (SSL: %v)", newHost, newPort, newSSL)
-		c.config.SocketHost = newHost
-		c.config.SocketPort = newPort
-		c.config.SocketUseSSL = newSSL
+	if authResp.ApiURL == "" || c.config.APIHost == "" {
+		c.config.APIHost = c.config.Host
+		c.config.APIPort = c.config.Port
+		c.config.APIUseSSL = c.config.UseSSL
 	}
+
+	if authResp.SocketURL != "" {
+		host, port, useSSL, err := parseServiceURL(authResp.SocketURL)
+		if err == nil {
+			log.Printf("   🔄 WebSocket server: %s:%s (SSL: %v)", host, port, useSSL)
+			c.config.SocketHost = host
+			c.config.SocketPort = port
+			c.config.SocketUseSSL = useSSL
+			return
+		}
+		log.Printf("   ⚠️  Invalid ws_url %q, using API host for WebSocket", authResp.SocketURL)
+	}
+
+	c.config.SocketHost = c.config.Host
+	c.config.SocketPort = c.config.Port
+	c.config.SocketUseSSL = c.config.UseSSL
 }
 
 func (c *MezonClient) createSession(authResp models.AuthResponse) {
@@ -153,12 +175,5 @@ func (c *MezonClient) createSession(authResp models.AuthResponse) {
 }
 
 func parseAPIURL(socketURL string) (host string, port string, useSSL bool, err error) {
-	useSSL = true
-	host = socketURL
-	port = "443"
-
-	if host == "" {
-		return "", "", false, fmt.Errorf("invalid api_url format")
-	}
-	return host, port, useSSL, nil
+	return parseServiceURL(socketURL)
 }

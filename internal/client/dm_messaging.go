@@ -19,16 +19,13 @@ func (dm *DMManager) SendDM(channelID int64, userID int64, content models.Channe
 }
 
 func (dm *DMManager) SendDMWithContext(ctx context.Context, channelID int64, userID int64, content models.ChannelMessageContent) error {
-	// Ensure DM clan is ready (lazy init)
 	if err := dm.ensureDMReady(); err != nil {
 		return fmt.Errorf("failed to ensure DM ready: %w", err)
 	}
 
-	// Check connection health
 	if !dm.client.IsConnected() {
 		log.Println("   ⚠️  WebSocket disconnected, waiting for reconnection...")
 
-		// Wait for reconnection (max 5s)
 		for i := 0; i < 10; i++ {
 			time.Sleep(500 * time.Millisecond)
 			if dm.client.IsConnected() {
@@ -42,20 +39,26 @@ func (dm *DMManager) SendDMWithContext(ctx context.Context, channelID int64, use
 		}
 	}
 
-	// Join channel trước khi gửi tin nhắn (server yêu cầu phải join trước)
-	if err := dm.client.JoinChat(DMClanID, channelID, DMChannelType, false); err != nil {
-		log.Printf("   ⚠️  Failed to join channel %d before sending DM: %v", channelID, err)
-		// Không return lỗi ở đây — có thể bot đã join rồi, cứ thử gửi tiếp
+	// WebRTC call channel ID != DM channel ID — always resolve DM channel by user.
+	dmChannelID, err := dm.GetOrCreateDMChannel(userID)
+	if err != nil {
+		return fmt.Errorf("resolve DM channel for user %d: %w", userID, err)
 	}
 
-	// Build protobuf envelope
-	envelope, err := dm.buildDMEnvelope(channelID, content)
+	if channelID != 0 && channelID != dmChannelID {
+		log.Printf("   ℹ️  Using DM channel %d (call channel was %d)", dmChannelID, channelID)
+	}
+
+	if err := dm.ensureChannelJoined(dmChannelID); err != nil {
+		return err
+	}
+
+	envelope, err := dm.buildDMEnvelope(dmChannelID, content)
 	if err != nil {
 		return err
 	}
 
-	// Send with response (to ensure message is delivered)
-	if err := dm.sendDMMessage(ctx, envelope, channelID, userID); err != nil {
+	if err := dm.sendDMMessage(ctx, envelope, dmChannelID, userID); err != nil {
 		return err
 	}
 
@@ -68,19 +71,17 @@ func (dm *DMManager) SendDMWithContext(ctx context.Context, channelID int64, use
 // ============================================================
 
 func (dm *DMManager) buildDMEnvelope(channelID int64, content models.ChannelMessageContent) (*rtapi.Envelope, error) {
-	// Convert content to JSON string (models.ChannelMessageContent is not a protobuf message)
 	contentJSON, err := json.Marshal(content)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal content: %w", err)
 	}
 
-	// Build protobuf envelope
 	envelope := &rtapi.Envelope{
 		Message: &rtapi.Envelope_ChannelMessageSend{
 			ChannelMessageSend: &rtapi.ChannelMessageSend{
 				ClanId:    DMClanID,
 				ChannelId: channelID,
-				Mode:      DMChannelType, // DM mode
+				Mode:      DMStreamMode,
 				IsPublic:  false,
 				Content:   string(contentJSON),
 			},
@@ -91,7 +92,6 @@ func (dm *DMManager) buildDMEnvelope(channelID int64, content models.ChannelMess
 }
 
 func (dm *DMManager) sendDMMessage(ctx context.Context, envelope *rtapi.Envelope, channelID int64, userID int64) error {
-	// Check context
 	select {
 	case <-ctx.Done():
 		return ctx.Err()
@@ -102,20 +102,17 @@ func (dm *DMManager) sendDMMessage(ctx context.Context, envelope *rtapi.Envelope
 
 	dm.logSendDM(channelID, userID)
 
-	// Send with response to ensure delivery
 	timeout := 5 * time.Second
 	response, err := dm.client.sendWithResponse(envelope, timeout)
 	if err != nil {
 		return fmt.Errorf("send message failed: %w", err)
 	}
 
-	// Check for server error
 	if response.GetError() != nil {
 		return fmt.Errorf("server error: code=%d, message=%s",
 			response.GetError().Code, response.GetError().Message)
 	}
 
-	// Get message ACK
 	if ack := response.GetChannelMessageAck(); ack != nil {
 		log.Printf("   Message ID: %d", ack.MessageId)
 		log.Printf("   Create Time: %d", ack.CreateTimeSeconds)

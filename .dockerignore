@@ -1,0 +1,28 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Docker
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# Build artifacts / logs / captures
+image-captures/
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Env files (secrets should be injected via env vars, not baked in)
+.env
+.env.*
+!.env.example

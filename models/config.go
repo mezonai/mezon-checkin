@@ -13,6 +13,9 @@ type Config struct {
 	SocketHost   string
 	SocketPort   string
 	SocketUseSSL bool
+	APIHost      string
+	APIPort      string
+	APIUseSSL    bool
 }
 
 type FaceRecognitionConfig struct {

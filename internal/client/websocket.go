@@ -179,14 +179,19 @@ func (c *MezonClient) handleMessages() {
 		// Only process binary messages (Protobuf)
 		switch messageType {
 		case websocket.BinaryMessage:
-			c.processProtobufMessage(message)
+			c.processBinaryMessage(message)
 		case websocket.TextMessage:
 			log.Printf("📄 Text message (unexpected): %s", string(message))
 		}
 	}
 }
 
-func (c *MezonClient) processProtobufMessage(message []byte) {
+func (c *MezonClient) processBinaryMessage(message []byte) {
+	if len(message) > 0 && message[0] == rawFramePrefix {
+		c.processRawAPIFrame(message)
+		return
+	}
+
 	var envelope rtapi.Envelope
 	if err := proto.Unmarshal(message, &envelope); err != nil {
 		log.Printf("⚠️ Protobuf decode error: %v", err)
@@ -203,15 +208,29 @@ func (c *MezonClient) processProtobufMessage(message []byte) {
 	c.handleEnvelopeMessage(&envelope)
 }
 
-func (c *MezonClient) handleEnvelopeMessage(envelope *rtapi.Envelope) {
-	if c.verbose {
-		// Use proto package to format the message
-		log.Printf("📥 Received message: %v", envelope.Message)
+func envelopeMessageType(envelope *rtapi.Envelope) string {
+	if envelope == nil {
+		return "nil"
 	}
+	ref := envelope.ProtoReflect()
+	oneofs := ref.Descriptor().Oneofs()
+	if oneofs.Len() == 0 {
+		return "empty"
+	}
+	field := ref.WhichOneof(oneofs.Get(0))
+	if field == nil {
+		return "empty"
+	}
+	return string(field.Name())
+}
+
+func (c *MezonClient) handleEnvelopeMessage(envelope *rtapi.Envelope) {
+	msgType := envelopeMessageType(envelope)
+
 	switch envelope.Message.(type) {
 	case *rtapi.Envelope_Pong:
 		if c.verbose {
-			log.Printf("💓 Pong received")
+			log.Printf("💓 Pong received (heartbeat)")
 		}
 	case *rtapi.Envelope_UserChannelAddedEvent:
 		userChannelAdded := envelope.GetUserChannelAddedEvent()
@@ -242,6 +261,11 @@ func (c *MezonClient) handleEnvelopeMessage(envelope *rtapi.Envelope) {
 		webrtcMsg := envelope.GetWebrtcSignalingFwd()
 		log.Printf("📞 WebRTC signal received")
 		c.emit("webrtc_signaling_fwd", webrtcMsg)
+
+	default:
+		if c.verbose && msgType != "ping" && msgType != "pong" {
+			log.Printf("📥 Received unhandled message type: %s", msgType)
+		}
 	}
 }
 

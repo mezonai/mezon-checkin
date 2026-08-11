@@ -19,7 +19,8 @@ import (
 
 const (
 	DMClanID          = 0
-	DMChannelType     = 4
+	DMChannelType     = 3 // channel_type for ChannelJoin (ChannelTypeDM)
+	DMStreamMode      = 4 // mode for ChannelMessageSend (StreamModeDM)
 	PingInterval      = 10 // seconds
 	InitialRetryDelay = 5  // seconds
 	MaxRetryDelay     = 60 // seconds
@@ -54,6 +55,12 @@ type MezonClient struct {
 	cidMu       sync.RWMutex
 	nextCID     int32
 
+	// API requests over WebSocket (raw 0xFF frame responses)
+	apiCidHandlers map[int32]chan *apiSocketResponse
+	apiCidMu       sync.RWMutex
+	apiStreams     map[int32][][]byte
+	apiStreamsMu   sync.Mutex
+
 	// State management
 	verbose          bool
 	isRetrying       bool
@@ -82,6 +89,8 @@ func NewMezonClient(config models.Config) *MezonClient {
 		config:           config,
 		handlers:         make(map[string][]MessageHandler),
 		cidHandlers:      make(map[int32]chan *rtapi.Envelope),
+		apiCidHandlers:   make(map[int32]chan *apiSocketResponse),
+		apiStreams:       make(map[int32][][]byte),
 		nextCID:          1,
 		verbose:          verbose,
 		isHardDisconnect: false,
