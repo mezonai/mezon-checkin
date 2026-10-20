@@ -184,18 +184,15 @@ func (w *WebRTCManager) handleOffer(userID int64, signal *rtapi.WebrtcSignalingF
 		return fmt.Errorf("failed to create answer: %w", err)
 	}
 
-	// FIX: Patch SDP TRƯỚC khi SetLocalDescription để local desc và
-	// SDP gửi cho user luôn khớp nhau (cùng ufrag, cùng fingerprint).
-	patchedSDP := utils.PatchSDPForQuality(answer.SDP, 2500, 1500, 3000)
-	patchedAnswer := webrtc.SessionDescription{
-		Type: webrtc.SDPTypeAnswer,
-		SDP:  patchedSDP,
-	}
-
 	// FIX: Dùng GatheringCompletePromise thay vì time.Sleep cứng.
 	gatherComplete := webrtc.GatheringCompletePromise(pc)
 
-	if err := pc.SetLocalDescription(patchedAnswer); err != nil {
+	// Pion so sánh SDP truyền vào SetLocalDescription với pc.lastAnswer theo
+	// từng byte (peerconnection.go: `if sd.SDP != pc.lastAnswer`). Bất kỳ sửa
+	// đổi nào — kể cả thêm b=AS / a=fmtp — đều làm nó trả về
+	// InvalidModificationError: new sdp does not match previous answer.
+	// Vì vậy phải set đúng answer gốc, chỉ patch bản gửi ra cho user.
+	if err := pc.SetLocalDescription(answer); err != nil {
 		w.cleanupConnection(userID)
 		return fmt.Errorf("failed to set local description: %w", err)
 	}
@@ -205,8 +202,22 @@ func (w *WebRTCManager) handleOffer(userID int64, signal *rtapi.WebrtcSignalingF
 	<-gatherComplete
 	log.Println("✅ ICE gathering complete")
 
+	// Lấy local description sau khi gather xong — pc.LocalDescription() đã
+	// nhúng sẵn các ICE candidate thu thập được. Patch quality trên bản copy
+	// này: nó chỉ đi ra ngoài cho user, không được đưa trở lại vào pion.
+	localDesc := pc.LocalDescription()
+	if localDesc == nil {
+		w.cleanupConnection(userID)
+		return fmt.Errorf("local description is nil after ICE gathering")
+	}
+
+	outgoingAnswer := webrtc.SessionDescription{
+		Type: localDesc.Type,
+		SDP:  utils.PatchSDPForQuality(localDesc.SDP, 2500, 1500, 3000),
+	}
+
 	// Compress answer
-	answerJSON, _ := json.Marshal(patchedAnswer)
+	answerJSON, _ := json.Marshal(outgoingAnswer)
 	compressedAnswer := utils.CompressGzip(string(answerJSON))
 
 	// Send answer
